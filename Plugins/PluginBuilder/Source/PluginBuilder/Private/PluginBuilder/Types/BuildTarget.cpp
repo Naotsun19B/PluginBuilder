@@ -2,6 +2,7 @@
 
 #include "PluginBuilder/Types/BuildTarget.h"
 #include "PluginBuilder/Utilities/PluginBuilderSettings.h"
+#include "PluginBuilder/Utilities/PluginBuilderStyle.h"
 #include "Interfaces/IPluginManager.h"
 #include "Misc/App.h"
 
@@ -90,5 +91,13 @@ namespace PluginBuilder
 	FText FBuildTarget::GetPluginDescription() const
 	{
 		return FText::FromString(PluginDescription);
+	}
+
+	FSlateIcon FBuildTarget::GetPluginIcon() const
+	{
+		return FSlateIcon(
+			FPluginBuilderStyle::Get().GetStyleSetName(),
+			FPluginBuilderStyle::GetPropertyName(PluginName)
+		);
 	}
 }

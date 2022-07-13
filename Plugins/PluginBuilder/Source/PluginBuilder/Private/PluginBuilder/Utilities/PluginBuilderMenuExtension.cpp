@@ -6,7 +6,9 @@
 #include "PluginBuilder/Types/BuildTarget.h"
 #include "ToolMenus.h"
 #include "EditorStyle.h"
-#include "Misc/DataDrivenPlatformInfoRegistry.h"
+#include "Interfaces/ITargetPlatformManagerModule.h"
+#include "Interfaces/ITargetPlatform.h"
+#include "PlatformInfo.h"
 
 #define LOCTEXT_NAMESPACE "PluginBuilderMenuExtension"
 
@@ -206,7 +208,7 @@ namespace PluginBuilder
 			MenuBuilder.AddMenuEntry(
 				FText::FromString(EngineVersion),
 				FText::Format(LOCTEXT("EngineVersionTooltipFormat", "Include {0} in the build version."), FText::FromString(EngineVersion)),
-				FSlateIcon(),
+				FSlateIcon(FEditorStyle::GetStyleSetName(), TEXT("MainFrame.AboutUnrealEd")),
 				FUIAction(
 					FExecuteAction::CreateLambda(
 						[EngineVersion]()
@@ -242,32 +244,78 @@ namespace PluginBuilder
 
 	void FPluginBuilderMenuExtension::OnExtendTargetPlatformsSubMenu(FMenuBuilder& MenuBuilder)
 	{
-		TArray<FString> PlatformNames;
-		for (const auto& Pair : FDataDrivenPlatformInfoRegistry::GetAllPlatformInfos())
+		TArray<TPair<FString, FString>> PlatformNames;
 		{
-			PlatformNames.Append(Pair.Value.AllUBTPlatformNames);
+			const TArray<ITargetPlatform*>& TargetPlatforms = GetTargetPlatformManager()->GetTargetPlatforms();
+			for (const ITargetPlatform* TargetPlatform : TargetPlatforms)
+			{
+				if (TargetPlatform == nullptr)
+				{
+					continue;
+				}
+
+				const PlatformInfo::FPlatformInfo& PlatformInfo = TargetPlatform->GetPlatformInfo();
+				if (PlatformInfo.IniPlatformName.IsEmpty())
+				{
+					continue;
+				}
+
+				FString UBTPlatformName;
+				PlatformInfo.UBTTargetId.ToString(UBTPlatformName);
+				
+				const bool bAlreadyExists = PlatformNames.ContainsByPredicate(
+					[&UBTPlatformName](const TPair<FString, FString>& PlatformName) -> bool
+					{
+						return PlatformName.Key.Equals(UBTPlatformName);
+					}
+				);
+
+				if (!bAlreadyExists)
+				{
+					FString IniPlatformName = PlatformInfo.IniPlatformName;
+					if (PlatformInfo.PlatformSubMenu != NAME_None)
+	                {
+	                    IniPlatformName = PlatformInfo.PlatformSubMenu.ToString();
+	                }
+					
+					PlatformNames.Add(
+						TPair<FString, FString>(
+							UBTPlatformName, IniPlatformName
+						)
+					);
+				}
+			}
 		}
 		
 		for (const auto& PlatformName : PlatformNames)
 		{
+			const FString UBTPlatformName = PlatformName.Key;
+			const FString IniPlatformName = PlatformName.Value;
+			
 			MenuBuilder.AddMenuEntry(
-				FText::FromString(PlatformName),
-				FText::Format(LOCTEXT("TargetPlatformTooltipFormat", "Include {0} in the target platforms."), FText::FromString(PlatformName)),
-				FSlateIcon(),
+				FText::FromString(UBTPlatformName),
+				FText::Format(
+					LOCTEXT("TargetPlatformTooltipFormat", "Include {0} in the target platforms."),
+					FText::FromString(UBTPlatformName)
+				),
+				FSlateIcon(
+					FEditorStyle::GetStyleSetName(),
+					*FString::Printf(TEXT("Launcher.Platform_%s"), *IniPlatformName)
+				),
 				FUIAction(
 					FExecuteAction::CreateLambda(
-						[PlatformName]()
+						[UBTPlatformName]()
 						{
 							auto& Settings = UPluginBuilderSettings::Get();
-							
+						
 							TArray<FString>& TargetPlatforms = Settings.TargetPlatforms;
-							if (TargetPlatforms.Contains(PlatformName))
+							if (TargetPlatforms.Contains(UBTPlatformName))
 							{
-								TargetPlatforms.Remove(PlatformName);
+								TargetPlatforms.Remove(UBTPlatformName);
 							}
 							else
 							{
-								TargetPlatforms.Add(PlatformName);
+								TargetPlatforms.Add(UBTPlatformName);
 							}
 
 							Settings.SaveConfig();
@@ -275,9 +323,9 @@ namespace PluginBuilder
 					),
 					FCanExecuteAction(),
 					FIsActionChecked::CreateLambda(
-						[PlatformName]() -> bool
+						[UBTPlatformName]() -> bool
 						{
-							return UPluginBuilderSettings::Get().TargetPlatforms.Contains(PlatformName);
+							return UPluginBuilderSettings::Get().TargetPlatforms.Contains(UBTPlatformName);
 						}
 					)
 				),
@@ -295,7 +343,7 @@ namespace PluginBuilder
 			MenuBuilder.AddMenuEntry(
 				BuildTarget.GetPluginName(),
 				BuildTarget.GetPluginDescription(),
-				FSlateIcon(), // #TODO: I want to set the icon of the plug-in.
+				BuildTarget.GetPluginIcon(),
 				FUIAction(
 					FExecuteAction::CreateStatic(&FBuildTarget::SelectBuildTarget, BuildTarget),
 					FCanExecuteAction(),

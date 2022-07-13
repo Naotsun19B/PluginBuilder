@@ -32,6 +32,9 @@ namespace PluginBuilder
 
 		// Returns the description of the plugin to build.
 		FText GetPluginDescription() const;
+
+		// Returns the icon of the plugin to build.
+		FSlateIcon GetPluginIcon() const;
 	
 	private:
 		// The name of the plugin to build.

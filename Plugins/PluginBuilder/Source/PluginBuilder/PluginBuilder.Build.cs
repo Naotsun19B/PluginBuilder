@@ -28,6 +28,8 @@ public class PluginBuilder : ModuleRules
 				"Settings",
 				"Projects",
 				"ToolMenus",
+				"TargetPlatform",
+				"DesktopPlatform",
 			}
 		);
 		

@@ -1,9 +1,10 @@
 ﻿// Copyright 2022 Naotsun. All Rights Reserved.
 
 #include "CoreMinimal.h"
-#include "CommandActions/PluginBuilderCommands.h"
 #include "Modules/ModuleManager.h"
 #include "PluginBuilder/PluginBuilderGlobals.h"
+#include "PluginBuilder/CommandActions/PluginBuilderCommands.h"
+#include "PluginBuilder/Utilities/PluginBuilderStyle.h"
 #include "PluginBuilder/Utilities/PluginBuilderSettings.h"
 #include "PluginBuilder/Utilities/PluginBuilderMenuExtension.h"
 
@@ -25,6 +26,9 @@ namespace PluginBuilder
 		// Register command actions.
 		FPluginBuilderCommands::Register();
 		FPluginBuilderCommands::Bind();
+
+		// Register style set.
+		FPluginBuilderStyle::Register();
 		
 		// Register settings.
 		UPluginBuilderSettings::Register();
@@ -41,6 +45,9 @@ namespace PluginBuilder
 		// Unregister settings.
 		UPluginBuilderSettings::Unregister();
 
+		// Unregister style set.
+		FPluginBuilderStyle::Unregister();
+		
 		// Unregister command actions.
 		if (FPluginBuilderCommands::IsBound())
 		{
