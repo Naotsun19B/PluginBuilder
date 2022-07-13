@@ -2,6 +2,7 @@
 
 #include "PluginBuilder/Utilities/PluginBuilderMenuExtension.h"
 #include "PluginBuilder/Utilities/PluginBuilderSettings.h"
+#include "PluginBuilder/Utilities/EngineVersions.h"
 #include "PluginBuilder/CommandActions/PluginBuilderCommands.h"
 #include "PluginBuilder/Types/BuildTarget.h"
 #include "ToolMenus.h"
@@ -198,16 +199,12 @@ namespace PluginBuilder
 
 	void FPluginBuilderMenuExtension::OnExtendEngineVersionsSubMenu(FMenuBuilder& MenuBuilder)
 	{
-		// #TODO: Get the installed engine version from the registry.
-		static const TArray<FString> InstalledEngineVersions = {
-			TEXT("4.26"), TEXT("4.27"), TEXT("5.0")
-		};
-
+		TArray<FEngineVersions::FEngineVersion> InstalledEngineVersions = FEngineVersions::GetEngineVersions();
 		for (auto& EngineVersion : InstalledEngineVersions)
 		{
 			MenuBuilder.AddMenuEntry(
-				FText::FromString(EngineVersion),
-				FText::Format(LOCTEXT("EngineVersionTooltipFormat", "Include {0} in the build version."), FText::FromString(EngineVersion)),
+				FText::FromString(EngineVersion.VersionName),
+				FText::FromString(EngineVersion.InstalledDirectory),
 				FSlateIcon(FEditorStyle::GetStyleSetName(), TEXT("MainFrame.AboutUnrealEd")),
 				FUIAction(
 					FExecuteAction::CreateLambda(
@@ -216,13 +213,13 @@ namespace PluginBuilder
 							auto& Settings = UPluginBuilderSettings::Get();
 							
 							TArray<FString>& EngineVersions = Settings.EngineVersions;
-							if (EngineVersions.Contains(EngineVersion))
+							if (EngineVersions.Contains(EngineVersion.VersionName))
 							{
-								EngineVersions.Remove(EngineVersion);
+								EngineVersions.Remove(EngineVersion.VersionName);
 							}
 							else
 							{
-								EngineVersions.Add(EngineVersion);
+								EngineVersions.Add(EngineVersion.VersionName);
 							}
 
 							Settings.SaveConfig();
@@ -232,7 +229,7 @@ namespace PluginBuilder
 					FIsActionChecked::CreateLambda(
 						[EngineVersion]() -> bool
 						{
-							return UPluginBuilderSettings::Get().EngineVersions.Contains(EngineVersion);
+							return UPluginBuilderSettings::Get().EngineVersions.Contains(EngineVersion.VersionName);
 						}
 					)
 				),
