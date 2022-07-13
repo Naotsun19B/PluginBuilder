@@ -1,6 +1,7 @@
 ﻿// Copyright 2022 Naotsun. All Rights Reserved.
 
 #include "PluginBuilder/Utilities/PluginBuilderMenuExtension.h"
+#include "PluginBuilder/PluginBuilderGlobals.h"
 #include "PluginBuilder/Utilities/PluginBuilderSettings.h"
 #include "PluginBuilder/Utilities/EngineVersions.h"
 #include "PluginBuilder/CommandActions/PluginBuilderCommands.h"
@@ -9,7 +10,12 @@
 #include "EditorStyle.h"
 #include "Interfaces/ITargetPlatformManagerModule.h"
 #include "Interfaces/ITargetPlatform.h"
+
+#if BEFORE_UE_4_27
 #include "PlatformInfo.h"
+#else
+#include "Misc/DataDrivenPlatformInfoRegistry.h"
+#endif
 
 #define LOCTEXT_NAMESPACE "PluginBuilderMenuExtension"
 
@@ -251,14 +257,28 @@ namespace PluginBuilder
 					continue;
 				}
 
-				const PlatformInfo::FPlatformInfo& PlatformInfo = TargetPlatform->GetPlatformInfo();
-				if (PlatformInfo.IniPlatformName.IsEmpty())
+				FString UBTPlatformName;
+				FString IniPlatformName;
+				{
+#if BEFORE_UE_4_27
+					const PlatformInfo::FPlatformInfo& PlatformInfo = TargetPlatform->GetPlatformInfo();
+					PlatformInfo.UBTTargetId.ToString(UBTPlatformName);
+					IniPlatformName = PlatformInfo.IniPlatformName;
+#else
+					const FDataDrivenPlatformInfo& PlatformInfo = TargetPlatform->GetPlatformInfo();
+					UBTPlatformName = PlatformInfo.UBTPlatformString;
+					IniPlatformName = PlatformInfo.IniPlatformName.ToString();
+#endif
+					if (PlatformInfo.PlatformSubMenu != NAME_None)
+					{
+						IniPlatformName = PlatformInfo.PlatformSubMenu.ToString();
+					}
+				}
+				
+				if (IniPlatformName.IsEmpty())
 				{
 					continue;
 				}
-
-				FString UBTPlatformName;
-				PlatformInfo.UBTTargetId.ToString(UBTPlatformName);
 				
 				const bool bAlreadyExists = PlatformNames.ContainsByPredicate(
 					[&UBTPlatformName](const TPair<FString, FString>& PlatformName) -> bool
@@ -266,15 +286,8 @@ namespace PluginBuilder
 						return PlatformName.Key.Equals(UBTPlatformName);
 					}
 				);
-
 				if (!bAlreadyExists)
 				{
-					FString IniPlatformName = PlatformInfo.IniPlatformName;
-					if (PlatformInfo.PlatformSubMenu != NAME_None)
-	                {
-	                    IniPlatformName = PlatformInfo.PlatformSubMenu.ToString();
-	                }
-					
 					PlatformNames.Add(
 						TPair<FString, FString>(
 							UBTPlatformName, IniPlatformName
