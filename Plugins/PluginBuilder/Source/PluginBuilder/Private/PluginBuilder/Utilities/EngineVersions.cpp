@@ -4,7 +4,6 @@
 
 #include "Windows/AllowWindowsPlatformTypes.h"
 #include <winreg.h>
-#include "Windows/HideWindowsPlatformTypes.h"
 
 namespace PluginBuilder
 {
@@ -202,3 +201,5 @@ namespace PluginBuilder
 
 	TArray<FEngineVersions::FEngineVersion> FEngineVersions::EngineVersions;
 }
+
+#include "Windows/HideWindowsPlatformTypes.h"
