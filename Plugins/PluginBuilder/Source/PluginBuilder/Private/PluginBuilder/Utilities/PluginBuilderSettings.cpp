@@ -1,0 +1,81 @@
+﻿// Copyright 2022 Naotsun. All Rights Reserved.
+
+#include "PluginBuilder/Utilities/PluginBuilderSettings.h"
+#include "ISettingsModule.h"
+
+#define LOCTEXT_NAMESPACE "PluginBuilderSettings"
+
+namespace PluginBuilder
+{
+	namespace Settings
+	{
+		static const FName ContainerName    = TEXT("Editor");
+		static const FName CategoryName	    = TEXT("Plugins");
+		static const FName SectionName      = TEXT("PluginBuilderSettings");
+
+		ISettingsModule* GetSettingsModule()
+		{
+			return FModuleManager::GetModulePtr<ISettingsModule>("Settings");
+		}
+	}
+}
+
+UPluginBuilderSettings::UPluginBuilderSettings()
+	: bSearchOnlyEnabled(true)
+	, bContainsProjectPlugins(true)
+	, bContainsEnginePlugins(false)
+	, bRocket(true)
+	, bCreateSubFolder(true)
+	, bStrictIncludes(false)
+	, bZipUp(true)
+{
+	SelectedBuildTarget = PluginBuilder::FBuildTarget::GetDefaultBuildTarget();
+}
+
+void UPluginBuilderSettings::Register()
+{
+	if (ISettingsModule* SettingsModule = PluginBuilder::Settings::GetSettingsModule())
+	{
+		SettingsModule->RegisterSettings(
+			PluginBuilder::Settings::ContainerName,
+			PluginBuilder::Settings::CategoryName,
+			PluginBuilder::Settings::SectionName,
+			LOCTEXT("SettingName", "Plugin Builder"),
+			LOCTEXT("SettingDescription", "Editor settings for Plugin Builder"),
+			GetMutableDefault<UPluginBuilderSettings>()
+		);
+	}
+}
+
+void UPluginBuilderSettings::Unregister()
+{
+	if (ISettingsModule* SettingsModule = PluginBuilder::Settings::GetSettingsModule())
+	{
+		SettingsModule->UnregisterSettings(
+			PluginBuilder::Settings::ContainerName,
+			PluginBuilder::Settings::CategoryName,
+			PluginBuilder::Settings::SectionName
+		);
+	}
+}
+
+UPluginBuilderSettings& UPluginBuilderSettings::Get()
+{
+	auto* Settings = GetMutableDefault<UPluginBuilderSettings>();
+	check(IsValid(Settings));
+	return *Settings;
+}
+
+void UPluginBuilderSettings::OpenSettings()
+{
+	if (ISettingsModule* SettingsModule = PluginBuilder::Settings::GetSettingsModule())
+	{
+		SettingsModule->ShowViewer(
+			PluginBuilder::Settings::ContainerName,
+			PluginBuilder::Settings::CategoryName,
+			PluginBuilder::Settings::SectionName
+		);
+	}
+}
+
+#undef LOCTEXT_NAMESPACE
