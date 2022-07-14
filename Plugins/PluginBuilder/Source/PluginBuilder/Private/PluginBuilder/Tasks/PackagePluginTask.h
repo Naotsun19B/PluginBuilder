@@ -78,8 +78,8 @@ namespace PluginBuilder
 		// Create a task to specify a dataset and package the plug-in.
 		static TSharedRef<FPackagePluginTask> CreateTask(const FPackagePluginArgs& InArgs = FPackagePluginArgs());
 
-		// Destructor.
-		virtual ~FPackagePluginTask() override;
+		// Delete the working folder.
+		static void CleanUp();
 
 		// FTickableObjectBase interface.
 		virtual TStatId GetStatId() const override;
@@ -103,11 +103,12 @@ namespace PluginBuilder
 		void RequestCancelProcess();
 		
 	private:
-		//
+		// Functions that returns the path of a directory or working directory that
+		// outputs pre-built or packaged plugins.
 		FString GetDestinationDirectoryName() const;
 		FString GetBuiltPluginDestinationPath() const;
 		FString GetPackagedPluginDestinationPath() const;
-		FString GetZipTempDirectoryPath() const;
+		static FString GetZipTempDirectoryPath();
 		
 	private:
 		// A dataset used to process plugin packages.
@@ -122,16 +123,16 @@ namespace PluginBuilder
 		// Whether the task needs to be canceled.
 		bool bNeedToCancel = false;
 
-		//
+		// Whether any error occurred during the packaging process.
 		bool bHasAnyError = false;
 
-		//
+		// Process handle of the batch file.
 		FProcHandle ProcessHandle;
 		
-		//
+		// A read pipe for outputting from the standard output of a batch file to the output log.
 		void* ReadPipe = nullptr;
 
-		//
+		// Index of the engine version currently being processed.
 		int32 ProcessingIndex = INDEX_NONE;
 	};
 }

@@ -6,6 +6,7 @@
 #include "Windows/AllowWindowsPlatformTypes.h"
 #include <shlobj.h>
 #include <shlwapi.h>
+#include <shellapi.h>
 #include <tlhelp32.h>
 
 namespace PluginBuilder
@@ -179,7 +180,7 @@ namespace PluginBuilder
 				// Copy the folder to ZIP.
 				FScopedDispatchVariant CopyItemVariant(SourceFolder);
 				// If FOF_SILENT is specified, the progress during processing will not be displayed.
-				FScopedLongVariant CopyOptionsVariant(0);
+				FScopedLongVariant CopyOptionsVariant(FOF_NO_UI);
 
 				HRESULT CopyResult = ZipFolder->CopyHere(*CopyItemVariant, *CopyOptionsVariant);
 				if (CopyResult != S_OK)

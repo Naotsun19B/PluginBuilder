@@ -30,7 +30,7 @@ namespace PluginBuilder
 		bStrictIncludes = Settings.bStrictIncludes;
 		bZipUp = Settings.bZipUp;
 
-		if (Settings.bSelectOutputDirectoryManually)
+		if (!Settings.bSelectOutputDirectoryManually)
 		{
 			OutputDirectoryPath = Settings.OutputDirectoryPath.Path;
 		}
@@ -70,10 +70,10 @@ namespace PluginBuilder
 		return NewTask;
 	}
 
-	FPackagePluginTask::~FPackagePluginTask()
+	void FPackagePluginTask::CleanUp()
 	{
 		IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
-		PlatformFile.DeleteDirectory(*GetZipTempDirectoryPath());
+		PlatformFile.DeleteDirectoryRecursively(*GetZipTempDirectoryPath());
 	}
 
 	TStatId FPackagePluginTask::GetStatId() const
@@ -119,10 +119,14 @@ namespace PluginBuilder
 
 					if (Args.bZipUp)
 					{
-						const FString ZipFileName = FString::Printf(TEXT("%s%s.zip"), *Args.PluginName, *Args.PluginVersionName);
 						const FString ZipTempDirectoryPath = (
-							GetZipTempDirectoryPath() / GetDestinationDirectoryName()
+							GetZipTempDirectoryPath() / GetDestinationDirectoryName() / Args.PluginName
 						);
+						if (PlatformFile.DirectoryExists(*ZipTempDirectoryPath))
+						{
+							PlatformFile.DeleteDirectoryRecursively(*ZipTempDirectoryPath);
+						}
+						PlatformFile.CreateDirectoryTree(*ZipTempDirectoryPath);
 						PlatformFile.CopyDirectoryTree(*ZipTempDirectoryPath, *BuiltPluginDestinationPath, true);
 						
 						TArray<FString> DirectoryNamesToDelete = { TEXT("Binaries"), TEXT("Intermediate") };
@@ -132,13 +136,15 @@ namespace PluginBuilder
 						}
 						for (const auto& DirectoryNameToDelete : DirectoryNamesToDelete)
 						{
-							PlatformFile.DeleteDirectory(*DirectoryNameToDelete);
+							const FString DirectoryPathToDelete = ZipTempDirectoryPath / DirectoryNameToDelete;
+							PlatformFile.DeleteDirectoryRecursively(*DirectoryPathToDelete);
 						}
 
+						const FString ZipFileName = FString::Printf(TEXT("%s%s.zip"), *Args.PluginName, *Args.PluginVersionName);
 						const FString ZipFilePath = (
 							GetPackagedPluginDestinationPath() / GetDestinationDirectoryName() / ZipFileName
 						);
-						if (FZipUtils::ZipUp(BuiltPluginDestinationPath, ZipFilePath))
+						if (FZipUtils::ZipUp(ZipTempDirectoryPath, ZipFilePath))
 						{
 							UE_LOG(LogPluginBuilder, Log, TEXT("[Zip File] %s"), *ZipFilePath);
 						}
@@ -151,7 +157,7 @@ namespace PluginBuilder
 				}
 				else
 				{
-					PlatformFile.DeleteDirectory(*BuiltPluginDestinationPath);
+					PlatformFile.DeleteDirectoryRecursively(*BuiltPluginDestinationPath);
 					bHasAnyError = true;
 				}
 			}
@@ -180,7 +186,13 @@ namespace PluginBuilder
 				};
 				if (Args.TargetPlatforms.Num() > 0)
 				{
-					Params.Add(TEXT("-targetplatform=") + FString::Join(Args.TargetPlatforms, TEXT(",")));
+					Params.Add(
+						FString::Printf(
+								TEXT("-targetplatform=\"%s\""),
+								*FString::Join(Args.TargetPlatforms, TEXT(",")
+							)
+						)
+					);
 				}
 				if (Args.bRocket)
 				{
@@ -254,7 +266,8 @@ namespace PluginBuilder
 			OnTaskFinished.ExecuteIfBound(true, true);
 			return;
 		}
-		
+
+		CleanUp();
 		bStartedTask = true;
 	}
 
@@ -283,8 +296,8 @@ namespace PluginBuilder
 		return Args.OutputDirectoryPath / TEXT("PackagedPlugins");
 	}
 
-	FString FPackagePluginTask::GetZipTempDirectoryPath() const
+	FString FPackagePluginTask::GetZipTempDirectoryPath()
 	{
-		return Args.OutputDirectoryPath / TEXT("Temp");
+		return FString(FPlatformProcess::UserTempDir()) / TEXT("PluginBuilder");
 	}
 }

@@ -8,6 +8,7 @@
 #include "PluginBuilder/Utilities/PluginBuilderSettings.h"
 #include "PluginBuilder/Utilities/PluginBuilderMenuExtension.h"
 #include "PluginBuilder/Utilities/EngineVersions.h"
+#include "PluginBuilder/Tasks/PackagePluginTask.h"
 
 DEFINE_LOG_CATEGORY(LogPluginBuilder);
 
@@ -57,6 +58,9 @@ namespace PluginBuilder
 		{
 			FPluginBuilderCommands::Unregister();
 		}
+
+		// Clean up working directory.
+		FPackagePluginTask::CleanUp();
 	}
 }
 
