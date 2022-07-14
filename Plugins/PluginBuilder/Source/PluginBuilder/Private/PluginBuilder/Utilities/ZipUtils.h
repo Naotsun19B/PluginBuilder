@@ -14,6 +14,6 @@ namespace PluginBuilder
 	public:
 		// Specify the directory path to be a zip file and
 		// the output destination directory path to make the directory a zip file.
-		static bool ZipUp(const FString& DirectoryPathToZipUp, const FString& OutputDirectoryPath);
+		static bool ZipUp(const FString& DirectoryPathToZipUp, const FString& OutputZipFilePath);
 	};
 }

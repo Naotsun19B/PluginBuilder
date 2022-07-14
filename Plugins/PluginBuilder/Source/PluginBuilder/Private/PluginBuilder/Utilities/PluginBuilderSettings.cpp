@@ -24,12 +24,14 @@ UPluginBuilderSettings::UPluginBuilderSettings()
 	: bSearchOnlyEnabled(true)
 	, bContainsProjectPlugins(true)
 	, bContainsEnginePlugins(false)
+	, bSelectOutputDirectoryManually(true)
 	, bRocket(true)
-	, bCreateSubFolder(true)
+	, bCreateSubFolder(false)
 	, bStrictIncludes(false)
 	, bZipUp(true)
 {
 	SelectedBuildTarget = PluginBuilder::FBuildTarget::GetDefaultBuildTarget();
+	OutputDirectoryPath.Path = FPaths::ConvertRelativePathToFull(FPaths::ProjectSavedDir() / TEXT("PluginBuilder"));
 }
 
 void UPluginBuilderSettings::Register()

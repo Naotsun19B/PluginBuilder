@@ -28,15 +28,16 @@ namespace PluginBuilder
 			{
 				continue;
 			}
-
-			const FPluginDescriptor& Descriptor = Plugin->GetDescriptor();
-			FilteredPlugins.Add(
-				FBuildTarget(
-					Descriptor.FriendlyName,
-					Descriptor.Description
-				)
-			);
+			
+			FilteredPlugins.Add(FBuildTarget(Plugin));
 		}
+
+		FilteredPlugins.Sort(
+			[](const FBuildTarget& Lhs, const FBuildTarget& Rhs) -> bool
+			{
+				return (Lhs.PluginName < Rhs.PluginName);
+			}
+		);
 
 		return FilteredPlugins;
 	}
@@ -77,20 +78,24 @@ namespace PluginBuilder
 		return false;
 	}
 
-	FBuildTarget::FBuildTarget(const FString& InPluginName, const FString InPluginDescription)
-		: PluginName(InPluginName)
-		, PluginDescription(InPluginDescription)
+	FBuildTarget::FBuildTarget(const TSharedRef<IPlugin>& Plugin)
 	{
+		const FPluginDescriptor& Descriptor = Plugin->GetDescriptor();
+		PluginName = Descriptor.FriendlyName;
+		PluginDescription = Descriptor.Description;
+		PluginVersionName = Descriptor.VersionName;
+		bCanContainContent = Descriptor.bCanContainContent;
+		UPluginFile = FPaths::ConvertRelativePathToFull(Plugin->GetDescriptorFileName());
 	}
 
-	FText FBuildTarget::GetPluginName() const
+	FString FBuildTarget::GetPluginName() const
 	{
-		return FText::FromString(PluginName);
+		return PluginName;
 	}
 
-	FText FBuildTarget::GetPluginDescription() const
+	FString FBuildTarget::GetPluginDescription() const
 	{
-		return FText::FromString(PluginDescription);
+		return PluginDescription;
 	}
 
 	FSlateIcon FBuildTarget::GetPluginIcon() const
@@ -99,5 +104,20 @@ namespace PluginBuilder
 			FPluginBuilderStyle::Get().GetStyleSetName(),
 			FPluginBuilderStyle::GetPropertyName(PluginName)
 		);
+	}
+
+	FString FBuildTarget::GetPluginVersionName() const
+	{
+		return PluginVersionName;
+	}
+
+	bool FBuildTarget::CanContainContent() const
+	{
+		return bCanContainContent;
+	}
+
+	FString FBuildTarget::GetUPluginFile() const
+	{
+		return UPluginFile;
 	}
 }

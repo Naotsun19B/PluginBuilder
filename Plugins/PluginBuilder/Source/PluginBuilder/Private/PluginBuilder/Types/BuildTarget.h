@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 
+class IPlugin;
+
 namespace PluginBuilder
 {
 	/**
@@ -25,22 +27,40 @@ namespace PluginBuilder
 		static bool IsSelectedBuildTarget(const FBuildTarget BuildTarget);
 		
 		// Constructor.
-		FBuildTarget(const FString& InPluginName, const FString InPluginDescription);
+		explicit FBuildTarget(const TSharedRef<IPlugin>& Plugin);
 
 		// Returns the name of the plugin to build.
-		FText GetPluginName() const;
+		FString GetPluginName() const;
 
 		// Returns the description of the plugin to build.
-		FText GetPluginDescription() const;
+		FString GetPluginDescription() const;
 
 		// Returns the icon of the plugin to build.
 		FSlateIcon GetPluginIcon() const;
-	
+
+		// Returns the version name of the plugin to build.
+		FString GetPluginVersionName() const;
+
+		// Returns whether the plugin to build uses the content folder.
+		bool CanContainContent() const;
+
+		// Returns the path to the .uplugin file for the plugin you want to build.
+		FString GetUPluginFile() const;
+		
 	private:
 		// The name of the plugin to build.
 		FString PluginName;
 
 		// The description of the plugin to build.
 		FString PluginDescription;
+
+		// The version name of the plugin to build.
+		FString PluginVersionName;
+
+		// Whether the plugin to build uses the content folder.
+		bool bCanContainContent;
+
+		// The path to the .uplugin file for the plugin you want to build.
+		FString UPluginFile;
 	};
 }

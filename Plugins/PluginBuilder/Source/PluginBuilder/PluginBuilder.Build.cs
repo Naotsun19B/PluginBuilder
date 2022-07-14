@@ -21,6 +21,8 @@ public class PluginBuilder : ModuleRules
 			{
 				"CoreUObject",
 				"InputCore",
+				"Engine",
+				"UnrealEd",
 				"Slate",
 				"SlateCore",
 				"EditorStyle",

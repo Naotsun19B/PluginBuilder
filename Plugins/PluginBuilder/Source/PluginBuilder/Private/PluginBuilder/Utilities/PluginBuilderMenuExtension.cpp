@@ -127,6 +127,7 @@ namespace PluginBuilder
 					{
 						auto& Settings = UPluginBuilderSettings::Get();
 						Settings.bRocket = !Settings.bRocket;
+						Settings.SaveConfig();
 					}
 				),
 				FCanExecuteAction(),
@@ -151,6 +152,7 @@ namespace PluginBuilder
 					{
 						auto& Settings = UPluginBuilderSettings::Get();
 						Settings.bCreateSubFolder = !Settings.bCreateSubFolder;
+						Settings.SaveConfig();
 					}
 				),
 				FCanExecuteAction(),
@@ -175,6 +177,7 @@ namespace PluginBuilder
 					{
 						auto& Settings = UPluginBuilderSettings::Get();
 						Settings.bStrictIncludes = !Settings.bStrictIncludes;
+						Settings.SaveConfig();
 					}
 				),
 				FCanExecuteAction(),
@@ -199,6 +202,7 @@ namespace PluginBuilder
 					{
 						auto& Settings = UPluginBuilderSettings::Get();
 						Settings.bZipUp = !Settings.bZipUp;
+						Settings.SaveConfig();
 					}
 				),
 				FCanExecuteAction(),
@@ -239,6 +243,14 @@ namespace PluginBuilder
 								EngineVersions.Add(EngineVersion.VersionName);
 							}
 
+							EngineVersions.Sort(
+								[](const FString& Lhs, const FString& Rhs) -> bool
+								{
+									const float LhsValue = FCString::Atof(*Lhs);
+									const float RhsValue = FCString::Atof(*Rhs);
+									return (LhsValue < RhsValue);
+								}
+							);
 							Settings.SaveConfig();
 						}
 					),
@@ -362,8 +374,12 @@ namespace PluginBuilder
 		for (auto& BuildTarget : BuildTargets)
 		{
 			MenuBuilder.AddMenuEntry(
-				BuildTarget.GetPluginName(),
-				BuildTarget.GetPluginDescription(),
+				FText::Format(
+					LOCTEXT("BuildTargetLabelFormat", "{0} ({1})"),
+					FText::FromString(BuildTarget.GetPluginName()),
+					FText::FromString(BuildTarget.GetPluginVersionName())
+				),
+				FText::FromString(BuildTarget.GetPluginDescription()),
 				BuildTarget.GetPluginIcon(),
 				FUIAction(
 					FExecuteAction::CreateStatic(&FBuildTarget::SelectBuildTarget, BuildTarget),

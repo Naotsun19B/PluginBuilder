@@ -187,8 +187,6 @@ namespace PluginBuilder
 					return false;
 				}
 				
-				Sleep(100);
-
 				// Gets the number of sibling threads and child threads again,
 				// considers the last thread found as a copy thread, and waits until it ends.
 				if (CopyResult == S_OK)
@@ -279,10 +277,9 @@ namespace PluginBuilder
 		};
 	}
 	
-	bool FZipUtils::ZipUp(const FString& DirectoryPathToZipUp, const FString& OutputDirectoryPath)
+	bool FZipUtils::ZipUp(const FString& DirectoryPathToZipUp, const FString& OutputZipFilePath)
 	{
-		const FString ZipFilePath = OutputDirectoryPath / FPaths::GetBaseFilename(DirectoryPathToZipUp) + TEXT(".zip");
-		WinShell::FZipWriter ZipWriter(ZipFilePath);
+		WinShell::FZipWriter ZipWriter(OutputZipFilePath);
 		return ZipWriter.AddDirectoryToZip(DirectoryPathToZipUp);
 	}
 }

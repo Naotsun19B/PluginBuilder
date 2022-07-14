@@ -28,6 +28,14 @@ public:
 	UPROPERTY(EditAnywhere, Config, Category = "Build Target")
 	bool bContainsEnginePlugins;
 
+	// Whether to select the output directory before starting the packaging process.
+	UPROPERTY(EditAnywhere, Config, Category = "Output")
+	bool bSelectOutputDirectoryManually;
+	
+	// The path to the directory where the packaged plugin will be output.
+	UPROPERTY(EditAnywhere, Config, Category = "Output", meta = (EditCondition = "!bSelectOutputDirectoryManually"))
+	FDirectoryPath OutputDirectoryPath;
+
 	// The name of the currently selected plugin to build.
 	TOptional<PluginBuilder::FBuildTarget> SelectedBuildTarget;
 	

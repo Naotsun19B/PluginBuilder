@@ -158,9 +158,10 @@ namespace PluginBuilder
 			{
 				continue;
 			}
+			InstalledDirectory.ReplaceInline(TEXT("\\"), TEXT("/"));
 
-			const FString UATBatchFile = (
-				InstalledDirectory / TEXT("Engine") / TEXT("Build") / TEXT("BatchFiles") / TEXT("RunUAT.bat")
+			const FString UATBatchFile = FPaths::Combine(
+				InstalledDirectory, TEXT("Engine"), TEXT("Build"), TEXT("BatchFiles"), TEXT("RunUAT.bat")
 			);
 
 			FEngineVersion EngineVersion;
@@ -197,6 +198,20 @@ namespace PluginBuilder
 		}
 
 		return UnrealEngineVersions;
+	}
+
+	bool FEngineVersions::FindUATBatchFileByVersionName(const FString& VersionName, FString& UATBatchFile)
+	{
+		for (const auto& EngineVersion : EngineVersions)
+		{
+			if (EngineVersion.VersionName.Equals(VersionName))
+			{
+				UATBatchFile = EngineVersion.UATBatchFile;
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	TArray<FEngineVersions::FEngineVersion> FEngineVersions::EngineVersions;
