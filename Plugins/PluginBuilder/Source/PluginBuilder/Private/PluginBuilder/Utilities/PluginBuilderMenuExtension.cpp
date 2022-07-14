@@ -26,18 +26,22 @@ namespace PluginBuilder
 	
 	void FPluginBuilderMenuExtension::Register()
 	{
-		UToolMenu* MainFrameFileMenu = GetMainFrameFileMenu();
-		if (!IsValid(MainFrameFileMenu))
+		UToolMenu* MenuExtensionPoint = GetMenuExtensionPoint();
+		if (!IsValid(MenuExtensionPoint))
 		{
 			return;
 		}
 		
-		FToolMenuSection& FileProjectSection = MainFrameFileMenu->AddSection(
+		FToolMenuSection& FilePluginSection = MenuExtensionPoint->AddSection(
 			FilePluginSectionName,
 			LOCTEXT("SectionLabel", "Plugin"),
+#if BEFORE_UE_4_27
 			FToolMenuInsert(TEXT("FileProject"), EToolMenuInsertType::After)
+#else
+			FToolMenuInsert()
+#endif
 		);
-		FileProjectSection.AddSubMenu(
+		FilePluginSection.AddSubMenu(
 			PackagePluginSubMenuName,
 			LOCTEXT("PackagePluginLabel", "Package Plugin"),
 			LOCTEXT("PackagePluginTooltip", "Build the plugin with multiple engine versions and zip the required files for distribution."),
@@ -49,7 +53,7 @@ namespace PluginBuilder
 
 	void FPluginBuilderMenuExtension::Unregister()
 	{
-		UToolMenu* MainFrameFileMenu = GetMainFrameFileMenu();
+		UToolMenu* MainFrameFileMenu = GetMenuExtensionPoint();
 		if (!IsValid(MainFrameFileMenu))
 		{
 			return;
@@ -58,15 +62,22 @@ namespace PluginBuilder
 		MainFrameFileMenu->RemoveSection(FilePluginSectionName);
 	}
 
-	UToolMenu* FPluginBuilderMenuExtension::GetMainFrameFileMenu()
+	UToolMenu* FPluginBuilderMenuExtension::GetMenuExtensionPoint()
 	{
 		UToolMenus* ToolMenus = UToolMenus::Get();
 		if (!IsValid(ToolMenus))
 		{
 			return nullptr;
 		}
-		
-		return ToolMenus->ExtendMenu(TEXT("MainFrame.MainTabMenu.File"));
+
+		const FName ExtensionName =
+#if BEFORE_UE_4_27
+			TEXT("MainFrame.MainTabMenu.File");
+#else
+			TEXT("LevelEditor.MainMenu.Build");
+#endif
+
+		return ToolMenus->ExtendMenu(ExtensionName);
 	}
 
 	void FPluginBuilderMenuExtension::OnExtendPackagePluginSubMenu(FMenuBuilder& MenuBuilder)

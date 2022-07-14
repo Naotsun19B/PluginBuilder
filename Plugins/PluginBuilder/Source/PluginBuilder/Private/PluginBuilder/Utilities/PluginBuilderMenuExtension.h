@@ -26,7 +26,7 @@ namespace PluginBuilder
 
 	private:
 		// Returns the extension point of the mainframe's file menu.
-		static UToolMenu* GetMainFrameFileMenu();
+		static UToolMenu* GetMenuExtensionPoint();
 		
 		// Functions called when sub menus are generated.
 		static void OnExtendPackagePluginSubMenu(FMenuBuilder& MenuBuilder);
