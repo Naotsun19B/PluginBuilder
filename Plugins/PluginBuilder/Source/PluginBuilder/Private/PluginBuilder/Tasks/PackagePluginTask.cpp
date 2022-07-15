@@ -24,6 +24,7 @@ namespace PluginBuilder
 			UPluginFile = BuildTarget.GetUPluginFile();
 		}
 		EngineVersions = Settings.EngineVersions;
+		bStopPackagingProcessImmediately = Settings.bStopPackagingProcessImmediately;
 		TargetPlatforms = Settings.TargetPlatforms;
 		bRocket = Settings.bRocket;
 		bCreateSubFolder = Settings.bCreateSubFolder;
@@ -43,6 +44,7 @@ namespace PluginBuilder
 		const FString& InUPluginFile,
 		const TArray<FString>& InEngineVersions,
 		const FString& InOutputDirectoryPath,
+		const bool bInStopPackagingProcessImmediately /* = false */,
 		const TArray<FString>& InTargetPlatforms /* = TArray<FString>{} */,
 		const bool bInRocket /* = true */,
 		const bool bInCreateSubFolder /* = false */,
@@ -55,6 +57,7 @@ namespace PluginBuilder
 		, UPluginFile(InUPluginFile)
 		, EngineVersions(InEngineVersions)
 		, OutputDirectoryPath(InOutputDirectoryPath)
+		, bStopPackagingProcessImmediately(bInStopPackagingProcessImmediately)
 		, TargetPlatforms(InTargetPlatforms)
 		, bRocket(bInRocket)
 		, bCreateSubFolder(bInCreateSubFolder)
@@ -100,6 +103,11 @@ namespace PluginBuilder
 					UE_LOG(LogPluginBuilder, Log, TEXT("%s"), *Line);
 				}
 			}
+
+			if (bNeedToCancel && Args.bStopPackagingProcessImmediately)
+			{
+				FPlatformProcess::TerminateProc(ProcessHandle);
+			}
 		}
 		else 
 		{
@@ -113,7 +121,7 @@ namespace PluginBuilder
 				
 				UE_LOG(LogPluginBuilder, Log, TEXT("----------------------------------------------------------------------------------------------------"));
 				UE_LOG(LogPluginBuilder, Log, TEXT("[Return Code] %d"), ReturnCode);
-				if (ReturnCode == 0)
+				if (ReturnCode == 0 && !bNeedToCancel)
 				{
 					UE_LOG(LogPluginBuilder, Log, TEXT("[Output Directory] %s"), *BuiltPluginDestinationPath);
 
@@ -122,10 +130,6 @@ namespace PluginBuilder
 						const FString ZipTempDirectoryPath = (
 							GetZipTempDirectoryPath() / GetDestinationDirectoryName() / Args.PluginName
 						);
-						if (PlatformFile.DirectoryExists(*ZipTempDirectoryPath))
-						{
-							PlatformFile.DeleteDirectoryRecursively(*ZipTempDirectoryPath);
-						}
 						PlatformFile.CreateDirectoryTree(*ZipTempDirectoryPath);
 						PlatformFile.CopyDirectoryTree(*ZipTempDirectoryPath, *BuiltPluginDestinationPath, true);
 						
@@ -144,6 +148,11 @@ namespace PluginBuilder
 						const FString ZipFilePath = (
 							GetPackagedPluginDestinationPath() / GetDestinationDirectoryName() / ZipFileName
 						);
+						if (PlatformFile.FileExists(*ZipFilePath))
+						{
+							PlatformFile.DeleteFile(*ZipFilePath);
+						}
+						
 						if (FZipUtils::ZipUp(ZipTempDirectoryPath, ZipFilePath))
 						{
 							UE_LOG(LogPluginBuilder, Log, TEXT("[Zip File] %s"), *ZipFilePath);
@@ -160,6 +169,8 @@ namespace PluginBuilder
 					PlatformFile.DeleteDirectoryRecursively(*BuiltPluginDestinationPath);
 					bHasAnyError = true;
 				}
+
+				FPlatformProcess::CloseProc(ProcessHandle);
 			}
 
 			ProcessingIndex++;

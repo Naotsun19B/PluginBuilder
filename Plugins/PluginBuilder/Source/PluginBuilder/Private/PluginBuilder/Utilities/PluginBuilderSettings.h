@@ -36,6 +36,11 @@ public:
 	UPROPERTY(EditAnywhere, Config, Category = "Output", meta = (EditCondition = "!bSelectOutputDirectoryManually"))
 	FDirectoryPath OutputDirectoryPath;
 
+	// Whether to stop the packaging process as soon as the cancel button is pressed during packaging.
+	// !!CAUTION!! You may get an error from UBT as it kills the process.
+	UPROPERTY(EditAnywhere, Config, Category = "Process")
+	bool bStopPackagingProcessImmediately;
+
 	// The name of the currently selected plugin to build.
 	TOptional<PluginBuilder::FBuildTarget> SelectedBuildTarget;
 	

@@ -30,6 +30,9 @@ namespace PluginBuilder
 
 		// The path of the directory where pre-built plugins, zipped plugins, etc. are output.
 		FString OutputDirectoryPath;
+
+		// Whether to stop the packaging process as soon as the cancel button is pressed during packaging.
+		bool bStopPackagingProcessImmediately;
 		
 		// A list of target platforms to build the plugin.
 		TArray<FString> TargetPlatforms;
@@ -57,6 +60,7 @@ namespace PluginBuilder
 			const FString& InUPluginFile,
 			const TArray<FString>& InEngineVersions,
 			const FString& InOutputDirectoryPath,
+			const bool bInStopPackagingProcessImmediately = false,
 			const TArray<FString>& InTargetPlatforms = TArray<FString>{},
 			const bool bInRocket = true,
 			const bool bInCreateSubFolder = false,

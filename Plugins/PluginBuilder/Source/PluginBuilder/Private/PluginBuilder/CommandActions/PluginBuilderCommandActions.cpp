@@ -1,10 +1,12 @@
 ﻿// Copyright 2022 Naotsun. All Rights Reserved.
 
 #include "PluginBuilder/CommandActions/PluginBuilderCommandActions.h"
+#include "PluginBuilder/PluginBuilderGlobals.h"
 #include "PluginBuilder/Utilities/PluginBuilderSettings.h"
 #include "PluginBuilder/Tasks/PackagePluginTask.h"
 #include "Framework/Notifications/NotificationManager.h"
 #include "Widgets/Notifications/SNotificationList.h"
+#include "Framework/Docking/TabManager.h"
 
 #define LOCTEXT_NAMESPACE "PluginBuilderCommandActions"
 
@@ -33,25 +35,41 @@ namespace PluginBuilder
 		NotificationInfo.bFireAndForget = false;
 		NotificationInfo.bUseLargeFont = true;
 
+		NotificationInfo.HyperlinkText = LOCTEXT("ShowOutputLogLinkText", "Show Output Log");
+		NotificationInfo.Hyperlink.BindLambda(
+			[]()
+			{
+				static const FName OutputLogTabId = TEXT("OutputLog");
+				
+				const TSharedRef<FGlobalTabmanager> GlobalTabManager = FGlobalTabmanager::Get();
+#if BEFORE_UE_4_25
+				GlobalTabManager->InvokeTab(OutputLogTabId);
+#else
+				GlobalTabManager->TryInvokeTab(OutputLogTabId);
+#endif
+			}
+		);
+		
 		const FNotificationButtonInfo ButtonInfo(
-			LOCTEXT("CancelButtonLabel", "Cancel Packaging"),
+			LOCTEXT("CancelButtonLabel", "Cancel"),
 			LOCTEXT("CancelButtonTooltip", "Cancels the plugin packaging process."),
 			FSimpleDelegate::CreateStatic(&FPluginBuilderCommandActions::HandleOnCancelPackagingButtonPressed),
 			SNotificationItem::ECompletionState::CS_Pending
 		);
 		NotificationInfo.ButtonDetails.Add(ButtonInfo);
 
-		const TSharedPtr<SNotificationItem> NotificationItem = FSlateNotificationManager::Get().AddNotification(NotificationInfo);
-		if (NotificationItem.IsValid())
+		PendingNotificationItem = FSlateNotificationManager::Get().AddNotification(NotificationInfo);
+		if (PendingNotificationItem.IsValid())
 		{
-			NotificationItem->SetCompletionState(SNotificationItem::ECompletionState::CS_Pending);
+			PendingNotificationItem->SetCompletionState(SNotificationItem::ECompletionState::CS_Pending);
 		}
 		
-		ActivePackagePluginTask->StartProcess(
-			FPackagePluginTask::FOnTaskFinished::CreateStatic(
-				&FPluginBuilderCommandActions::HandleOnTaskFinished, NotificationItem
-			)
-		);
+		ActivePackagePluginTask->StartProcess(FPackagePluginTask::FOnTaskFinished::CreateStatic(&FPluginBuilderCommandActions::HandleOnTaskFinished));
+
+		if (IsValid(GEditor))
+		{
+			GEditor->PlayEditorSound(TEXT("/Engine/EditorSounds/Notifications/CompileStart_Cue.CompileStart_Cue"));
+		}
 	}
 
 	bool FPluginBuilderCommandActions::CanBuildPlugin()
@@ -76,19 +94,22 @@ namespace PluginBuilder
 		{
 			ActivePackagePluginTask->RequestCancelProcess();
 		}
+
+		if (PendingNotificationItem.IsValid())
+		{
+			const FText NotificationText = LOCTEXT("CancelPackagingNotificationText", "Waiting for packaging cancellation...");
+			PendingNotificationItem->SetText(NotificationText);
+		}
 	}
 
-	void FPluginBuilderCommandActions::HandleOnTaskFinished(
-		const bool bWasSuccessful,
-		const bool bWasCanceled,
-		TSharedPtr<SNotificationItem> PendingNotificationItem
-	)
+	void FPluginBuilderCommandActions::HandleOnTaskFinished(const bool bWasSuccessful, const bool bWasCanceled)
 	{
 		ActivePackagePluginTask.Reset();
 		
 		if (PendingNotificationItem.IsValid())
 		{
 			PendingNotificationItem->Fadeout();
+			PendingNotificationItem.Reset();
 		}
 
 		FText NotificationText;
@@ -119,9 +140,21 @@ namespace PluginBuilder
 				SNotificationItem::ECompletionState::CS_Fail
 			);
 		}
+		if (IsValid(GEditor))
+		{
+			if (bWasSuccessful && !bWasCanceled)
+			{
+				GEditor->PlayEditorSound(TEXT("/Engine/EditorSounds/Notifications/CompileSuccess_Cue.CompileSuccess_Cue"));
+			}
+			else
+			{
+				GEditor->PlayEditorSound(TEXT("/Engine/EditorSounds/Notifications/CompileFailed_Cue.CompileFailed_Cue"));
+			}
+		}
 	}
 
 	TSharedPtr<FPackagePluginTask> FPluginBuilderCommandActions::ActivePackagePluginTask = nullptr;
+	TSharedPtr<SNotificationItem> FPluginBuilderCommandActions::PendingNotificationItem = nullptr;
 }
 
 #undef LOCTEXT_NAMESPACE

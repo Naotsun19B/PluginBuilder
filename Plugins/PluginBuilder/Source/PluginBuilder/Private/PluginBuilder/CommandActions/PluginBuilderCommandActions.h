@@ -26,14 +26,13 @@ namespace PluginBuilder
 		static void HandleOnCancelPackagingButtonPressed();
 		
 		// Called when the plugin packaging process is complete.
-		static void HandleOnTaskFinished(
-			const bool bWasSuccessful,
-			const bool bWasCanceled,
-			TSharedPtr<SNotificationItem> PendingNotificationItem
-		);
+		static void HandleOnTaskFinished(const bool bWasSuccessful, const bool bWasCanceled);
 		
 	private:
 		// A running task that packages a plugin.
 		static TSharedPtr<FPackagePluginTask> ActivePackagePluginTask;
+
+		// An editor notification item that package a plugin.
+		static TSharedPtr<SNotificationItem> PendingNotificationItem;
 	};
 }
