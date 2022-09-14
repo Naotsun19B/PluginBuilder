@@ -258,21 +258,26 @@ namespace PluginBuilder
 	void FPackagePluginTask::StartProcess(const FOnTaskFinished& Callback)
 	{
 		OnTaskFinished = Callback;
-
-		if (!FPaths::DirectoryExists(Args.OutputDirectoryPath))
+		
+		if (!Args.OutputDirectoryPath.IsSet())
 		{
 			if (IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get())
 			{
-				DesktopPlatform->OpenDirectoryDialog(
+				FString OutputDirectoryPath;
+				const bool bWasSelected = DesktopPlatform->OpenDirectoryDialog(
 					FSlateApplication::Get().FindBestParentWindowHandleForDialogs(nullptr),
 					TEXT("Select Output Directory"),
 					FPaths::ProjectDir(),
-					Args.OutputDirectoryPath
+					OutputDirectoryPath
 				);
+				if (bWasSelected)
+				{
+					Args.OutputDirectoryPath = OutputDirectoryPath;
+				}
 			}
 		}
 
-		if (!FPaths::DirectoryExists(Args.OutputDirectoryPath))
+		if (!Args.OutputDirectoryPath.IsSet())
 		{
 			OnTaskFinished.ExecuteIfBound(true, true);
 			return;
@@ -299,12 +304,12 @@ namespace PluginBuilder
 
 	FString FPackagePluginTask::GetBuiltPluginDestinationPath() const
 	{
-		return Args.OutputDirectoryPath / TEXT("BuiltPlugins") / GetDestinationDirectoryName();
+		return Args.OutputDirectoryPath.Get(FPaths::ProjectDir()) / TEXT("BuiltPlugins") / GetDestinationDirectoryName();
 	}
 
 	FString FPackagePluginTask::GetPackagedPluginDestinationPath() const
 	{
-		return Args.OutputDirectoryPath / TEXT("PackagedPlugins");
+		return Args.OutputDirectoryPath.Get(FPaths::ProjectDir()) / TEXT("PackagedPlugins");
 	}
 
 	FString FPackagePluginTask::GetZipTempDirectoryPath()

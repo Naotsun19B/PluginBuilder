@@ -42,6 +42,8 @@ public:
 	bool bStopPackagingProcessImmediately;
 
 	// The name of the currently selected plugin to build.
+	UPROPERTY(Config)
+	FName SelectedBuildTargetName;
 	TOptional<PluginBuilder::FBuildTarget> SelectedBuildTarget;
 	
 	// A list of engine versions to build the plugin.
@@ -81,4 +83,8 @@ public:
 
 	// Open the settings menu for this plugin.
 	static void OpenSettings();
+
+	// UObject interface.
+	virtual void PostInitProperties() override;
+	// End of UObject interface.
 };

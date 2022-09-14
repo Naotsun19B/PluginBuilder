@@ -24,15 +24,15 @@ UPluginBuilderSettings::UPluginBuilderSettings()
 	: bSearchOnlyEnabled(true)
 	, bContainsProjectPlugins(true)
 	, bContainsEnginePlugins(false)
-	, bSelectOutputDirectoryManually(true)
+	, bSelectOutputDirectoryManually(false)
 	, bStopPackagingProcessImmediately(false)
+	, SelectedBuildTargetName(NAME_None)
 	, bRocket(true)
 	, bCreateSubFolder(false)
 	, bStrictIncludes(false)
 	, bZipUp(true)
 {
-	SelectedBuildTarget = PluginBuilder::FBuildTarget::GetDefaultBuildTarget();
-	OutputDirectoryPath.Path = FPaths::ConvertRelativePathToFull(FPaths::ProjectSavedDir() / TEXT("PluginBuilder"));
+	OutputDirectoryPath.Path = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir() / TEXT("Build"));
 }
 
 void UPluginBuilderSettings::Register()
@@ -79,6 +79,13 @@ void UPluginBuilderSettings::OpenSettings()
 			PluginBuilder::Settings::SectionName
 		);
 	}
+}
+
+void UPluginBuilderSettings::PostInitProperties()
+{
+	UObject::PostInitProperties();
+
+	SelectedBuildTarget = PluginBuilder::FBuildTarget::GetDefaultBuildTarget();
 }
 
 #undef LOCTEXT_NAMESPACE

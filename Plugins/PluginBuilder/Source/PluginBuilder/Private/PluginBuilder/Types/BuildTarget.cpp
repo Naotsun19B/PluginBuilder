@@ -49,22 +49,39 @@ namespace PluginBuilder
 		{
 			return {};
 		}
-		
-		const FString ProjectName = FApp::GetProjectName();
-		for (const auto& BuildTarget : BuildTargets)
-		{
-			if (ProjectName.Contains(BuildTarget.PluginName))
-			{
-				return BuildTarget;
-			}
-		}
 
-		return BuildTargets[0];
+		const FBuildTarget* SavedBuildTarget = BuildTargets.FindByPredicate(
+			[](const FBuildTarget& BuildTarget) -> bool
+			{
+				return UPluginBuilderSettings::Get().SelectedBuildTargetName.IsEqual(*BuildTarget.GetPluginName());
+			}
+		);
+		if (SavedBuildTarget != nullptr)
+		{
+			return *SavedBuildTarget;
+		}
+		
+		const FBuildTarget* DefaultBuildTarget = BuildTargets.FindByPredicate(
+			[](const FBuildTarget& BuildTarget) -> bool
+			{
+				static const FString ProjectName = FApp::GetProjectName();
+				return ProjectName.Contains(BuildTarget.PluginName);
+			}
+		);
+		if (DefaultBuildTarget != nullptr)
+		{
+			return *DefaultBuildTarget;
+		}
+		
+		return {};
 	}
 
 	void FBuildTarget::SelectBuildTarget(const FBuildTarget BuildTarget)
 	{
-		UPluginBuilderSettings::Get().SelectedBuildTarget = BuildTarget;
+		auto& Settings = UPluginBuilderSettings::Get();
+		Settings.SelectedBuildTargetName = *BuildTarget.GetPluginName();
+		Settings.SelectedBuildTarget = BuildTarget;
+		Settings.SaveConfig();
 	}
 
 	bool FBuildTarget::IsSelectedBuildTarget(const FBuildTarget BuildTarget)
