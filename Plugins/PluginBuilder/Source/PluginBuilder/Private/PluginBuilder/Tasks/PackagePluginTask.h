@@ -29,7 +29,7 @@ namespace PluginBuilder
 		TArray<FString> EngineVersions;
 
 		// The path of the directory where pre-built plugins, zipped plugins, etc. are output.
-		FString OutputDirectoryPath;
+		TOptional<FString> OutputDirectoryPath;
 
 		// Whether to stop the packaging process as soon as the cancel button is pressed during packaging.
 		bool bStopPackagingProcessImmediately;

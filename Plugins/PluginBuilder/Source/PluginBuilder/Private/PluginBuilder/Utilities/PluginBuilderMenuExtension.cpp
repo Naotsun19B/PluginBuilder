@@ -89,13 +89,19 @@ namespace PluginBuilder
 		MenuBuilder.AddSubMenu(
 			LOCTEXT("BuildConfigurationLabel", "Build Configuration"),
 			LOCTEXT("BuildConfigurationTooltip", "Select the version and platform of the engine to build, whether to zip file, etc."),
-			FNewMenuDelegate::CreateStatic(&OnExtendBuildConfigurationSubMenu)
+			FNewMenuDelegate::CreateStatic(&OnExtendBuildConfigurationSubMenu),
+			false,
+			{},
+			false
 		);
 
 		MenuBuilder.AddSubMenu(
 			LOCTEXT("BuildTargetLabel", "Build Target"),
 			LOCTEXT("BuildTargetTooltip", "Select the plugin to build."),
-			FNewMenuDelegate::CreateStatic(&OnExtendBuildTargetSubMenu)
+			FNewMenuDelegate::CreateStatic(&OnExtendBuildTargetSubMenu),
+			false,
+			{},
+			false
 		);
 		
 		MenuBuilder.AddSeparator();
@@ -108,13 +114,19 @@ namespace PluginBuilder
 		MenuBuilder.AddSubMenu(
 			LOCTEXT("EngineVersionsLabel", "Engine Versions"),
 			LOCTEXT("EngineVersionsTooltip", "Specifies the engine version to build the plugin."),
-			FNewMenuDelegate::CreateStatic(&OnExtendEngineVersionsSubMenu)
+			FNewMenuDelegate::CreateStatic(&OnExtendEngineVersionsSubMenu),
+			false,
+			{},
+			false
 		);
 
 		MenuBuilder.AddSubMenu(
 			LOCTEXT("TargetPlatformsLabel", "Target Platforms"),
 			LOCTEXT("TargetPlatformsTooltip", "Specifies the target platforms to build the plugin."),
-			FNewMenuDelegate::CreateStatic(&OnExtendTargetPlatformsSubMenu)
+			FNewMenuDelegate::CreateStatic(&OnExtendTargetPlatformsSubMenu),
+			false,
+			{},
+			false
 		);
 
 		MenuBuilder.AddMenuEntry(
