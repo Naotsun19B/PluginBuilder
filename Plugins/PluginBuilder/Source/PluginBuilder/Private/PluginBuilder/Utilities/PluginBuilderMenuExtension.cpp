@@ -7,14 +7,14 @@
 #include "PluginBuilder/CommandActions/PluginBuilderCommands.h"
 #include "PluginBuilder/Types/BuildTarget.h"
 #include "ToolMenus.h"
-#include "EditorStyle.h"
 #include "Interfaces/ITargetPlatformManagerModule.h"
 #include "Interfaces/ITargetPlatform.h"
-
-#if BEFORE_UE_4_27
-#include "PlatformInfo.h"
-#else
+#if UE_5_00_OR_LATER
+#include "Styling/AppStyle.h"
 #include "Misc/DataDrivenPlatformInfoRegistry.h"
+#else
+#include "EditorStyle.h"
+#include "PlatformInfo.h"
 #endif
 
 #define LOCTEXT_NAMESPACE "PluginBuilderMenuExtension"
@@ -35,10 +35,10 @@ namespace PluginBuilder
 		FToolMenuSection& FilePluginSection = MenuExtensionPoint->AddSection(
 			FilePluginSectionName,
 			LOCTEXT("SectionLabel", "Plugin"),
-#if BEFORE_UE_4_27
-			FToolMenuInsert(TEXT("FileProject"), EToolMenuInsertType::After)
-#else
+#if UE_5_00_OR_LATER
 			FToolMenuInsert()
+#else
+			FToolMenuInsert(TEXT("FileProject"), EToolMenuInsertType::After)
 #endif
 		);
 		FilePluginSection.AddSubMenu(
@@ -47,7 +47,14 @@ namespace PluginBuilder
 			LOCTEXT("PackagePluginTooltip", "Build the plugin with multiple engine versions and zip the required files for distribution."),
 			FNewToolMenuChoice(FNewMenuDelegate::CreateStatic(&OnExtendPackagePluginSubMenu)),
 			false,
-			FSlateIcon(FEditorStyle::GetStyleSetName(), TEXT("MainFrame.PackageProject"))
+			FSlateIcon(
+#if UE_5_00_OR_LATER
+				FAppStyle::GetAppStyleSetName(),
+#else
+				FEditorStyle::GetStyleSetName(),
+#endif
+				TEXT("MainFrame.PackageProject")
+			)
 		);
 	}
 
@@ -71,10 +78,10 @@ namespace PluginBuilder
 		}
 
 		const FName ExtensionName =
-#if BEFORE_UE_4_27
-			TEXT("MainFrame.MainTabMenu.File");
-#else
+#if UE_5_00_OR_LATER
 			TEXT("LevelEditor.MainMenu.Build");
+#else
+			TEXT("MainFrame.MainTabMenu.File");
 #endif
 
 		return ToolMenus->ExtendMenu(ExtensionName);
@@ -238,7 +245,14 @@ namespace PluginBuilder
 			MenuBuilder.AddMenuEntry(
 				FText::FromString(EngineVersion.VersionName),
 				FText::FromString(EngineVersion.InstalledDirectory),
-				FSlateIcon(FEditorStyle::GetStyleSetName(), TEXT("MainFrame.AboutUnrealEd")),
+				FSlateIcon(
+#if UE_5_00_OR_LATER
+					FAppStyle::GetAppStyleSetName(),
+#else
+					FEditorStyle::GetStyleSetName(),
+#endif
+					TEXT("MainFrame.AboutUnrealEd")
+				),
 				FUIAction(
 					FExecuteAction::CreateLambda(
 						[EngineVersion]()
@@ -295,14 +309,14 @@ namespace PluginBuilder
 				FString UBTPlatformName;
 				FString IniPlatformName;
 				{
-#if BEFORE_UE_4_27
-					const PlatformInfo::FPlatformInfo& PlatformInfo = TargetPlatform->GetPlatformInfo();
-					PlatformInfo.UBTTargetId.ToString(UBTPlatformName);
-					IniPlatformName = PlatformInfo.IniPlatformName;
-#else
+#if UE_5_00_OR_LATER
 					const FDataDrivenPlatformInfo& PlatformInfo = TargetPlatform->GetPlatformInfo();
 					UBTPlatformName = PlatformInfo.UBTPlatformString;
 					IniPlatformName = PlatformInfo.IniPlatformName.ToString();
+#else
+					const PlatformInfo::FPlatformInfo& PlatformInfo = TargetPlatform->GetPlatformInfo();
+					PlatformInfo.UBTTargetId.ToString(UBTPlatformName);
+					IniPlatformName = PlatformInfo.IniPlatformName;
 #endif
 					if (PlatformInfo.PlatformSubMenu != NAME_None)
 					{
@@ -344,7 +358,11 @@ namespace PluginBuilder
 					FText::FromString(UBTPlatformName)
 				),
 				FSlateIcon(
+#if UE_5_00_OR_LATER
+					FAppStyle::GetAppStyleSetName(),
+#else
 					FEditorStyle::GetStyleSetName(),
+#endif
 					*FString::Printf(TEXT("Launcher.Platform_%s"), *IniPlatformName)
 				),
 				FUIAction(

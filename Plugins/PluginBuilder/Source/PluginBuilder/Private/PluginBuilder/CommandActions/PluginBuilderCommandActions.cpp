@@ -42,10 +42,10 @@ namespace PluginBuilder
 				static const FName OutputLogTabId = TEXT("OutputLog");
 				
 				const TSharedRef<FGlobalTabmanager> GlobalTabManager = FGlobalTabmanager::Get();
-#if BEFORE_UE_4_25
-				GlobalTabManager->InvokeTab(OutputLogTabId);
-#else
+#if UE_4_26_OR_LATER
 				GlobalTabManager->TryInvokeTab(OutputLogTabId);
+#else
+				GlobalTabManager->InvokeTab(OutputLogTabId);
 #endif
 			}
 		);
