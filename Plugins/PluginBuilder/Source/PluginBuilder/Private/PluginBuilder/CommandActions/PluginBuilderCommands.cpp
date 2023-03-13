@@ -1,10 +1,14 @@
-﻿// Copyright 2022 Naotsun. All Rights Reserved.
+﻿// Copyright 2022-2023 Naotsun. All Rights Reserved.
 
 #include "PluginBuilder/CommandActions/PluginBuilderCommands.h"
 #include "PluginBuilder/CommandActions/PluginBuilderCommandActions.h"
 #include "PluginBuilder/PluginBuilderGlobals.h"
 #include "Interfaces/IMainFrameModule.h"
-#include "EditorStyleSet.h"
+#if UE_5_00_OR_LATER
+#include "Styling/AppStyle.h"
+#else
+#include "EditorStyle.h"
+#endif
 
 #define LOCTEXT_NAMESPACE "PluginBuilderCommands"
 
@@ -14,9 +18,13 @@ namespace PluginBuilder
 		: TCommands<FPluginBuilderCommands>
 		(
 			TEXT("PluginBuilder"),
-			NSLOCTEXT("Contexts", "PluginBuilder", "Plugin Builder"),
+			LOCTEXT("Contexts", "Plugin Builder"),
 			NAME_None,
-			FEditorStyle::Get().GetStyleSetName()
+#if UE_5_00_OR_LATER
+			FAppStyle::GetAppStyleSetName()
+#else
+			FEditorStyle::GetStyleSetName()
+#endif
 		)
 		, CommandBindings(MakeShared<FUICommandList>())
 		, bIsBound(false)
