@@ -1,6 +1,7 @@
 ﻿// Copyright 2022-2023 Naotsun. All Rights Reserved.
 
 #include "PluginBuilder/Utilities/EngineVersions.h"
+#include "Misc/Paths.h"
 
 #include "Windows/AllowWindowsPlatformTypes.h"
 #include <winreg.h>

@@ -2,25 +2,19 @@
 
 #include "PluginBuilder/Utilities/PluginBuilderStyle.h"
 #include "Interfaces/IPluginManager.h"
+#include "PluginBuilder/PluginBuilderGlobals.h"
 #include "Styling/SlateStyleRegistry.h"
-#include "Textures/SlateIcon.h"
+#include "Styling/CoreStyle.h"
 
 namespace PluginBuilder
 {
-	namespace IconSize
-	{
-		static const FVector2D Icon16x16(16.0f, 16.0f);
-	}
-	
 	FPluginBuilderStyle::FPluginBuilderStyle()
 		: FSlateStyleSet(TEXT("PluginBuilderStyle"))
 	{
 	}
-	
-	void FPluginBuilderStyle::Register()
-	{
-		Instance = MakeShared<FPluginBuilderStyle>();
 
+	void FPluginBuilderStyle::RegisterInternal()
+	{
 		const TArray<TSharedRef<IPlugin>> Plugins = IPluginManager::Get().GetDiscoveredPlugins();
 		for (const auto& Plugin : Plugins)
 		{
@@ -29,12 +23,17 @@ namespace PluginBuilder
 				Plugin->GetBaseDir() / TEXT("Resources") / TEXT("Icon128.png")
 			);
 
-			Instance->Set(
+			Set(
 				IconName,
-				new FSlateImageBrush(IconPath, IconSize::Icon16x16)
+				new FSlateImageBrush(IconPath, CoreStyleConstants::Icon16x16)
 			);
 		}
-		
+	}
+
+	void FPluginBuilderStyle::Register()
+	{
+		Instance = MakeShared<FPluginBuilderStyle>();
+		Instance->RegisterInternal();
 		FSlateStyleRegistry::RegisterSlateStyle(*Instance);
 	}
 
@@ -50,9 +49,9 @@ namespace PluginBuilder
 		return *Instance.Get();
 	}
 
-	FName FPluginBuilderStyle::GetPropertyName(const FString& PluginName)
+	FName FPluginBuilderStyle::GetPropertyName(const FString& PluginFriendlyName)
 	{
-		return *FString::Printf(TEXT("PluginBuilder.Icons.%s"), *PluginName);
+		return *FString::Printf(TEXT("%s.Icons.%s"), *PluginName.ToString(), *PluginFriendlyName);
 	}
 
 	TSharedPtr<FPluginBuilderStyle> FPluginBuilderStyle::Instance = nullptr;

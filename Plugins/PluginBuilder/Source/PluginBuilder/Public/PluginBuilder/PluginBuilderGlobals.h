@@ -5,6 +5,12 @@
 #include "CoreMinimal.h"
 #include "Version.h"
 
+namespace PluginBuilder
+{
+	// The name of this plugin.
+	static const FName PluginName = TEXT("PluginBuilder");
+}
+
 /**
  * Macro to support each engine version.
  */

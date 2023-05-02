@@ -15,14 +15,19 @@ namespace PluginBuilder
 	public:
 		// Constructor.
 		FPluginBuilderStyle();
+
+	private:
+		// The actual registration process for this class.
+		void RegisterInternal();
 		
+	public:
 		// Register-Unregister and instance getter this class.
 		static void Register();
 		static void Unregister();
 		static const ISlateStyle& Get();
 
-		// Get the registered name of the icon from the plug-in name.
-		static FName GetPropertyName(const FString& PluginName);
+		// Get the registered name of the icon from the plugin name.
+		static FName GetPropertyName(const FString& PluginFriendlyName);
 		
 	private:
 		// An instance of this style class.

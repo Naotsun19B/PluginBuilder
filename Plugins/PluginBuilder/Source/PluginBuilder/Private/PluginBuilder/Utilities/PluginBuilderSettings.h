@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "UObject/SoftObjectPath.h"
 #include "PluginBuilder/Types/BuildTarget.h"
 #include "PluginBuilderSettings.generated.h"
 

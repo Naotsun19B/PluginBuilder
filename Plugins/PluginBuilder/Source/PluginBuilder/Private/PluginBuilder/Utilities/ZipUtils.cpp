@@ -2,6 +2,7 @@
 
 #include "PluginBuilder/Utilities/ZipUtils.h"
 #include "Misc/FileHelper.h"
+#include "Misc/Paths.h"
 
 #include "Windows/AllowWindowsPlatformTypes.h"
 #include <shlobj.h>

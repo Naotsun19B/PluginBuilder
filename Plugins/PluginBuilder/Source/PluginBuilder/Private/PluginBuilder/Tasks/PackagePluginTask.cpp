@@ -6,6 +6,7 @@
 #include "PluginBuilder/Utilities/EngineVersions.h"
 #include "PluginBuilder/Utilities/ZipUtils.h"
 #include "DesktopPlatformModule.h"
+#include "HAL/PlatformFileManager.h"
 #include "Framework/Application/SlateApplication.h"
 
 namespace PluginBuilder

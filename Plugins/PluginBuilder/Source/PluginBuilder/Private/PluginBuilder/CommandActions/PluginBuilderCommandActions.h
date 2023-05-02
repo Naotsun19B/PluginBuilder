@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 
+class SNotificationItem;
+
 namespace PluginBuilder
 {
 	class FPackagePluginTask;

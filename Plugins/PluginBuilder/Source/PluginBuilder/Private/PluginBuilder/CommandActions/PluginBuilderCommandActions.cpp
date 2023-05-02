@@ -7,6 +7,7 @@
 #include "Framework/Notifications/NotificationManager.h"
 #include "Widgets/Notifications/SNotificationList.h"
 #include "Framework/Docking/TabManager.h"
+#include "Editor.h"
 
 #define LOCTEXT_NAMESPACE "PluginBuilderCommandActions"
 
@@ -66,10 +67,8 @@ namespace PluginBuilder
 		
 		ActivePackagePluginTask->StartProcess(FPackagePluginTask::FOnTaskFinished::CreateStatic(&FPluginBuilderCommandActions::HandleOnTaskFinished));
 
-		if (IsValid(GEditor))
-		{
-			GEditor->PlayEditorSound(TEXT("/Engine/EditorSounds/Notifications/CompileStart_Cue.CompileStart_Cue"));
-		}
+		check(IsValid(GEditor));
+		GEditor->PlayEditorSound(TEXT("/Engine/EditorSounds/Notifications/CompileStart_Cue.CompileStart_Cue"));
 	}
 
 	bool FPluginBuilderCommandActions::CanBuildPlugin()
@@ -140,16 +139,15 @@ namespace PluginBuilder
 				SNotificationItem::ECompletionState::CS_Fail
 			);
 		}
-		if (IsValid(GEditor))
+		
+		check(IsValid(GEditor));
+		if (bWasSuccessful && !bWasCanceled)
 		{
-			if (bWasSuccessful && !bWasCanceled)
-			{
-				GEditor->PlayEditorSound(TEXT("/Engine/EditorSounds/Notifications/CompileSuccess_Cue.CompileSuccess_Cue"));
-			}
-			else
-			{
-				GEditor->PlayEditorSound(TEXT("/Engine/EditorSounds/Notifications/CompileFailed_Cue.CompileFailed_Cue"));
-			}
+			GEditor->PlayEditorSound(TEXT("/Engine/EditorSounds/Notifications/CompileSuccess_Cue.CompileSuccess_Cue"));
+		}
+		else
+		{
+			GEditor->PlayEditorSound(TEXT("/Engine/EditorSounds/Notifications/CompileFailed_Cue.CompileFailed_Cue"));
 		}
 	}
 

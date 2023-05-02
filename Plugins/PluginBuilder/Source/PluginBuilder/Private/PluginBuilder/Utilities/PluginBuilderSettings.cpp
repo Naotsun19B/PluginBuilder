@@ -1,7 +1,9 @@
 ﻿// Copyright 2022-2023 Naotsun. All Rights Reserved.
 
 #include "PluginBuilder/Utilities/PluginBuilderSettings.h"
+#include "Modules/ModuleManager.h"
 #include "ISettingsModule.h"
+#include "Misc/Paths.h"
 
 #define LOCTEXT_NAMESPACE "PluginBuilderSettings"
 
