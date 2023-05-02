@@ -8,6 +8,13 @@
 
 namespace PluginBuilder
 {
+#if !UE_5_00_OR_LATER
+	namespace CoreStyleConstants
+	{
+		static const FVector2D Icon16x16(16.f, 16.f);
+	}
+#endif
+	
 	FPluginBuilderStyle::FPluginBuilderStyle()
 		: FSlateStyleSet(TEXT("PluginBuilderStyle"))
 	{

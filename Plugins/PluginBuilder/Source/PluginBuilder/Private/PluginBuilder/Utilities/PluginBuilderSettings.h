@@ -4,8 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "UObject/SoftObjectPath.h"
+#include "PluginBuilder/PluginBuilderGlobals.h"
 #include "PluginBuilder/Types/BuildTarget.h"
+#if UE_5_00_OR_LATER
+#include "UObject/SoftObjectPath.h"
+#else
+#include "Engine/EngineTypes.h"
+#endif
 #include "PluginBuilderSettings.generated.h"
 
 /**
