@@ -5,8 +5,6 @@
 #include "CoreMinimal.h"
 
 class UToolMenu;
-class FMenuBuilder;
-
 namespace PluginBuilder
 {
 	/**
@@ -29,10 +27,10 @@ namespace PluginBuilder
 		static UToolMenu* GetMenuExtensionPoint();
 		
 		// Functions called when sub menus are generated.
-		static void OnExtendPackagePluginSubMenu(FMenuBuilder& MenuBuilder);
-		static void OnExtendBuildConfigurationSubMenu(FMenuBuilder& MenuBuilder);
-		static void OnExtendEngineVersionsSubMenu(FMenuBuilder& MenuBuilder);
-		static void OnExtendTargetPlatformsSubMenu(FMenuBuilder& MenuBuilder);
-		static void OnExtendBuildTargetSubMenu(FMenuBuilder& MenuBuilder);
+		static void OnExtendPackagePluginSubMenu(UToolMenu* ToolMenu);
+		static void OnExtendBuildConfigurationsSubMenu(UToolMenu* ToolMenu);
+		static void OnExtendEngineVersionsSubMenu(UToolMenu* ToolMenu);
+		static void OnExtendTargetPlatformsSubMenu(UToolMenu* ToolMenu);
+		static void OnExtendBuildTargetsSubMenu(UToolMenu* ToolMenu);
 	};
 }

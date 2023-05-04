@@ -36,7 +36,7 @@ namespace PluginBuilder
 			PackagePluginSubMenuName,
 			LOCTEXT("PackagePluginLabel", "Package Plugin"),
 			LOCTEXT("PackagePluginTooltip", "Build the plugin with multiple engine versions and zip the required files for distribution."),
-			FNewToolMenuChoice(FNewMenuDelegate::CreateStatic(&OnExtendPackagePluginSubMenu)),
+			FNewToolMenuChoice(FNewToolMenuDelegate::CreateStatic(&FPluginBuilderMenuExtension::OnExtendPackagePluginSubMenu)),
 			false,
 			FSlateIcon(
 #if UE_5_00_OR_LATER
@@ -78,67 +78,93 @@ namespace PluginBuilder
 		return ToolMenus->ExtendMenu(ExtensionName);
 	}
 
-	void FPluginBuilderMenuExtension::OnExtendPackagePluginSubMenu(FMenuBuilder& MenuBuilder)
+	void FPluginBuilderMenuExtension::OnExtendPackagePluginSubMenu(UToolMenu* ToolMenu)
 	{
-		MenuBuilder.AddMenuEntry(FPluginBuilderCommands::Get().BuildPlugin);
+		if (!IsValid(ToolMenu))
+		{
+			return;
+		}
 
-		MenuBuilder.AddSeparator();
+		FToolMenuSection& Section = ToolMenu->AddSection(TEXT("PackagePlugin"));
 		
-		MenuBuilder.AddSubMenu(
+		Section.AddMenuEntry(FPluginBuilderCommands::Get().BuildPlugin);
+		
+		Section.AddSeparator(TEXT("BeginChildSubMenus"));
+		
+		Section.AddSubMenu(
+			TEXT("BuildConfigurations"),
 			LOCTEXT("BuildConfigurationLabel", "Build Configurations"),
 			LOCTEXT("BuildConfigurationTooltip", "Select the version and platform of the engine to build, whether to zip file, etc."),
-			FNewMenuDelegate::CreateStatic(&OnExtendBuildConfigurationSubMenu),
+			FNewToolMenuChoice(FNewToolMenuDelegate::CreateStatic(&FPluginBuilderMenuExtension::OnExtendBuildConfigurationsSubMenu)),
 			false,
 			{},
 			false
 		);
 
-		MenuBuilder.AddSubMenu(
+		Section.AddSubMenu(
+			TEXT("BuildTargets"),
 			LOCTEXT("BuildTargetLabel", "Build Targets"),
 			LOCTEXT("BuildTargetTooltip", "Select the plugin to build."),
-			FNewMenuDelegate::CreateStatic(&OnExtendBuildTargetSubMenu),
+			FNewToolMenuChoice(FNewToolMenuDelegate::CreateStatic(&FPluginBuilderMenuExtension::OnExtendBuildTargetsSubMenu)),
 			false,
 			{},
 			false
 		);
 		
-		MenuBuilder.AddSeparator();
-
-		MenuBuilder.AddMenuEntry(FPluginBuilderCommands::Get().OpenBuildSettings);
+		Section.AddSeparator(TEXT("EndChildSubMenus"));
+		
+		Section.AddMenuEntry(FPluginBuilderCommands::Get().OpenBuildSettings);
 	}
 
-	void FPluginBuilderMenuExtension::OnExtendBuildConfigurationSubMenu(FMenuBuilder& MenuBuilder)
+	void FPluginBuilderMenuExtension::OnExtendBuildConfigurationsSubMenu(UToolMenu* ToolMenu)
 	{
-		MenuBuilder.AddSubMenu(
+		if (!IsValid(ToolMenu))
+		{
+			return;
+		}
+
+		FToolMenuSection& Section = ToolMenu->AddSection(TEXT("BuildConfigurations"));
+		
+		Section.AddSubMenu(
+			TEXT("EngineVersions"),
 			LOCTEXT("EngineVersionsLabel", "Engine Versions"),
 			LOCTEXT("EngineVersionsTooltip", "Specifies the engine version to build the plugin."),
-			FNewMenuDelegate::CreateStatic(&OnExtendEngineVersionsSubMenu),
+			FNewToolMenuChoice(FNewToolMenuDelegate::CreateStatic(&FPluginBuilderMenuExtension::OnExtendEngineVersionsSubMenu)),
 			false,
 			{},
 			false
 		);
 
-		MenuBuilder.AddSubMenu(
+		Section.AddSubMenu(
+			TEXT("TargetPlatforms"),
 			LOCTEXT("TargetPlatformsLabel", "Target Platforms"),
 			LOCTEXT("TargetPlatformsTooltip", "Specifies the target platforms to build the plugin."),
-			FNewMenuDelegate::CreateStatic(&OnExtendTargetPlatformsSubMenu),
+			FNewToolMenuChoice(FNewToolMenuDelegate::CreateStatic(&FPluginBuilderMenuExtension::OnExtendTargetPlatformsSubMenu)),
 			false,
 			{},
 			false
 		);
 
-		MenuBuilder.AddMenuEntry(FPluginBuilderCommands::Get().Rocket);
-		MenuBuilder.AddMenuEntry(FPluginBuilderCommands::Get().CreateSubFolder);
-		MenuBuilder.AddMenuEntry(FPluginBuilderCommands::Get().StrictIncludes);
-		MenuBuilder.AddMenuEntry(FPluginBuilderCommands::Get().ZipUp);
+		Section.AddMenuEntry(FPluginBuilderCommands::Get().Rocket);
+		Section.AddMenuEntry(FPluginBuilderCommands::Get().CreateSubFolder);
+		Section.AddMenuEntry(FPluginBuilderCommands::Get().StrictIncludes);
+		Section.AddMenuEntry(FPluginBuilderCommands::Get().ZipUp);
 	}
 
-	void FPluginBuilderMenuExtension::OnExtendEngineVersionsSubMenu(FMenuBuilder& MenuBuilder)
+	void FPluginBuilderMenuExtension::OnExtendEngineVersionsSubMenu(UToolMenu* ToolMenu)
 	{
+		if (!IsValid(ToolMenu))
+		{
+			return;
+		}
+
+		FToolMenuSection& Section = ToolMenu->AddSection(TEXT("EngineVersions"));
+		
 		const TArray<FEngineVersions::FEngineVersion>& EngineVersions = FEngineVersions::GetEngineVersions();
 		for (const auto& EngineVersion : EngineVersions)
 		{
-			MenuBuilder.AddMenuEntry(
+			Section.AddMenuEntry(
+				*EngineVersion.VersionName,
             	FText::FromString(EngineVersion.VersionName),
             	FText::FromString(EngineVersion.InstalledDirectory),
             	FSlateIcon(
@@ -154,18 +180,25 @@ namespace PluginBuilder
 					FCanExecuteAction(),
 					FIsActionChecked::CreateStatic(&FEngineVersions::GetEngineVersionState, EngineVersion)
                 ),
-                NAME_None,
                 EUserInterfaceActionType::RadioButton
             );
 		}
 	}
 
-	void FPluginBuilderMenuExtension::OnExtendTargetPlatformsSubMenu(FMenuBuilder& MenuBuilder)
+	void FPluginBuilderMenuExtension::OnExtendTargetPlatformsSubMenu(UToolMenu* ToolMenu)
 	{
+		if (!IsValid(ToolMenu))
+		{
+			return;
+		}
+
+		FToolMenuSection& Section = ToolMenu->AddSection(TEXT("TargetPlatforms"));
+		
 		const TArray<FPlatformNames::FPlatformName>& PlatformNames = FPlatformNames::GetPlatformNames();
 		for (const auto& PlatformName : PlatformNames)
 		{
-			MenuBuilder.AddMenuEntry(
+			Section.AddMenuEntry(
+				*PlatformName.UBTPlatformName,
 				FText::FromString(PlatformName.UBTPlatformName),
 				FText::Format(
 					LOCTEXT("TargetPlatformTooltipFormat", "Include {0} in the target platforms."),
@@ -184,18 +217,25 @@ namespace PluginBuilder
 				   FCanExecuteAction(),
 				   FIsActionChecked::CreateStatic(&FPlatformNames::GetTargetPlatformState, PlatformName)
 			   ),
-			   NAME_None,
 			   EUserInterfaceActionType::RadioButton
 			);
 		}
 	}
 
-	void FPluginBuilderMenuExtension::OnExtendBuildTargetSubMenu(FMenuBuilder& MenuBuilder)
+	void FPluginBuilderMenuExtension::OnExtendBuildTargetsSubMenu(UToolMenu* ToolMenu)
 	{
+		if (!IsValid(ToolMenu))
+		{
+			return;
+		}
+
+		FToolMenuSection& Section = ToolMenu->AddSection(TEXT("BuildTarget"));
+		
 		TArray<FBuildTarget> BuildTargets = FBuildTarget::GetFilteredBuildTargets();
 		for (auto& BuildTarget : BuildTargets)
 		{
-			MenuBuilder.AddMenuEntry(
+			Section.AddMenuEntry(
+				*BuildTarget.GetPluginName(),
 				FText::Format(
 					LOCTEXT("BuildTargetLabelFormat", "{0} ({1})"),
 					FText::FromString(BuildTarget.GetPluginName()),
@@ -208,7 +248,6 @@ namespace PluginBuilder
 					FCanExecuteAction(),
 					FIsActionChecked::CreateStatic(&FBuildTarget::IsBuildTargetSelected, BuildTarget)
 				),
-				NAME_None,
 				EUserInterfaceActionType::RadioButton
 			);
 		}
