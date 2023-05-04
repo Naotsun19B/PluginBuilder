@@ -170,6 +170,24 @@ namespace PluginBuilder
 			EngineVersion.VersionName = VersionName;
 			EngineVersion.InstalledDirectory = InstalledDirectory;
 			EngineVersion.UATBatchFile = UATBatchFile;
+			EngineVersion.MajorVersionName = TEXT("Custom");
+			{
+				int32 MajorVersion = INDEX_NONE;
+				{
+					FString MajorVersionString;
+					if (EngineVersion.VersionName.Split(TEXT("."), &MajorVersionString, nullptr))
+					{
+						if (FCString::IsNumeric(*MajorVersionString))
+						{
+							MajorVersion = FCString::Atoi(*MajorVersionString);
+						}
+					}
+				}
+				if (MajorVersion != INDEX_NONE)
+				{
+					EngineVersion.MajorVersionName = FString::Printf(TEXT("UE%d"), MajorVersion);
+				}
+			}
 			EngineVersions.Add(EngineVersion);
 		}
 	}

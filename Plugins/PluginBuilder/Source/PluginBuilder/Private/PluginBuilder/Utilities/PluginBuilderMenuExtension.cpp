@@ -169,27 +169,9 @@ namespace PluginBuilder
 		const TArray<FEngineVersions::FEngineVersion>& EngineVersions = FEngineVersions::GetEngineVersions();
 		for (const auto& EngineVersion : EngineVersions)
 		{
-			FString MajorVersionLabel = TEXT("Custom");
-			{
-				int32 MajorVersion = INDEX_NONE;
-				{
-					FString MajorVersionString;
-					if (EngineVersion.VersionName.Split(TEXT("."), &MajorVersionString, nullptr))
-					{
-						if (FCString::IsNumeric(*MajorVersionString))
-						{
-							MajorVersion = FCString::Atoi(*MajorVersionString);
-						}
-					}
-				}
-				if (MajorVersion != INDEX_NONE)
-				{
-					MajorVersionLabel = FString::Printf(TEXT("UE%d"), MajorVersion);
-				}
-			}
-
-			FToolMenuSection& Section = ToolMenu->FindOrAddSection(*MajorVersionLabel);
-			Section.Label = FText::FromString(MajorVersionLabel);
+			const FString& MajorVersionName = EngineVersion.MajorVersionName;
+			FToolMenuSection& Section = ToolMenu->FindOrAddSection(*MajorVersionName);
+			Section.Label = FText::FromString(MajorVersionName);
 			
 			Section.AddMenuEntry(
 				*EngineVersion.VersionName,

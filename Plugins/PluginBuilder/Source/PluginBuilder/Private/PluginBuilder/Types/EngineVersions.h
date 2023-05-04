@@ -24,6 +24,9 @@ namespace PluginBuilder
 			
 			// RunUAT.bat file path for the installed engine.
 			FString UATBatchFile;
+
+			// Kind of like UE4 or UE5 or a custom version.
+			FString MajorVersionName;
 		};
 		
 	public:
