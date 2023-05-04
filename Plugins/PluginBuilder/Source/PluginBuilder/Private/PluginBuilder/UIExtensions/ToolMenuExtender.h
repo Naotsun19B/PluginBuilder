@@ -5,17 +5,25 @@
 #include "CoreMinimal.h"
 
 class UToolMenu;
+
 namespace PluginBuilder
 {
 	/**
 	 * A class that extends the level editor menu.
 	 */
-	class PLUGINBUILDER_API FPluginBuilderMenuExtension
+	class PLUGINBUILDER_API FToolMenuExtender
 	{
 	public:
 		// The proper name of the extension point added by this menu extension.
 		static const FName FilePluginSectionName;
 		static const FName PackagePluginSubMenuName;
+		static const FName PackagePluginSectionName;
+		static const FName BuildConfigurationsSubMenuName;
+		static const FName BuildTargetsSubMenuName;
+		static const FName VersionsAndPlatformsSectionName;
+		static const FName EngineVersionsSubMenuName;
+		static const FName TargetPlatformsSubMenuName;
+		static const FName OptionsSectionName;
 		
 	public:
 		// Register-Unregister the menu extension.

@@ -6,7 +6,7 @@
 #include "PluginBuilder/CommandActions/PluginBuilderCommands.h"
 #include "PluginBuilder/Utilities/PluginBuilderStyle.h"
 #include "PluginBuilder/Utilities/PluginBuilderSettings.h"
-#include "PluginBuilder/Utilities/PluginBuilderMenuExtension.h"
+#include "PluginBuilder/UIExtensions/ToolMenuExtender.h"
 #include "PluginBuilder/Tasks/PackagePluginTask.h"
 
 DEFINE_LOG_CATEGORY(LogPluginBuilder);
@@ -35,13 +35,13 @@ namespace PluginBuilder
 		UPluginBuilderSettings::Register();
 
 		// Register menu extension.
-		FPluginBuilderMenuExtension::Register();
+		FToolMenuExtender::Register();
 	}
 
 	void FPluginBuilderModule::ShutdownModule()
 	{
 		// Unregister menu extension.
-		FPluginBuilderMenuExtension::Unregister();
+		FToolMenuExtender::Unregister();
 		
 		// Unregister settings.
 		UPluginBuilderSettings::Unregister();

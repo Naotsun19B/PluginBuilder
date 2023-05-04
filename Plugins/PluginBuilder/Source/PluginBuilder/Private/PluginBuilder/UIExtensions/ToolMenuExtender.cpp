@@ -1,6 +1,6 @@
 // Copyright 2022-2023 Naotsun. All Rights Reserved.
 
-#include "PluginBuilder/Utilities/PluginBuilderMenuExtension.h"
+#include "PluginBuilder/UIExtensions/ToolMenuExtender.h"
 #include "PluginBuilder/CommandActions/PluginBuilderCommands.h"
 #include "PluginBuilder/Types/BuildTarget.h"
 #include "PluginBuilder/Types/EngineVersions.h"
@@ -12,10 +12,17 @@
 
 namespace PluginBuilder
 {
-	const FName FPluginBuilderMenuExtension::FilePluginSectionName		= TEXT("PluginBuilder.FilePlugin");
-	const FName FPluginBuilderMenuExtension::PackagePluginSubMenuName	= TEXT("PluginBuilder.PackagePlugin");
+	const FName FToolMenuExtender::FilePluginSectionName			= TEXT("PluginBuilder.FilePlugin");
+	const FName FToolMenuExtender::PackagePluginSubMenuName			= TEXT("PluginBuilder.PackagePlugin");
+	const FName FToolMenuExtender::PackagePluginSectionName			= TEXT("PackagePlugin");
+	const FName FToolMenuExtender::BuildConfigurationsSubMenuName	= TEXT("PluginBuilder.PackagePlugin.BuildConfigurations");
+	const FName FToolMenuExtender::BuildTargetsSubMenuName			= TEXT("PluginBuilder.PackagePlugin.BuildTargets");
+	const FName FToolMenuExtender::VersionsAndPlatformsSectionName	= TEXT("VersionsAndPlatforms");
+	const FName FToolMenuExtender::EngineVersionsSubMenuName		= TEXT("PluginBuilder.PackagePlugin.BuildConfigurations.EngineVersions");
+	const FName FToolMenuExtender::TargetPlatformsSubMenuName		= TEXT("PluginBuilder.PackagePlugin.BuildConfigurations.TargetPlatforms");
+	const FName FToolMenuExtender::OptionsSectionName				= TEXT("Options");
 	
-	void FPluginBuilderMenuExtension::Register()
+	void FToolMenuExtender::Register()
 	{
 		UToolMenu* MenuExtensionPoint = GetMenuExtensionPoint();
 		if (!IsValid(MenuExtensionPoint))
@@ -36,7 +43,7 @@ namespace PluginBuilder
 			PackagePluginSubMenuName,
 			LOCTEXT("PackagePluginLabel", "Package Plugin"),
 			LOCTEXT("PackagePluginTooltip", "Build the plugin with multiple engine versions and zip the required files for distribution."),
-			FNewToolMenuChoice(FNewToolMenuDelegate::CreateStatic(&FPluginBuilderMenuExtension::OnExtendPackagePluginSubMenu)),
+			FNewToolMenuChoice(FNewToolMenuDelegate::CreateStatic(&FToolMenuExtender::OnExtendPackagePluginSubMenu)),
 			false,
 			FSlateIcon(
 #if UE_5_00_OR_LATER
@@ -49,7 +56,7 @@ namespace PluginBuilder
 		);
 	}
 
-	void FPluginBuilderMenuExtension::Unregister()
+	void FToolMenuExtender::Unregister()
 	{
 		UToolMenu* MainFrameFileMenu = GetMenuExtensionPoint();
 		if (!IsValid(MainFrameFileMenu))
@@ -60,7 +67,7 @@ namespace PluginBuilder
 		MainFrameFileMenu->RemoveSection(FilePluginSectionName);
 	}
 
-	UToolMenu* FPluginBuilderMenuExtension::GetMenuExtensionPoint()
+	UToolMenu* FToolMenuExtender::GetMenuExtensionPoint()
 	{
 		UToolMenus* ToolMenus = UToolMenus::Get();
 		if (!IsValid(ToolMenus))
@@ -78,34 +85,34 @@ namespace PluginBuilder
 		return ToolMenus->ExtendMenu(ExtensionName);
 	}
 
-	void FPluginBuilderMenuExtension::OnExtendPackagePluginSubMenu(UToolMenu* ToolMenu)
+	void FToolMenuExtender::OnExtendPackagePluginSubMenu(UToolMenu* ToolMenu)
 	{
 		if (!IsValid(ToolMenu))
 		{
 			return;
 		}
 
-		FToolMenuSection& Section = ToolMenu->AddSection(TEXT("PackagePlugin"));
+		FToolMenuSection& Section = ToolMenu->AddSection(PackagePluginSectionName);
 		
 		Section.AddMenuEntry(FPluginBuilderCommands::Get().BuildPlugin);
 		
 		Section.AddSeparator(TEXT("BeginChildSubMenus"));
 		
 		Section.AddSubMenu(
-			TEXT("BuildConfigurations"),
+			BuildConfigurationsSubMenuName,
 			LOCTEXT("BuildConfigurationLabel", "Build Configurations"),
 			LOCTEXT("BuildConfigurationTooltip", "Select the version and platform of the engine to build, whether to zip file, etc."),
-			FNewToolMenuChoice(FNewToolMenuDelegate::CreateStatic(&FPluginBuilderMenuExtension::OnExtendBuildConfigurationsSubMenu)),
+			FNewToolMenuChoice(FNewToolMenuDelegate::CreateStatic(&FToolMenuExtender::OnExtendBuildConfigurationsSubMenu)),
 			false,
 			{},
 			false
 		);
 
 		Section.AddSubMenu(
-			TEXT("BuildTargets"),
+			BuildTargetsSubMenuName,
 			LOCTEXT("BuildTargetLabel", "Build Targets"),
 			LOCTEXT("BuildTargetTooltip", "Select the plugin to build."),
-			FNewToolMenuChoice(FNewToolMenuDelegate::CreateStatic(&FPluginBuilderMenuExtension::OnExtendBuildTargetsSubMenu)),
+			FNewToolMenuChoice(FNewToolMenuDelegate::CreateStatic(&FToolMenuExtender::OnExtendBuildTargetsSubMenu)),
 			false,
 			{},
 			false
@@ -116,7 +123,7 @@ namespace PluginBuilder
 		Section.AddMenuEntry(FPluginBuilderCommands::Get().OpenBuildSettings);
 	}
 
-	void FPluginBuilderMenuExtension::OnExtendBuildConfigurationsSubMenu(UToolMenu* ToolMenu)
+	void FToolMenuExtender::OnExtendBuildConfigurationsSubMenu(UToolMenu* ToolMenu)
 	{
 		if (!IsValid(ToolMenu))
 		{
@@ -124,32 +131,32 @@ namespace PluginBuilder
 		}
 
 		FToolMenuSection& VersionsAndPlatformsSection = ToolMenu->AddSection(
-			TEXT("VersionsAndPlatforms"),
+			VersionsAndPlatformsSectionName,
 			LOCTEXT("VersionsAndPlatformsLabel", "Versions And Platforms")
 		);
 		
 		VersionsAndPlatformsSection.AddSubMenu(
-			TEXT("EngineVersions"),
+			EngineVersionsSubMenuName,
 			LOCTEXT("EngineVersionsLabel", "Engine Versions"),
 			LOCTEXT("EngineVersionsTooltip", "Specifies the engine version to build the plugin."),
-			FNewToolMenuChoice(FNewToolMenuDelegate::CreateStatic(&FPluginBuilderMenuExtension::OnExtendEngineVersionsSubMenu)),
+			FNewToolMenuChoice(FNewToolMenuDelegate::CreateStatic(&FToolMenuExtender::OnExtendEngineVersionsSubMenu)),
 			false,
 			{},
 			false
 		);
 
 		VersionsAndPlatformsSection.AddSubMenu(
-			TEXT("TargetPlatforms"),
+			TargetPlatformsSubMenuName,
 			LOCTEXT("TargetPlatformsLabel", "Target Platforms"),
 			LOCTEXT("TargetPlatformsTooltip", "Specifies the target platforms to build the plugin."),
-			FNewToolMenuChoice(FNewToolMenuDelegate::CreateStatic(&FPluginBuilderMenuExtension::OnExtendTargetPlatformsSubMenu)),
+			FNewToolMenuChoice(FNewToolMenuDelegate::CreateStatic(&FToolMenuExtender::OnExtendTargetPlatformsSubMenu)),
 			false,
 			{},
 			false
 		);
 
 		FToolMenuSection& OptionsSection = ToolMenu->AddSection(
-			TEXT("Options"),
+			OptionsSectionName,
 			LOCTEXT("OptionsLabel", "Options")
 		);
 		
@@ -159,7 +166,7 @@ namespace PluginBuilder
 		OptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().ZipUp);
 	}
 
-	void FPluginBuilderMenuExtension::OnExtendEngineVersionsSubMenu(UToolMenu* ToolMenu)
+	void FToolMenuExtender::OnExtendEngineVersionsSubMenu(UToolMenu* ToolMenu)
 	{
 		if (!IsValid(ToolMenu))
 		{
@@ -195,7 +202,7 @@ namespace PluginBuilder
 		}
 	}
 
-	void FPluginBuilderMenuExtension::OnExtendTargetPlatformsSubMenu(UToolMenu* ToolMenu)
+	void FToolMenuExtender::OnExtendTargetPlatformsSubMenu(UToolMenu* ToolMenu)
 	{
 		if (!IsValid(ToolMenu))
 		{
@@ -234,7 +241,7 @@ namespace PluginBuilder
 		}
 	}
 
-	void FPluginBuilderMenuExtension::OnExtendBuildTargetsSubMenu(UToolMenu* ToolMenu)
+	void FToolMenuExtender::OnExtendBuildTargetsSubMenu(UToolMenu* ToolMenu)
 	{
 		if (!IsValid(ToolMenu))
 		{
