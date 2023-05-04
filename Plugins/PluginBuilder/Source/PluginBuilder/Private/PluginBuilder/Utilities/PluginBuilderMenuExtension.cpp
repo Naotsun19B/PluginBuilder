@@ -1,10 +1,10 @@
-﻿// Copyright 2022-2023 Naotsun. All Rights Reserved.
+// Copyright 2022-2023 Naotsun. All Rights Reserved.
 
 #include "PluginBuilder/Utilities/PluginBuilderMenuExtension.h"
 #include "PluginBuilder/CommandActions/PluginBuilderCommands.h"
 #include "PluginBuilder/Types/BuildTarget.h"
 #include "PluginBuilder/Types/EngineVersions.h"
-#include "PluginBuilder/Types/PlatformNames.h"
+#include "PluginBuilder/Types/TargetPlatforms.h"
 #include "PluginBuilder/PluginBuilderGlobals.h"
 #include "ToolMenus.h"
 
@@ -219,12 +219,14 @@ namespace PluginBuilder
 		{
 			return;
 		}
-
-		FToolMenuSection& Section = ToolMenu->AddSection(TEXT("TargetPlatforms"));
 		
-		const TArray<FPlatformNames::FPlatformName>& PlatformNames = FPlatformNames::GetPlatformNames();
+		const TArray<FTargetPlatforms::FTargetPlatform>& PlatformNames = FTargetPlatforms::GetPlatformNames();
 		for (const auto& PlatformName : PlatformNames)
 		{
+			const FName& PlatformGroupName = PlatformName.PlatformGroupName;
+			FToolMenuSection& Section = ToolMenu->FindOrAddSection(PlatformGroupName);
+			Section.Label = FText::FromName(PlatformGroupName);
+			
 			Section.AddMenuEntry(
 				*PlatformName.UBTPlatformName,
 				FText::FromString(PlatformName.UBTPlatformName),
@@ -241,9 +243,9 @@ namespace PluginBuilder
                 	*FString::Printf(TEXT("Launcher.Platform_%s"), *PlatformName.IniPlatformName)
                 ),
                 FUIAction(
-				   FExecuteAction::CreateStatic(&FPlatformNames::ToggleTargetPlatform, PlatformName),
+				   FExecuteAction::CreateStatic(&FTargetPlatforms::ToggleTargetPlatform, PlatformName),
 				   FCanExecuteAction(),
-				   FIsActionChecked::CreateStatic(&FPlatformNames::GetTargetPlatformState, PlatformName)
+				   FIsActionChecked::CreateStatic(&FTargetPlatforms::GetTargetPlatformState, PlatformName)
 			   ),
 			   EUserInterfaceActionType::RadioButton
 			);
