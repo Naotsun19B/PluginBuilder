@@ -100,8 +100,9 @@ namespace PluginBuilder
 		const FPluginDescriptor& Descriptor = Plugin->GetDescriptor();
 		PluginName = Descriptor.FriendlyName;
 		PluginDescription = Descriptor.Description;
+		PluginCategory = Descriptor.Category;
 		PluginVersionName = Descriptor.VersionName;
-		bCanContainContent = Descriptor.bCanContainContent;
+		bCanPluginContainContent = Descriptor.bCanContainContent;
 		UPluginFile = FPaths::ConvertRelativePathToFull(Plugin->GetDescriptorFileName());
 	}
 
@@ -113,6 +114,11 @@ namespace PluginBuilder
 	FString FBuildTarget::GetPluginDescription() const
 	{
 		return PluginDescription;
+	}
+
+	FString FBuildTarget::GetPluginCategory() const
+	{
+		return PluginCategory;
 	}
 
 	FSlateIcon FBuildTarget::GetPluginIcon() const
@@ -128,9 +134,9 @@ namespace PluginBuilder
 		return PluginVersionName;
 	}
 
-	bool FBuildTarget::CanContainContent() const
+	bool FBuildTarget::CanPluginContainContent() const
 	{
-		return bCanContainContent;
+		return bCanPluginContainContent;
 	}
 
 	FString FBuildTarget::GetUPluginFile() const

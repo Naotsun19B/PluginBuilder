@@ -36,6 +36,9 @@ namespace PluginBuilder
 		// Returns the description of the plugin to build.
 		FString GetPluginDescription() const;
 
+		// Returns the name of the category of the plugin to build.
+		FString GetPluginCategory() const;
+
 		// Returns the icon of the plugin to build.
 		FSlateIcon GetPluginIcon() const;
 
@@ -43,7 +46,7 @@ namespace PluginBuilder
 		FString GetPluginVersionName() const;
 
 		// Returns whether the plugin to build uses the content folder.
-		bool CanContainContent() const;
+		bool CanPluginContainContent() const;
 
 		// Returns the path to the .uplugin file for the plugin you want to build.
 		FString GetUPluginFile() const;
@@ -55,11 +58,14 @@ namespace PluginBuilder
 		// The description of the plugin to build.
 		FString PluginDescription;
 
+		// The name of the category of the plugin to build.
+		FString PluginCategory;
+		
 		// The version name of the plugin to build.
 		FString PluginVersionName;
 
 		// Whether the plugin to build uses the content folder.
-		bool bCanContainContent;
+		bool bCanPluginContainContent;
 
 		// The path to the .uplugin file for the plugin you want to build.
 		FString UPluginFile;

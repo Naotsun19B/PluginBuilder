@@ -21,7 +21,7 @@ namespace PluginBuilder
 			const FBuildTarget& BuildTarget = Settings.SelectedBuildTarget.GetValue();
 			PluginName = BuildTarget.GetPluginName();
 			PluginVersionName = BuildTarget.GetPluginVersionName();
-			bCanContainContent = BuildTarget.CanContainContent();
+			bCanContainContent = BuildTarget.CanPluginContainContent();
 			UPluginFile = BuildTarget.GetUPluginFile();
 		}
 		EngineVersions = Settings.EngineVersions;

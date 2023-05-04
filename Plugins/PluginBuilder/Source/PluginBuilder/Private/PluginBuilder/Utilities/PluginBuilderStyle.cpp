@@ -26,10 +26,18 @@ namespace PluginBuilder
 		for (const auto& Plugin : Plugins)
 		{
 			const FName IconName = GetPropertyName(Plugin->GetFriendlyName());
-			const FString IconPath = FPaths::ConvertRelativePathToFull(
+			FString IconPath = FPaths::ConvertRelativePathToFull(
 				Plugin->GetBaseDir() / TEXT("Resources") / TEXT("Icon128.png")
 			);
 
+			const TSharedPtr<IPlugin> PluginBrowser = IPluginManager::Get().FindPlugin(TEXT("PluginBrowser"));
+			if (!FPaths::FileExists(IconPath))
+			{
+				IconPath = FPaths::ConvertRelativePathToFull(
+					PluginBrowser->GetBaseDir() / TEXT("Resources") / TEXT("DefaultIcon128.png")
+				);
+			}
+			
 			Set(
 				IconName,
 				new FSlateImageBrush(IconPath, CoreStyleConstants::Icon16x16)

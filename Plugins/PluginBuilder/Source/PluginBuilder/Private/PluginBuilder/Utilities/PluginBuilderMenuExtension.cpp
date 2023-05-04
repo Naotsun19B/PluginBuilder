@@ -123,9 +123,12 @@ namespace PluginBuilder
 			return;
 		}
 
-		FToolMenuSection& Section = ToolMenu->AddSection(TEXT("BuildConfigurations"));
+		FToolMenuSection& VersionsAndPlatformsSection = ToolMenu->AddSection(
+			TEXT("VersionsAndPlatforms"),
+			LOCTEXT("VersionsAndPlatformsLabel", "Versions And Platforms")
+		);
 		
-		Section.AddSubMenu(
+		VersionsAndPlatformsSection.AddSubMenu(
 			TEXT("EngineVersions"),
 			LOCTEXT("EngineVersionsLabel", "Engine Versions"),
 			LOCTEXT("EngineVersionsTooltip", "Specifies the engine version to build the plugin."),
@@ -135,7 +138,7 @@ namespace PluginBuilder
 			false
 		);
 
-		Section.AddSubMenu(
+		VersionsAndPlatformsSection.AddSubMenu(
 			TEXT("TargetPlatforms"),
 			LOCTEXT("TargetPlatformsLabel", "Target Platforms"),
 			LOCTEXT("TargetPlatformsTooltip", "Specifies the target platforms to build the plugin."),
@@ -145,10 +148,15 @@ namespace PluginBuilder
 			false
 		);
 
-		Section.AddMenuEntry(FPluginBuilderCommands::Get().Rocket);
-		Section.AddMenuEntry(FPluginBuilderCommands::Get().CreateSubFolder);
-		Section.AddMenuEntry(FPluginBuilderCommands::Get().StrictIncludes);
-		Section.AddMenuEntry(FPluginBuilderCommands::Get().ZipUp);
+		FToolMenuSection& OptionsSection = ToolMenu->AddSection(
+			TEXT("Options"),
+			LOCTEXT("OptionsLabel", "Options")
+		);
+		
+		OptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().Rocket);
+		OptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().CreateSubFolder);
+		OptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().StrictIncludes);
+		OptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().ZipUp);
 	}
 
 	void FPluginBuilderMenuExtension::OnExtendEngineVersionsSubMenu(UToolMenu* ToolMenu)
@@ -157,12 +165,32 @@ namespace PluginBuilder
 		{
 			return;
 		}
-
-		FToolMenuSection& Section = ToolMenu->AddSection(TEXT("EngineVersions"));
 		
 		const TArray<FEngineVersions::FEngineVersion>& EngineVersions = FEngineVersions::GetEngineVersions();
 		for (const auto& EngineVersion : EngineVersions)
 		{
+			FString MajorVersionLabel = TEXT("Custom");
+			{
+				int32 MajorVersion = INDEX_NONE;
+				{
+					FString MajorVersionString;
+					if (EngineVersion.VersionName.Split(TEXT("."), &MajorVersionString, nullptr))
+					{
+						if (FCString::IsNumeric(*MajorVersionString))
+						{
+							MajorVersion = FCString::Atoi(*MajorVersionString);
+						}
+					}
+				}
+				if (MajorVersion != INDEX_NONE)
+				{
+					MajorVersionLabel = FString::Printf(TEXT("UE%d"), MajorVersion);
+				}
+			}
+
+			FToolMenuSection& Section = ToolMenu->FindOrAddSection(*MajorVersionLabel);
+			Section.Label = FText::FromString(MajorVersionLabel);
+			
 			Section.AddMenuEntry(
 				*EngineVersion.VersionName,
             	FText::FromString(EngineVersion.VersionName),
@@ -228,12 +256,14 @@ namespace PluginBuilder
 		{
 			return;
 		}
-
-		FToolMenuSection& Section = ToolMenu->AddSection(TEXT("BuildTarget"));
 		
 		TArray<FBuildTarget> BuildTargets = FBuildTarget::GetFilteredBuildTargets();
 		for (auto& BuildTarget : BuildTargets)
 		{
+			const FString PluginCategory = BuildTarget.GetPluginCategory();
+			FToolMenuSection& Section = ToolMenu->FindOrAddSection(*PluginCategory);
+			Section.Label = FText::FromString(PluginCategory);
+			
 			Section.AddMenuEntry(
 				*BuildTarget.GetPluginName(),
 				FText::Format(
