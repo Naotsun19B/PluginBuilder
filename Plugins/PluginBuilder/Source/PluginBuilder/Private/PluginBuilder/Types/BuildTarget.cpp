@@ -84,7 +84,7 @@ namespace PluginBuilder
 		Settings.SaveConfig();
 	}
 
-	bool FBuildTarget::IsSelectedBuildTarget(const FBuildTarget BuildTarget)
+	bool FBuildTarget::IsBuildTargetSelected(const FBuildTarget BuildTarget)
 	{
 		const TOptional<FBuildTarget>& SelectedBuildTarget = UPluginBuilderSettings::Get().SelectedBuildTarget;
 		if (SelectedBuildTarget.IsSet())

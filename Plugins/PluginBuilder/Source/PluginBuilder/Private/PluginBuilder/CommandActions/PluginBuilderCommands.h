@@ -38,6 +38,10 @@ namespace PluginBuilder
 		
 		// Instances of bound commands.
 		TSharedPtr<FUICommandInfo> BuildPlugin;
+		TSharedPtr<FUICommandInfo> Rocket;
+		TSharedPtr<FUICommandInfo> CreateSubFolder;
+		TSharedPtr<FUICommandInfo> StrictIncludes;
+		TSharedPtr<FUICommandInfo> ZipUp;
 		TSharedPtr<FUICommandInfo> OpenBuildSettings;
 
 	private:

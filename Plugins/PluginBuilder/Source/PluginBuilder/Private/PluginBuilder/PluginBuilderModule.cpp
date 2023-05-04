@@ -7,7 +7,6 @@
 #include "PluginBuilder/Utilities/PluginBuilderStyle.h"
 #include "PluginBuilder/Utilities/PluginBuilderSettings.h"
 #include "PluginBuilder/Utilities/PluginBuilderMenuExtension.h"
-#include "PluginBuilder/Utilities/EngineVersions.h"
 #include "PluginBuilder/Tasks/PackagePluginTask.h"
 
 DEFINE_LOG_CATEGORY(LogPluginBuilder);
@@ -37,9 +36,6 @@ namespace PluginBuilder
 
 		// Register menu extension.
 		FPluginBuilderMenuExtension::Register();
-
-		// Gather information about installed engines.
-		FEngineVersions::RefreshEngineVersions();
 	}
 
 	void FPluginBuilderModule::ShutdownModule()

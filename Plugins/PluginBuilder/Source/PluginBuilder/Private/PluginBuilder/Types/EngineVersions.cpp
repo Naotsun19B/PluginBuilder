@@ -1,6 +1,7 @@
 ﻿// Copyright 2022-2023 Naotsun. All Rights Reserved.
 
-#include "PluginBuilder/Utilities/EngineVersions.h"
+#include "PluginBuilder/Types/EngineVersions.h"
+#include "PluginBuilder/Utilities/PluginBuilderSettings.h"
 #include "Misc/Paths.h"
 
 #include "Windows/AllowWindowsPlatformTypes.h"
@@ -213,6 +214,35 @@ namespace PluginBuilder
 		}
 
 		return false;
+	}
+
+	void FEngineVersions::ToggleEngineVersion(const FEngineVersion EngineVersion)
+	{
+		auto& Settings = UPluginBuilderSettings::Get();
+
+		if (Settings.EngineVersions.Contains(EngineVersion.VersionName))
+		{
+			Settings.EngineVersions.Remove(EngineVersion.VersionName);
+		}
+		else
+		{
+			Settings.EngineVersions.Add(EngineVersion.VersionName);
+		}
+
+		Settings.EngineVersions.Sort(
+			[](const FString& Lhs, const FString& Rhs) -> bool
+			{
+				const float LhsValue = FCString::Atof(*Lhs);
+				const float RhsValue = FCString::Atof(*Rhs);
+				return (LhsValue < RhsValue);
+			}
+		);
+		Settings.SaveConfig();
+	}
+
+	bool FEngineVersions::GetEngineVersionState(const FEngineVersion EngineVersion)
+	{
+		return UPluginBuilderSettings::Get().EngineVersions.Contains(EngineVersion.VersionName);
 	}
 
 	TArray<FEngineVersions::FEngineVersion> FEngineVersions::EngineVersions;

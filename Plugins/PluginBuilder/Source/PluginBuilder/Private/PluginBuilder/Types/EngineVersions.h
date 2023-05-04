@@ -30,7 +30,7 @@ namespace PluginBuilder
 		// Returns a list of installed engine version information.
 		static TArray<FEngineVersion> GetEngineVersions(bool bWithRefresh = true);
 
-		// Collect engine version information from the Windows registry.
+		// Collects engine version information from the Windows registry.
 		static void RefreshEngineVersions();
 
 		// Returns a list of installed engine version names.
@@ -38,6 +38,12 @@ namespace PluginBuilder
 
 		// Search for the RunUAT.bat file path from the version name.
 		static bool FindUATBatchFileByVersionName(const FString& VersionName, FString& UATBatchFile);
+
+		// Toggles selection state the specified engine version.
+		static void ToggleEngineVersion(const FEngineVersion EngineVersion);
+
+		// Returns whether the specified engine version is selected.
+		static bool GetEngineVersionState(const FEngineVersion EngineVersion);
 		
 	private:
 		// A list of installed engine version information.

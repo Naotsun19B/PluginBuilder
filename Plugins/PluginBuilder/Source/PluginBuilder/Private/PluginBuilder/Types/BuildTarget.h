@@ -25,7 +25,7 @@ namespace PluginBuilder
 		static void SelectBuildTarget(const FBuildTarget BuildTarget);
 
 		// Returns whether the specified build target is selected.
-		static bool IsSelectedBuildTarget(const FBuildTarget BuildTarget);
+		static bool IsBuildTargetSelected(const FBuildTarget BuildTarget);
 		
 		// Constructor.
 		explicit FBuildTarget(const TSharedRef<IPlugin>& Plugin);

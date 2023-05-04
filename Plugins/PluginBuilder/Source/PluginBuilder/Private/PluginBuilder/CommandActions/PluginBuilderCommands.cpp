@@ -17,7 +17,7 @@ namespace PluginBuilder
 	FPluginBuilderCommands::FPluginBuilderCommands()
 		: TCommands<FPluginBuilderCommands>
 		(
-			TEXT("PluginBuilder"),
+			PluginName,
 			LOCTEXT("Contexts", "Plugin Builder"),
 			NAME_None,
 #if UE_5_00_OR_LATER
@@ -41,7 +41,39 @@ namespace PluginBuilder
 			EUserInterfaceActionType::Button,
 			FInputChord()
 		);
+		
+		UI_COMMAND(
+			Rocket,
+			"Rocket",
+			"Whether to handle older versions that do not use the Rocket.txt file.",
+			EUserInterfaceActionType::RadioButton,
+			FInputChord()
+		);
 
+		UI_COMMAND(
+			CreateSubFolder,
+			"Create Sub Folder",
+			"Whether to create a subfolder in the output built plugins folder.",
+			EUserInterfaceActionType::RadioButton,
+			FInputChord()
+		);
+
+		UI_COMMAND(
+			StrictIncludes,
+			"Strict Includes",
+			"Whether to judge the header inclusion of the plugin code strictly.",
+			EUserInterfaceActionType::RadioButton,
+			FInputChord()
+		);
+
+		UI_COMMAND(
+			ZipUp,
+			"Zip Up",
+			"Whether to create a zip file that contains only the files we need after the build.",
+			EUserInterfaceActionType::RadioButton,
+			FInputChord()
+		);
+		
 		UI_COMMAND(
 			OpenBuildSettings,
 			"Build Settings...",
@@ -84,6 +116,34 @@ namespace PluginBuilder
 			BuildPlugin,
 			FExecuteAction::CreateStatic(&FPluginBuilderCommandActions::BuildPlugin),
 			FCanExecuteAction::CreateStatic(&FPluginBuilderCommandActions::CanBuildPlugin)
+		);
+
+		CommandBindings->MapAction(
+			Rocket,
+			FExecuteAction::CreateStatic(&FPluginBuilderCommandActions::ToggleRocket),
+			FCanExecuteAction(),
+			FIsActionChecked::CreateStatic(&FPluginBuilderCommandActions::GetRocketState)
+		);
+
+		CommandBindings->MapAction(
+			CreateSubFolder,
+			FExecuteAction::CreateStatic(&FPluginBuilderCommandActions::ToggleCreateSubFolder),
+			FCanExecuteAction(),
+			FIsActionChecked::CreateStatic(&FPluginBuilderCommandActions::GetCreateSubFolderState)
+		);
+
+		CommandBindings->MapAction(
+			StrictIncludes,
+			FExecuteAction::CreateStatic(&FPluginBuilderCommandActions::ToggleStrictIncludes),
+			FCanExecuteAction(),
+			FIsActionChecked::CreateStatic(&FPluginBuilderCommandActions::GetStrictIncludesState)
+		);
+
+		CommandBindings->MapAction(
+			ZipUp,
+			FExecuteAction::CreateStatic(&FPluginBuilderCommandActions::ToggleZipUp),
+			FCanExecuteAction(),
+			FIsActionChecked::CreateStatic(&FPluginBuilderCommandActions::GetZipUpState)
 		);
 
 		CommandBindings->MapAction(

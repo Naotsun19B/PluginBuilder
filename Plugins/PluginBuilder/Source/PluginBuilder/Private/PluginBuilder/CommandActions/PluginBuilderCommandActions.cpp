@@ -81,6 +81,54 @@ namespace PluginBuilder
 			(Settings.EngineVersions.Num() > 0)
 		);
 	}
+	
+	void FPluginBuilderCommandActions::ToggleRocket()
+	{
+		auto& Settings = UPluginBuilderSettings::Get();
+		Settings.bRocket = !Settings.bRocket;
+		Settings.SaveConfig();
+	}
+
+	bool FPluginBuilderCommandActions::GetRocketState()
+	{
+		return UPluginBuilderSettings::Get().bRocket;
+	}
+
+	void FPluginBuilderCommandActions::ToggleCreateSubFolder()
+	{
+		auto& Settings = UPluginBuilderSettings::Get();
+		Settings.bCreateSubFolder = !Settings.bCreateSubFolder;
+		Settings.SaveConfig();
+	}
+
+	bool FPluginBuilderCommandActions::GetCreateSubFolderState()
+	{
+		return UPluginBuilderSettings::Get().bCreateSubFolder;
+	}
+
+	void FPluginBuilderCommandActions::ToggleStrictIncludes()
+	{
+		auto& Settings = UPluginBuilderSettings::Get();
+		Settings.bStrictIncludes = !Settings.bStrictIncludes;
+		Settings.SaveConfig();
+	}
+
+	bool FPluginBuilderCommandActions::GetStrictIncludesState()
+	{
+		return UPluginBuilderSettings::Get().bStrictIncludes;
+	}
+
+	void FPluginBuilderCommandActions::ToggleZipUp()
+	{
+		auto& Settings = UPluginBuilderSettings::Get();
+    	Settings.bZipUp = !Settings.bZipUp;
+    	Settings.SaveConfig();
+	}
+
+	bool FPluginBuilderCommandActions::GetZipUpState()
+	{
+		return UPluginBuilderSettings::Get().bZipUp;
+	}
 
 	void FPluginBuilderCommandActions::OpenBuildSettings()
 	{
