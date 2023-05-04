@@ -94,7 +94,7 @@ namespace PluginBuilder
 		MenuBuilder.AddSeparator();
 		
 		MenuBuilder.AddSubMenu(
-			LOCTEXT("BuildConfigurationLabel", "Build Configuration"),
+			LOCTEXT("BuildConfigurationLabel", "Build Configurations"),
 			LOCTEXT("BuildConfigurationTooltip", "Select the version and platform of the engine to build, whether to zip file, etc."),
 			FNewMenuDelegate::CreateStatic(&OnExtendBuildConfigurationSubMenu),
 			false,
@@ -103,7 +103,7 @@ namespace PluginBuilder
 		);
 
 		MenuBuilder.AddSubMenu(
-			LOCTEXT("BuildTargetLabel", "Build Target"),
+			LOCTEXT("BuildTargetLabel", "Build Targets"),
 			LOCTEXT("BuildTargetTooltip", "Select the plugin to build."),
 			FNewMenuDelegate::CreateStatic(&OnExtendBuildTargetSubMenu),
 			false,
