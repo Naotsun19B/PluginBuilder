@@ -38,19 +38,5 @@ namespace PluginBuilder
 		
 		// Opens the settings for Plugin Builder.
 		static void OpenBuildSettings();
-
-	private:
-		// Called when the cancel button of the editor notification is pressed.
-		static void HandleOnCancelPackagingButtonPressed();
-		
-		// Called when the plugin packaging process is complete.
-		static void HandleOnTaskFinished(const bool bWasSuccessful, const bool bWasCanceled);
-		
-	private:
-		// A running task that packages a plugin.
-		static TSharedPtr<FPackagePluginTask> ActivePackagePluginTask;
-
-		// An editor notification item that package a plugin.
-		static TSharedPtr<SNotificationItem> PendingNotificationItem;
 	};
 }

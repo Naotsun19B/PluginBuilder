@@ -7,7 +7,6 @@
 #include "PluginBuilder/Utilities/PluginBuilderStyle.h"
 #include "PluginBuilder/Utilities/PluginBuilderSettings.h"
 #include "PluginBuilder/UIExtensions/ToolMenuExtender.h"
-#include "PluginBuilder/Tasks/PackagePluginTask.h"
 
 DEFINE_LOG_CATEGORY(LogPluginBuilder);
 
@@ -54,9 +53,6 @@ namespace PluginBuilder
 		{
 			FPluginBuilderCommands::Unregister();
 		}
-
-		// Clean up working directory.
-		FPackagePluginTask::CleanUp();
 	}
 }
 

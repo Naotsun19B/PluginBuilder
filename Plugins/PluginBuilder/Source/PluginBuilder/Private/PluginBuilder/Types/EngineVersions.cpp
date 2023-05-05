@@ -132,7 +132,7 @@ namespace PluginBuilder
 		};
 	}
 	
-	TArray<FEngineVersions::FEngineVersion> FEngineVersions::GetEngineVersions(bool bWithRefresh /* = true */)
+	TArray<FEngineVersions::FEngineVersion> FEngineVersions::GetEngineVersions(const bool bWithRefresh /* = true */)
 	{
 		if (bWithRefresh)
 		{
@@ -220,8 +220,13 @@ namespace PluginBuilder
 		return UnrealEngineVersions;
 	}
 
-	bool FEngineVersions::FindUATBatchFileByVersionName(const FString& VersionName, FString& UATBatchFile)
+	bool FEngineVersions::FindUATBatchFileByVersionName(const FString& VersionName, FString& UATBatchFile, const bool bWithRefresh /* = true */)
 	{
+		if (bWithRefresh)
+		{
+			RefreshEngineVersions();
+		}
+		
 		for (const auto& EngineVersion : EngineVersions)
 		{
 			if (EngineVersion.VersionName.Equals(VersionName))
