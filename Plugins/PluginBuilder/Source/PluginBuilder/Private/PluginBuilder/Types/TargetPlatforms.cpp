@@ -46,8 +46,9 @@ namespace PluginBuilder
 				PlatformName.PlatformGroupName = PlatformInfo.PlatformGroupName;
 #else
 				const PlatformInfo::FPlatformInfo& PlatformInfo = TargetPlatform->GetPlatformInfo();
-				PlatformInfo.UBTTargetId.ToString(UBTPlatformName);
-				IniPlatformName = PlatformInfo.IniPlatformName;
+				PlatformInfo.UBTTargetId.ToString(PlatformName.UBTPlatformName);
+				PlatformName.IniPlatformName = PlatformInfo.IniPlatformName;
+				PlatformName.PlatformGroupName = PlatformInfo.PlatformGroupName;
 #endif
 				if (PlatformInfo.PlatformSubMenu != NAME_None)
 				{

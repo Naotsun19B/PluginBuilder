@@ -7,6 +7,11 @@
 #include "PluginBuilder/Types/TargetPlatforms.h"
 #include "PluginBuilder/PluginBuilderGlobals.h"
 #include "ToolMenus.h"
+#if UE_5_00_OR_LATER
+#include "Styling/AppStyle.h"
+#else
+#include "EditorStyleSet.h"
+#endif
 
 #define LOCTEXT_NAMESPACE "PluginBuilderMenuExtension"
 
