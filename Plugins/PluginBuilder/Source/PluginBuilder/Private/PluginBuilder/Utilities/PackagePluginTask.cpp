@@ -106,9 +106,26 @@ namespace PluginBuilder
 		}
 		else
 		{
-			int32 ReturnCode = -1;
-			FPlatformProcess::GetProcReturnCode(ProcessHandle, &ReturnCode);
-				
+			enum EReturnCode
+			{
+				RC_ProcessDidNotRun = -1,
+				RC_DirectoryDoesNotExists = -2,
+			};
+			
+			int32 ReturnCode;
+			if (!FPlatformProcess::GetProcReturnCode(ProcessHandle, &ReturnCode))
+			{
+				ReturnCode = RC_ProcessDidNotRun;
+			}
+			else
+			{
+				IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+				if (!PlatformFile.DirectoryExists(*GetBuiltPluginDestinationPath()))
+				{
+					ReturnCode = RC_DirectoryDoesNotExists;
+				}
+			}
+			
 			UE_LOG(LogPluginBuilder, Log, TEXT("----------------------------------------------------------------------------------------------------"));
 			if (ReturnCode == 0)
 			{
@@ -117,7 +134,19 @@ namespace PluginBuilder
 			}
 			else
 			{
-				UE_LOG(LogPluginBuilder, Error, TEXT("[Return Code] %d"), ReturnCode);
+				if (ReturnCode == RC_ProcessDidNotRun)
+				{
+					UE_LOG(LogPluginBuilder, Error, TEXT("UAT process did not run."));
+				}
+				else if (ReturnCode == RC_DirectoryDoesNotExists)
+				{
+					UE_LOG(LogPluginBuilder, Error, TEXT("Built plugin directory does not exist. (%s)"), *GetBuiltPluginDestinationPath());
+				}
+				else
+				{
+					UE_LOG(LogPluginBuilder, Error, TEXT("[Return Code] %d"), ReturnCode);
+				}
+				
 				bHasAnyError = true;
 			}
 
@@ -128,7 +157,7 @@ namespace PluginBuilder
 	void FPackagePluginTask::Terminate()
 	{
 		IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
-
+		
 		if (bHasAnyError)
 		{
 			PlatformFile.DeleteDirectoryRecursively(*GetBuiltPluginDestinationPath());
