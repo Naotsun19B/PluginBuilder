@@ -9,7 +9,7 @@
 #include "Styling/AppStyle.h"
 #include "Misc/DataDrivenPlatformInfoRegistry.h"
 #else
-#include "EditorStyle.h"
+#include "EditorStyleSet.h"
 #include "PlatformInfo.h"
 #endif
 

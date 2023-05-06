@@ -13,7 +13,7 @@ namespace PluginBuilder
 	{
 	public:
 		// Engine version information that can be obtained from the registry.
-		struct FEngineVersion
+		struct PLUGINBUILDER_API FEngineVersion
 		{
 		public:
 			// The installed engine version string.
@@ -39,7 +39,7 @@ namespace PluginBuilder
 		// Returns a list of installed engine version names.
 		static TArray<FString> GetVersionNames();
 
-		// Search for the RunUAT.bat file path from the version name.
+		// Searches for the RunUAT.bat file path from the version name.
 		static bool FindUATBatchFileByVersionName(const FString& VersionName, FString& UATBatchFile, const bool bWithRefresh = true);
 
 		// Toggles selection state the specified engine version.

@@ -2,7 +2,7 @@
 
 #include "PluginBuilder/UIExtensions/ToolMenuExtender.h"
 #include "PluginBuilder/CommandActions/PluginBuilderCommands.h"
-#include "PluginBuilder/Types/BuildTarget.h"
+#include "PluginBuilder/Types/BuildTargets.h"
 #include "PluginBuilder/Types/EngineVersions.h"
 #include "PluginBuilder/Types/TargetPlatforms.h"
 #include "PluginBuilder/PluginBuilderGlobals.h"
@@ -253,7 +253,7 @@ namespace PluginBuilder
 			return;
 		}
 		
-		TArray<FBuildTarget> BuildTargets = FBuildTarget::GetFilteredBuildTargets();
+		const TArray<FBuildTargets::FBuildTarget>& BuildTargets = FBuildTargets::GetFilteredBuildTargets();
 		for (auto& BuildTarget : BuildTargets)
 		{
 			const FString PluginCategory = BuildTarget.GetPluginCategory();
@@ -270,9 +270,9 @@ namespace PluginBuilder
 				FText::FromString(BuildTarget.GetPluginDescription()),
 				BuildTarget.GetPluginIcon(),
 				FUIAction(
-					FExecuteAction::CreateStatic(&FBuildTarget::SelectBuildTarget, BuildTarget),
+					FExecuteAction::CreateStatic(&FBuildTargets::SelectBuildTarget, BuildTarget),
 					FCanExecuteAction(),
-					FIsActionChecked::CreateStatic(&FBuildTarget::IsBuildTargetSelected, BuildTarget)
+					FIsActionChecked::CreateStatic(&FBuildTargets::IsBuildTargetSelected, BuildTarget)
 				),
 				EUserInterfaceActionType::RadioButton
 			);

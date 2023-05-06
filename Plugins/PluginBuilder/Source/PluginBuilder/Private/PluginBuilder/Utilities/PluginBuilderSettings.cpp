@@ -87,7 +87,7 @@ void UPluginBuilderSettings::PostInitProperties()
 {
 	UObject::PostInitProperties();
 
-	SelectedBuildTarget = PluginBuilder::FBuildTarget::GetDefaultBuildTarget();
+	SelectedBuildTarget = PluginBuilder::FBuildTargets::GetDefaultBuildTarget();
 }
 
 #undef LOCTEXT_NAMESPACE

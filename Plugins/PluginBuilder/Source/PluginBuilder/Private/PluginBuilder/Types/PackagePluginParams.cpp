@@ -17,7 +17,7 @@ namespace PluginBuilder
 
 		FBuildPluginParams BuildPluginParams;
 		{
-			const FBuildTarget& BuildTarget = Settings.SelectedBuildTarget.GetValue();
+			const FBuildTargets::FBuildTarget& BuildTarget = Settings.SelectedBuildTarget.GetValue();
 			BuildPluginParams.PluginName = BuildTarget.GetPluginName();
 			BuildPluginParams.PluginVersionName = BuildTarget.GetPluginVersionName();
 			BuildPluginParams.bCanPluginContainContent = BuildTarget.CanPluginContainContent();

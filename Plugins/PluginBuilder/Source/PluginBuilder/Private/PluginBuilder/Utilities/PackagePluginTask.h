@@ -42,7 +42,7 @@ namespace PluginBuilder
 		// Called only once when task processing ends.
 		void Terminate();
 
-		// Request cancellation of the task.
+		// Requests cancellation of the task.
 		void RequestCancel();
 		
 		// Functions that returns the path of a directory or working directory that

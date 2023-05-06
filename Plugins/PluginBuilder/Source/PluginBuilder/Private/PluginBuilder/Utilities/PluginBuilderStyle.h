@@ -26,7 +26,7 @@ namespace PluginBuilder
 		static void Unregister();
 		static const ISlateStyle& Get();
 
-		// Get the registered name of the icon from the plugin name.
+		// Gets the registered name of the icon from the plugin name.
 		static FName GetPropertyName(const FString& PluginFriendlyName);
 		
 	private:

@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "PluginBuilder/PluginBuilderGlobals.h"
-#include "PluginBuilder/Types/BuildTarget.h"
+#include "PluginBuilder/Types/BuildTargets.h"
 #if UE_5_00_OR_LATER
 #include "UObject/SoftObjectPath.h"
 #else
@@ -50,7 +50,7 @@ public:
 	// The name of the currently selected plugin to build.
 	UPROPERTY(Config)
 	FName SelectedBuildTargetName;
-	TOptional<PluginBuilder::FBuildTarget> SelectedBuildTarget;
+	TOptional<PluginBuilder::FBuildTargets::FBuildTarget> SelectedBuildTarget;
 	
 	// A list of engine versions to build the plugin.
 	UPROPERTY(Config)
@@ -87,7 +87,7 @@ public:
 	// Returns reference of this settings.
 	static UPluginBuilderSettings& Get();
 
-	// Open the settings menu for this plugin.
+	// Opens the settings menu for this plugin.
 	static void OpenSettings();
 
 	// UObject interface.

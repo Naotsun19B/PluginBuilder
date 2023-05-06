@@ -13,7 +13,7 @@ namespace PluginBuilder
 	{
 	public:
 		// A structure that summarizes platform names in UBT and ini formats respectively.
-		struct FTargetPlatform
+		struct PLUGINBUILDER_API FTargetPlatform
 		{
 		public:
 			// The name of the platform covered by UBT.
