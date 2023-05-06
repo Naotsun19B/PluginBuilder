@@ -12,7 +12,7 @@ namespace PluginBuilder
 }
 
 /**
- * Macro to support each engine version.
+ * Macros to support each engine version.
  */
 #define ENGINE_VERSION_NUMBER(MajorVersion, MinorVersion) (MajorVersion * 100 + MinorVersion)
 #define COMPARE_ENGINE_VERSION(MajorVersion, MinorVersion) ENGINE_VERSION_NUMBER(ENGINE_MAJOR_VERSION, ENGINE_MINOR_VERSION) >= ENGINE_VERSION_NUMBER(MajorVersion, MinorVersion)

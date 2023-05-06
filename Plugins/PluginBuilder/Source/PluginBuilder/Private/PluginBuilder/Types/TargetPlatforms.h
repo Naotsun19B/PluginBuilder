@@ -16,13 +16,13 @@ namespace PluginBuilder
 		struct PLUGINBUILDER_API FTargetPlatform
 		{
 		public:
-			// The name of the platform covered by UBT.
+			// A name of the platform covered by UBT.
 			FString UBTPlatformName;
 
-			// The name of the platform covered by ini.
+			// A name of the platform covered by ini.
 			FString IniPlatformName;
 
-			// The identifier to group similar platforms together, such as "Mobile" and "Console".
+			// A identifier to group similar platforms together, such as "Mobile" and "Console".
 			FName PlatformGroupName;
 		};
 

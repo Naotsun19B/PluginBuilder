@@ -59,13 +59,13 @@ namespace PluginBuilder
 		// A dataset used to process plugin build.
 		FBuildPluginParams Params;
 
-		// The types of task progress states.
+		// A task progress state.
 		EState State;
 
 		// Whether any error occurred during the packaging process.
 		bool bHasAnyError;
 
-		// Process handle of the batch file.
+		// A process handle of the batch file.
 		FProcHandle ProcessHandle;
 		
 		// A read pipe for outputting from the standard output of a batch file to the output log.

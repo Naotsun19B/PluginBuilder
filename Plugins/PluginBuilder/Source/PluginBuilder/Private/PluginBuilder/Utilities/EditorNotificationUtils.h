@@ -28,7 +28,7 @@ namespace PluginBuilder
 		void Fadeout();
 			
 	private:
-		// Indirectly operated SNotificationItem.
+		// An indirectly operated SNotificationItem.
 		TSharedPtr<SNotificationItem> NotificationItem;
 	};
 	
@@ -46,10 +46,10 @@ namespace PluginBuilder
 		};
 		EInteractionType Type;
 
-		// The text displayed by the button or hyperlink.
+		// A text displayed by the button or hyperlink.
 		FText Text;
 
-		// Tooltip text that appears when you hover over a button.
+		// A tooltip text that appears when you hover over a button.
 		FText Tooltip;
 
 		// A callback that is called when a button or hyperlink is pressed.

@@ -44,22 +44,22 @@ namespace PluginBuilder
 			FString GetUPluginFile() const;
 		
 		private:
-			// The name of the plugin to build.
+			// A name of the plugin to build.
 			FString PluginName;
 
-			// The description of the plugin to build.
+			// A description of the plugin to build.
 			FString PluginDescription;
 
-			// The name of the category of the plugin to build.
+			// A name of the category of the plugin to build.
 			FString PluginCategory;
 		
-			// The version name of the plugin to build.
+			// A version name of the plugin to build.
 			FString PluginVersionName;
 
 			// Whether the plugin to build uses the content folder.
 			bool bCanPluginContainContent;
 
-			// The path to the .uplugin file for the plugin you want to build.
+			// A path to the .uplugin file for the plugin you want to build.
 			FString UPluginFile;
 		};
 		

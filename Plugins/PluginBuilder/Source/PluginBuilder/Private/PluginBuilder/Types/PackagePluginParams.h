@@ -12,22 +12,22 @@ namespace PluginBuilder
 	struct PLUGINBUILDER_API FBuildPluginParams
 	{
 	public:
-		// The name of the plugin to build.
+		// A name of the plugin to build.
 		FString PluginName;
 		
-		// The version name of the plugin to build.
+		// A version name of the plugin to build.
 		FString PluginVersionName;
 
 		// Whether the plugin to build uses the content folder.
 		bool bCanPluginContainContent = false;
 
-		// The path to the .uplugin file for the plugin you want to build.
+		// A path to the .uplugin file for the plugin you want to build.
 		FString UPluginFile;
 		
 		// A list of engine versions to build the plugin.
 		TArray<FString> EngineVersions;
 
-		// The path of the directory where pre-built plugins, zipped plugins, etc. are output.
+		// A path of the directory where pre-built plugins, zipped plugins, etc. are output.
 		TOptional<FString> OutputDirectoryPath;
 		
 		// A list of target platforms to build the plugin.
