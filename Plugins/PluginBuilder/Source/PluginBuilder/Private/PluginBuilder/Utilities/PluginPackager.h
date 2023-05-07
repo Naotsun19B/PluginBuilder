@@ -18,11 +18,12 @@ namespace PluginBuilder
 	{
 	public:
 		// Creates and starts a task to specify a parameters and package the plugin.
-		static void StartPackagePluginTask();
-		static void StartPackagePluginTask(const FPackagePluginParams& InParams);
+		// If you don't specify parameters, it will be created from the values set in the editor preferences.
+		// Returns whether the package plugin task has started.
+		static bool StartPackagePluginTask(const TOptional<FPackagePluginParams>& InParams = {});
 
 		// Returns whether package processing is being done.
-		static bool IsRunning();
+		static bool IsPackagePluginTaskRunning();
 		
 		// FTickableObjectBase interface.
 		virtual void Tick(float DeltaTime) override;
@@ -58,8 +59,8 @@ namespace PluginBuilder
 		// A list of tasks scheduled to process.
 		TArray<TSharedRef<FPackagePluginTask>> Tasks;
 		
-		// Whether the task needs to be canceled.
-		bool bNeedToCancel = false;
+		// Whether the task was canceled.
+		bool bWasCanceled = false;
 
 		// Whether any error occurred during the packaging process.
 		bool bHasAnyError = false;

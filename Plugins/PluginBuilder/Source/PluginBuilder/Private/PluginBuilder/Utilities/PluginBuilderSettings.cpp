@@ -90,4 +90,9 @@ void UPluginBuilderSettings::PostInitProperties()
 	SelectedBuildTarget = PluginBuilder::FBuildTargets::GetDefaultBuildTarget();
 }
 
+bool UPluginBuilderSettings::IsReadyToStartPackagePluginTask() const
+{
+	return (SelectedBuildTarget.IsSet() && (EngineVersions.Num() > 0));
+}
+
 #undef LOCTEXT_NAMESPACE

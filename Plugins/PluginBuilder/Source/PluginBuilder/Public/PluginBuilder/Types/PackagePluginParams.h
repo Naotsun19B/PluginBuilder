@@ -23,9 +23,6 @@ namespace PluginBuilder
 
 		// A path to the .uplugin file for the plugin you want to build.
 		FString UPluginFile;
-		
-		// A list of engine versions to build the plugin.
-		TArray<FString> EngineVersions;
 
 		// A path of the directory where pre-built plugins, zipped plugins, etc. are output.
 		TOptional<FString> OutputDirectoryPath;
@@ -64,5 +61,10 @@ namespace PluginBuilder
 	public:
 		// Creates a parameter set from the values set in the editor preferences.
 		static bool MakeDefault(FPackagePluginParams& Default);
+		static bool MakeFromPluginName(const FName& PluginName, FPackagePluginParams& Params);
+
+		// Returns whether the parameters is valid to start package plugin task.
+		// Returns true if the specified plugin exists and all engine versions are installed.
+		bool IsValid() const;
 	};
 }

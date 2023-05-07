@@ -7,8 +7,11 @@
 
 namespace PluginBuilder
 {
-	// The name of this plugin.
-	static const FName PluginName = TEXT("PluginBuilder");
+	namespace Global
+	{
+		// The name of this plugin.
+		static const FName PluginName = TEXT("PluginBuilder");
+	}
 }
 
 /**
