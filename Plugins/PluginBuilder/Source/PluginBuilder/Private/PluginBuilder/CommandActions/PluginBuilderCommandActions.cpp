@@ -13,12 +13,9 @@ namespace PluginBuilder
 
 	bool FPluginBuilderCommandActions::CanBuildPlugin()
 	{
-		const auto& Settings = UPluginBuilderSettings::Get();
-		
 		return (
-			!FPluginPackager::IsRunning() &&
-			Settings.SelectedBuildTarget.IsSet() &&
-			(Settings.EngineVersions.Num() > 0)
+			!FPluginPackager::IsPackagePluginTaskRunning() &&
+			UPluginBuilderSettings::Get().IsReadyToStartPackagePluginTask()
 		);
 	}
 	

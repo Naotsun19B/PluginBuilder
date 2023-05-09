@@ -14,7 +14,7 @@
 #include "PluginBuilderSettings.generated.h"
 
 /**
- * Editor settings for this plugin.
+ * A editor preferences class for this plugin.
  */
 UCLASS(Config = Editor)
 class PLUGINBUILDER_API UPluginBuilderSettings : public UObject
@@ -93,4 +93,7 @@ public:
 	// UObject interface.
 	virtual void PostInitProperties() override;
 	// End of UObject interface.
+
+	// Returns whether the parameters is ready to start package plugin task.
+	bool IsReadyToStartPackagePluginTask() const;
 };

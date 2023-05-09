@@ -15,28 +15,63 @@ namespace PluginBuilder
 {
 	DECLARE_STATS_GROUP(TEXT("PackagePluginTask"), STATGROUP_PackagePluginTask, STATCAT_Advanced);
 	
-	void FPluginPackager::StartPackagePluginTask()
+	bool FPluginPackager::StartPackagePluginTask(const TOptional<FPackagePluginParams>& InParams /* = {} */)
 	{
-		FPackagePluginParams DefaultParams;
-		if (FPackagePluginParams::MakeDefault(DefaultParams))
+		if (IsPackagePluginTaskRunning())
 		{
-			StartPackagePluginTask(DefaultParams);
+			UE_LOG(LogPluginBuilder, Warning, TEXT("A package plugin task is currently running. (plugin in package : %s)"), *Instance->Params.BuildPluginParams.PluginName);
+			return false;
 		}
-	}
 
-	void FPluginPackager::StartPackagePluginTask(const FPackagePluginParams& InParams)
-	{
-		if (IsRunning())
+		FPackagePluginParams ParamsToPass;
+		if (InParams.IsSet())
 		{
-			return;
+			ParamsToPass = InParams.GetValue();
+		}
+		else
+		{
+            if (!FPackagePluginParams::MakeDefault(ParamsToPass))
+            {
+            	UE_LOG(LogPluginBuilder, Warning, TEXT("No plugin or engine version to build for was specified."));
+            	return false;
+            }
+		}
+		if (!ParamsToPass.IsValid())
+		{
+			UE_LOG(LogPluginBuilder, Warning, TEXT("The specified plugin does not exist, or an invalid value is specified for the engine versions."));
+			return false;
+		}
+
+		if (!ParamsToPass.BuildPluginParams.OutputDirectoryPath.IsSet())
+		{
+			if (IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get())
+			{
+				FString OutputDirectoryPath;
+				const bool bWasSelected = DesktopPlatform->OpenDirectoryDialog(
+					FSlateApplication::Get().FindBestParentWindowHandleForDialogs(nullptr),
+					TEXT("Select Output Directory"),
+					FPaths::ProjectDir(),
+					OutputDirectoryPath
+				);
+				if (bWasSelected)
+				{
+					ParamsToPass.BuildPluginParams.OutputDirectoryPath = OutputDirectoryPath;
+				}
+			}
+		}
+		if (!ParamsToPass.BuildPluginParams.OutputDirectoryPath.IsSet())
+		{
+			return false;
 		}
 
 		Instance = MakeUnique<FPluginPackager>();
-		Instance->Params = InParams;
+		Instance->Params = ParamsToPass;
 		Instance->Initialize();
+
+		return true;
 	}
 
-	bool FPluginPackager::IsRunning()
+	bool FPluginPackager::IsPackagePluginTaskRunning()
 	{
 		return Instance.IsValid();
 	}
@@ -60,7 +95,12 @@ namespace PluginBuilder
 		}
 		if (Task->GetState() == FPackagePluginTask::EState::Terminated)
 		{
-			if (bNeedToCancel)
+			if (Task->HasAnyError())
+			{
+				bHasAnyError = true;
+			}
+			
+			if (bWasCanceled)
 			{
 				Tasks.Empty();
 			}
@@ -98,35 +138,11 @@ namespace PluginBuilder
 
 	void FPluginPackager::Initialize()
 	{
-		if (!Params.BuildPluginParams.OutputDirectoryPath.IsSet())
-		{
-			if (IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get())
-			{
-				FString OutputDirectoryPath;
-				const bool bWasSelected = DesktopPlatform->OpenDirectoryDialog(
-					FSlateApplication::Get().FindBestParentWindowHandleForDialogs(nullptr),
-					TEXT("Select Output Directory"),
-					FPaths::ProjectDir(),
-					OutputDirectoryPath
-				);
-				if (bWasSelected)
-				{
-					Params.BuildPluginParams.OutputDirectoryPath = OutputDirectoryPath;
-				}
-			}
-		}
-		
 		for (const auto& EngineVersion : Params.EngineVersions)
 		{
 			Tasks.Add(MakeShared<FPackagePluginTask>(EngineVersion, Params.BuildPluginParams));
 		}
 		
-		if (!Params.BuildPluginParams.OutputDirectoryPath.IsSet() || (Tasks.Num() == 0))
-		{
-			Terminate();
-			return;
-		}
-
 		PendingNotificationHandle = FEditorNotificationUtils::ShowNotification(
 			FText::Format(
 				LOCTEXT("NotificationTextFormat", "Packaging {0} ({1})..."),
@@ -163,7 +179,7 @@ namespace PluginBuilder
 
 		FText NotificationText;
 		FEditorNotificationUtils::ECompletionState CompletionState;
-		if (bNeedToCancel)
+		if (bWasCanceled)
 		{
 			NotificationText = LOCTEXT("PackageCanceled", "Plugin packaging has been cancelled.");
 			CompletionState = FEditorNotificationUtils::CS_Success;
@@ -185,7 +201,7 @@ namespace PluginBuilder
 		);
 		
 		check(IsValid(GEditor));
-		if (!bHasAnyError && !bNeedToCancel)
+		if (!bHasAnyError && !bWasCanceled)
 		{
 			GEditor->PlayEditorSound(TEXT("/Engine/EditorSounds/Notifications/CompileSuccess_Cue.CompileSuccess_Cue"));
 		}
@@ -214,7 +230,7 @@ namespace PluginBuilder
 
 	void FPluginPackager::OnCancelButtonPressed()
 	{
-		bNeedToCancel = true;
+		bWasCanceled = true;
 		if (Tasks.IsValidIndex(0))
 		{
 			Tasks[0]->RequestCancel();

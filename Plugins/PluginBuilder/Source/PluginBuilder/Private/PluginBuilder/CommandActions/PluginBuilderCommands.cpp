@@ -17,7 +17,7 @@ namespace PluginBuilder
 	FPluginBuilderCommands::FPluginBuilderCommands()
 		: TCommands<FPluginBuilderCommands>
 		(
-			PluginName,
+			Global::PluginName,
 			LOCTEXT("Contexts", "Plugin Builder"),
 			NAME_None,
 #if UE_5_00_OR_LATER

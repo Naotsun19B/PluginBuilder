@@ -1,4 +1,4 @@
-﻿// Copyright Epic Games, Inc. All Rights Reserved.
+﻿// Copyright 2022-2023 Naotsun. All Rights Reserved.
 
 using UnrealBuildTool;
 using System.Collections.Generic;

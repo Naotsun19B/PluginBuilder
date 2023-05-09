@@ -66,7 +66,7 @@ namespace PluginBuilder
 
 	FName FPluginBuilderStyle::GetPropertyName(const FString& PluginFriendlyName)
 	{
-		return *FString::Printf(TEXT("%s.Icons.%s"), *PluginName.ToString(), *PluginFriendlyName);
+		return *FString::Printf(TEXT("%s.Icons.%s"), *Global::PluginName.ToString(), *PluginFriendlyName);
 	}
 
 	TSharedPtr<FPluginBuilderStyle> FPluginBuilderStyle::Instance = nullptr;
