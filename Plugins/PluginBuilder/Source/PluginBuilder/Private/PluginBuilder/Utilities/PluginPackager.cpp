@@ -95,6 +95,11 @@ namespace PluginBuilder
 		}
 		if (Task->GetState() == FPackagePluginTask::EState::Terminated)
 		{
+			if (Task->HasAnyError())
+			{
+				bHasAnyError = true;
+			}
+			
 			if (bWasCanceled)
 			{
 				Tasks.Empty();
