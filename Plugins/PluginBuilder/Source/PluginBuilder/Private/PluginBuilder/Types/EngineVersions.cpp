@@ -163,7 +163,7 @@ namespace PluginBuilder
 			InstalledDirectory.ReplaceInline(TEXT("\\"), TEXT("/"));
 
 			const FString UATBatchFile = FPaths::Combine(
-				InstalledDirectory, TEXT("Engine"), TEXT("Build"), TEXT("BatchFiles"), TEXT("RunUAT.bat")
+				*InstalledDirectory, TEXT("Engine"), TEXT("Build"), TEXT("BatchFiles"), TEXT("RunUAT.bat")
 			);
 
 			FEngineVersion EngineVersion;
