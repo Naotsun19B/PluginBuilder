@@ -1,4 +1,4 @@
-﻿// Copyright 2021-2022 Naotsun. All Rights Reserved.
+﻿// Copyright 2022-2023 Naotsun. All Rights Reserved.
 
 #include "PluginBuilder/Utilities/PluginBuilderStyle.h"
 #include "Interfaces/IPluginManager.h"

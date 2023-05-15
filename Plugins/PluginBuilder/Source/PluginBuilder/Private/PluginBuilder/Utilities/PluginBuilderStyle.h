@@ -1,4 +1,4 @@
-﻿// Copyright 2021-2022 Naotsun. All Rights Reserved.
+﻿// Copyright 2022-2023 Naotsun. All Rights Reserved.
 
 #pragma once
 
@@ -21,7 +21,7 @@ namespace PluginBuilder
 		void RegisterInternal();
 		
 	public:
-		// Register-Unregister and instance getter this class.
+		// Registers-Unregisters and instance getter this class.
 		static void Register();
 		static void Unregister();
 		static const ISlateStyle& Get();

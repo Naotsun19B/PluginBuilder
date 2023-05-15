@@ -16,7 +16,7 @@
 /**
  * A editor preferences class for this plugin.
  */
-UCLASS(Config = Editor)
+UCLASS(Config = Editor, GlobalUserConfig)
 class PLUGINBUILDER_API UPluginBuilderSettings : public UObject
 {
 	GENERATED_BODY()
@@ -80,7 +80,7 @@ public:
 	// Constructor.
 	UPluginBuilderSettings();
 	
-	// Register - unregister in the editor setting item.
+	// Registers-Unregisters in the editor setting item.
 	static void Register();
 	static void Unregister();
 	

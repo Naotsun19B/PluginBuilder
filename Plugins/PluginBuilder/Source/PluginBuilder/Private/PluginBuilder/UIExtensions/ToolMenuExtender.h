@@ -26,7 +26,7 @@ namespace PluginBuilder
 		static const FName OptionsSectionName;
 		
 	public:
-		// Register-Unregister the menu extension.
+		// Registers-Unregisters the menu extension.
 		static void Register();
 		static void Unregister();
 
