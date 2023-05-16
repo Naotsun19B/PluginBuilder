@@ -21,7 +21,9 @@ namespace PluginBuilder
 		{
 			const FBuildTargets::FBuildTarget& BuildTarget = Settings.SelectedBuildTarget.GetValue();
 			BuildPluginParams.PluginName = BuildTarget.GetPluginName();
+			BuildPluginParams.PluginFriendlyName = BuildTarget.GetPluginFriendlyName();
 			BuildPluginParams.PluginVersionName = BuildTarget.GetPluginVersionName();
+			BuildPluginParams.bUseFriendlyName = Settings.bUseFriendlyName;
 			BuildPluginParams.bCanPluginContainContent = BuildTarget.CanPluginContainContent();
 			BuildPluginParams.UPluginFile = BuildTarget.GetUPluginFile();
 			BuildPluginParams.TargetPlatforms = Settings.TargetPlatforms;
@@ -30,6 +32,8 @@ namespace PluginBuilder
 			BuildPluginParams.bStrictIncludes = Settings.bStrictIncludes;
 			BuildPluginParams.bZipUp = Settings.bZipUp;
 			BuildPluginParams.bStopPackagingProcessImmediately = Settings.bStopPackagingProcessImmediately;
+			BuildPluginParams.bOutputAllZipFilesToSingleFolder = Settings.bOutputAllZipFilesToSingleFolder;
+			BuildPluginParams.bKeepBinariesFolder = Settings.bKeepBinariesFolder;
 			if (!Settings.bSelectOutputDirectoryManually)
 			{
 				BuildPluginParams.OutputDirectoryPath = Settings.OutputDirectoryPath.Path;
@@ -41,21 +45,22 @@ namespace PluginBuilder
 		return true;
 	}
 
-	bool FPackagePluginParams::MakeFromPluginName(const FName& PluginName, FPackagePluginParams& Params)
+	bool FPackagePluginParams::MakeFromPluginFriendlyName(const FName& PluginFriendlyName, FPackagePluginParams& Params)
 	{
 		const TArray<FBuildTargets::FBuildTarget>& BuildTargets = FBuildTargets::GetFilteredBuildTargets();
 		const FBuildTargets::FBuildTarget* FoundBuildTarget = BuildTargets.FindByPredicate(
-			[&PluginName](const FBuildTargets::FBuildTarget& BuildTarget) -> bool
+			[&PluginFriendlyName](const FBuildTargets::FBuildTarget& BuildTarget) -> bool
 			{
-				return PluginName.IsEqual(*BuildTarget.GetPluginName());
+				return PluginFriendlyName.IsEqual(*BuildTarget.GetPluginFriendlyName());
 			}
 		);
 		if (FoundBuildTarget == nullptr)
 		{
 			return false;
 		}
-		
+
 		Params.BuildPluginParams.PluginName = FoundBuildTarget->GetPluginName();
+		Params.BuildPluginParams.PluginFriendlyName = FoundBuildTarget->GetPluginFriendlyName();
 		Params.BuildPluginParams.PluginVersionName = FoundBuildTarget->GetPluginVersionName();
 		Params.BuildPluginParams.bCanPluginContainContent = FoundBuildTarget->CanPluginContainContent();
 		Params.BuildPluginParams.UPluginFile = FoundBuildTarget->GetUPluginFile();
@@ -69,7 +74,7 @@ namespace PluginBuilder
 		{
 			auto Predicate = [&](const FBuildTargets::FBuildTarget& BuildTarget) -> bool
 			{
-				return BuildPluginParams.PluginName.Equals(BuildTarget.GetPluginName());
+				return BuildPluginParams.PluginFriendlyName.Equals(BuildTarget.GetPluginFriendlyName());
 			};
 		
 			const TArray<FBuildTargets::FBuildTarget>& BuildTargets = FBuildTargets::GetFilteredBuildTargets();

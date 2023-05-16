@@ -19,7 +19,7 @@ namespace PluginBuilder
 	{
 		if (IsPackagePluginTaskRunning())
 		{
-			UE_LOG(LogPluginBuilder, Warning, TEXT("A package plugin task is currently running. (plugin in package : %s)"), *Instance->Params.BuildPluginParams.PluginName);
+			UE_LOG(LogPluginBuilder, Warning, TEXT("A package plugin task is currently running. (plugin in package : %s)"), *Instance->Params.BuildPluginParams.PluginFriendlyName);
 			return false;
 		}
 
@@ -146,7 +146,7 @@ namespace PluginBuilder
 		PendingNotificationHandle = FEditorNotificationUtils::ShowNotification(
 			FText::Format(
 				LOCTEXT("NotificationTextFormat", "Packaging {0} ({1})..."),
-				FText::FromString(Params.BuildPluginParams.PluginName),
+				FText::FromString(Params.BuildPluginParams.PluginFriendlyName),
 				FText::FromString(Params.BuildPluginParams.PluginVersionName)
 			),
 			FEditorNotificationUtils::CS_Pending,

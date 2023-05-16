@@ -26,7 +26,7 @@ namespace PluginBuilderTest
 			[]()
 			{
 				PluginBuilder::FPackagePluginParams Params;
-				if (!PluginBuilder::FPackagePluginParams::MakeFromPluginName(PluginBuilder::Global::PluginName, Params))
+				if (!PluginBuilder::FPackagePluginParams::MakeFromPluginFriendlyName(PluginBuilder::Global::PluginName, Params))
 				{
 					return;
 				}

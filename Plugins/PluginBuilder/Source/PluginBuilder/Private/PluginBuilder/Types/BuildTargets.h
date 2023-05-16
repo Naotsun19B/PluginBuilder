@@ -25,6 +25,9 @@ namespace PluginBuilder
 			// Returns the name of the plugin to build.
 			FString GetPluginName() const;
 
+			// Returns the friendly name of the plugin to build.
+			FString GetPluginFriendlyName() const;
+			
 			// Returns the description of the plugin to build.
 			FString GetPluginDescription() const;
 
@@ -46,6 +49,9 @@ namespace PluginBuilder
 		private:
 			// A name of the plugin to build.
 			FString PluginName;
+
+			// The friendly name of the plugin to build.
+			FString PluginFriendlyName;
 
 			// A description of the plugin to build.
 			FString PluginDescription;

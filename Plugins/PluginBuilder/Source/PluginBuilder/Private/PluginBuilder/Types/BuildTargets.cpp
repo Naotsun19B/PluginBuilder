@@ -11,7 +11,8 @@ namespace PluginBuilder
 	FBuildTargets::FBuildTarget::FBuildTarget(const TSharedRef<IPlugin>& Plugin)
 	{
 		const FPluginDescriptor& Descriptor = Plugin->GetDescriptor();
-		PluginName = Descriptor.FriendlyName;
+		PluginName = Plugin->GetName();
+		PluginFriendlyName = Descriptor.FriendlyName;
 		PluginDescription = Descriptor.Description;
 		PluginCategory = Descriptor.Category;
 		PluginVersionName = Descriptor.VersionName;
@@ -22,6 +23,11 @@ namespace PluginBuilder
 	FString FBuildTargets::FBuildTarget::GetPluginName() const
 	{
 		return PluginName;
+	}
+
+	FString FBuildTargets::FBuildTarget::GetPluginFriendlyName() const
+	{
+		return PluginFriendlyName;
 	}
 
 	FString FBuildTargets::FBuildTarget::GetPluginDescription() const
@@ -84,7 +90,7 @@ namespace PluginBuilder
 		FilteredPlugins.Sort(
 			[](const FBuildTarget& Lhs, const FBuildTarget& Rhs) -> bool
 			{
-				return (Lhs.GetPluginName() < Rhs.GetPluginName());
+				return (Lhs.GetPluginFriendlyName() < Rhs.GetPluginFriendlyName());
 			}
 		);
 
@@ -102,7 +108,7 @@ namespace PluginBuilder
 		const FBuildTarget* SavedBuildTarget = BuildTargets.FindByPredicate(
 			[](const FBuildTarget& BuildTarget) -> bool
 			{
-				return UPluginBuilderSettings::Get().SelectedBuildTargetName.IsEqual(*BuildTarget.GetPluginName());
+				return UPluginBuilderSettings::Get().SelectedBuildTargetName.IsEqual(*BuildTarget.GetPluginFriendlyName());
 			}
 		);
 		if (SavedBuildTarget != nullptr)
@@ -114,7 +120,7 @@ namespace PluginBuilder
 			[](const FBuildTarget& BuildTarget) -> bool
 			{
 				static const FString ProjectName = FApp::GetProjectName();
-				return ProjectName.Contains(BuildTarget.GetPluginName());
+				return ProjectName.Contains(BuildTarget.GetPluginFriendlyName());
 			}
 		);
 		if (DefaultBuildTarget != nullptr)
@@ -128,7 +134,7 @@ namespace PluginBuilder
 	void FBuildTargets::SelectBuildTarget(const FBuildTarget BuildTarget)
 	{
 		auto& Settings = UPluginBuilderSettings::Get();
-		Settings.SelectedBuildTargetName = *BuildTarget.GetPluginName();
+		Settings.SelectedBuildTargetName = *BuildTarget.GetPluginFriendlyName();
 		Settings.SelectedBuildTarget = BuildTarget;
 		Settings.SaveConfig();
 	}
@@ -138,7 +144,7 @@ namespace PluginBuilder
 		const TOptional<FBuildTarget>& SelectedBuildTarget = UPluginBuilderSettings::Get().SelectedBuildTarget;
 		if (SelectedBuildTarget.IsSet())
 		{
-			return BuildTarget.GetPluginName().Equals(SelectedBuildTarget.GetValue().GetPluginName());
+			return BuildTarget.GetPluginFriendlyName().Equals(SelectedBuildTarget.GetValue().GetPluginFriendlyName());
 		}
 
 		return false;

@@ -33,6 +33,9 @@ UPluginBuilderSettings::UPluginBuilderSettings()
 	, bCreateSubFolder(false)
 	, bStrictIncludes(false)
 	, bZipUp(true)
+	, bOutputAllZipFilesToSingleFolder(false)
+	, bKeepBinariesFolder(false)
+	, bUseFriendlyName(true)
 {
 	OutputDirectoryPath.Path = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir() / TEXT("Build"));
 }
