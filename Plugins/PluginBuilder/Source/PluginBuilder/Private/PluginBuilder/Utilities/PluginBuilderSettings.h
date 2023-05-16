@@ -34,6 +34,14 @@ public:
 	UPROPERTY(EditAnywhere, Config, Category = "Build Target")
 	bool bContainsEnginePlugins;
 
+	// Whether the zip folder should keep the binaries folder. Marketplace submissions expect the binaries folder to be deleted.
+    UPROPERTY(EditAnywhere, Config, Category = "Zip Files")
+    bool bKeepBinariesFolder;
+	
+	// Whether to put the zip files into a single folder. If false will use a per engine folder for each zip file.
+	UPROPERTY(EditAnywhere, Config, Category = "Zip Files")
+	bool bOutputAllZipFilesToSingleFolder;
+	
 	// Whether to select the output directory before starting the packaging process.
 	UPROPERTY(EditAnywhere, Config, Category = "Output")
 	bool bSelectOutputDirectoryManually;
@@ -41,6 +49,10 @@ public:
 	// A path to the directory where the packaged plugin will be output.
 	UPROPERTY(EditAnywhere, Config, Category = "Output", meta = (EditCondition = "!bSelectOutputDirectoryManually"))
 	FDirectoryPath OutputDirectoryPath;
+
+	// Whether to use the friendly name for the plugin output files or not.
+	UPROPERTY(EditAnywhere, Config, Category = "Output")
+	bool bUseFriendlyName;
 
 	// Whether to stop the packaging process as soon as the cancel button is pressed during packaging.
 	// !!CAUTION!! You may get an error from UBT as it kills the process.
@@ -71,7 +83,7 @@ public:
 	// Whether to judge the header inclusion of the plug-in code strictly.
 	UPROPERTY(Config)
 	bool bStrictIncludes;
-
+	
 	// Whether to create a zip file that contains only the files we need after the build.
 	UPROPERTY(Config)
 	bool bZipUp;

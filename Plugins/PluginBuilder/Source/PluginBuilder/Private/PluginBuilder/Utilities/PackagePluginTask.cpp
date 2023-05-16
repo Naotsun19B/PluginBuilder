@@ -40,7 +40,7 @@ namespace PluginBuilder
 		}
 
 		UE_LOG(LogPluginBuilder, Log, TEXT("===================================================================================================="));
-		UE_LOG(LogPluginBuilder, Log, TEXT("[Plugin Name] %s / [Plugin Version] %s / [Engine Version] %s"), *Params.PluginName, *Params.PluginVersionName, *EngineVersion);
+		UE_LOG(LogPluginBuilder, Log, TEXT("[Plugin Name] %s / [Plugin Version] %s / [Engine Version] %s"), *Params.PluginFriendlyName, *Params.PluginVersionName, *EngineVersion);
 		UE_LOG(LogPluginBuilder, Log, TEXT("----------------------------------------------------------------------------------------------------"));
 
 		TArray<FString> Arguments = {
@@ -170,7 +170,11 @@ namespace PluginBuilder
 			PlatformFile.CreateDirectoryTree(*ZipTempDirectoryPath);
 			PlatformFile.CopyDirectoryTree(*ZipTempDirectoryPath, *GetBuiltPluginDestinationPath(), true);
 						
-			TArray<FString> DirectoryNamesToDelete = { TEXT("Binaries"), TEXT("Intermediate") };
+			TArray<FString> DirectoryNamesToDelete = { TEXT("Intermediate") };
+			if (!Params.bKeepBinariesFolder)
+			{
+				DirectoryNamesToDelete.Add(TEXT("Binaries"));
+			}
 			if (!Params.bCanPluginContainContent)
 			{
 				DirectoryNamesToDelete.Add(TEXT("Content"));
@@ -180,11 +184,24 @@ namespace PluginBuilder
 				const FString DirectoryPathToDelete = ZipTempDirectoryPath / DirectoryNameToDelete;
 				PlatformFile.DeleteDirectoryRecursively(*DirectoryPathToDelete);
 			}
+			
+			FString ZipFileName, ZipFilePath;
+			if( Params.bOutputAllZipFilesToSingleFolder )
+			{
+				ZipFileName = FString::Printf(TEXT("%s_%s.zip"), *GetDestinationDirectoryName(), *Params.PluginVersionName);
+				ZipFilePath = (
+					GetPackagedPluginDestinationPath() / ZipFileName
+				);
+			}
+			else
+			{
+				ZipFileName = FString::Printf(TEXT("%s%s.zip"), Params.bUseFriendlyName ? *Params.PluginFriendlyName : *Params.PluginName, *Params.PluginVersionName);
+				ZipFilePath = (
+					GetPackagedPluginDestinationPath() /  GetDestinationDirectoryName() / ZipFileName
+				);
+			}
+			
 
-			const FString ZipFileName = FString::Printf(TEXT("%s%s.zip"), *Params.PluginName, *Params.PluginVersionName);
-			const FString ZipFilePath = (
-				GetPackagedPluginDestinationPath() / GetDestinationDirectoryName() / ZipFileName
-			);
 			if (PlatformFile.FileExists(*ZipFilePath))
 			{
 				PlatformFile.DeleteFile(*ZipFilePath);
@@ -217,7 +234,7 @@ namespace PluginBuilder
 
 	FString FPackagePluginTask::GetDestinationDirectoryName() const
 	{
-		return FString::Printf(TEXT("%s_%s"), *Params.PluginName, *EngineVersion);
+		return FString::Printf(TEXT("%s_%s"), Params.bUseFriendlyName ? *Params.PluginFriendlyName : *Params.PluginName, *EngineVersion);
 	}
 
 	FString FPackagePluginTask::GetBuiltPluginDestinationPath() const

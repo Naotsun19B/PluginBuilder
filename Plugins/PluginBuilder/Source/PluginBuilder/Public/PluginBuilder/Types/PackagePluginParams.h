@@ -14,13 +14,19 @@ namespace PluginBuilder
 	public:
 		// A name of the plugin to build.
 		FString PluginName;
+
+		// A friendly name of the plugin to build.
+		FString PluginFriendlyName;
+
+		// Whether to use the friendly name for outputs.
+		bool bUseFriendlyName = true;
 		
 		// A version name of the plugin to build.
 		FString PluginVersionName;
 
 		// Whether the plugin to build uses the content folder.
 		bool bCanPluginContainContent = false;
-
+		
 		// A path to the .uplugin file for the plugin you want to build.
 		FString UPluginFile;
 
@@ -42,6 +48,12 @@ namespace PluginBuilder
 		// Whether to create a zip file that contains only the files we need after the build.
 		bool bZipUp = false;
 
+		// Whether the zip folder should keep the binaries folder. Marketplace submissions expect the binaries folder to be deleted.
+		bool bKeepBinariesFolder = false;
+		
+		// Whether to put the zip files into a single folder. If false will use a per engine folder for each zip file.
+		bool bOutputAllZipFilesToSingleFolder = false;
+		
 		// Whether to stop the packaging process as soon as the cancel button is pressed during packaging.
 		bool bStopPackagingProcessImmediately = false;
 	};
@@ -61,7 +73,7 @@ namespace PluginBuilder
 	public:
 		// Creates a parameter set from the values set in the editor preferences.
 		static bool MakeDefault(FPackagePluginParams& Default);
-		static bool MakeFromPluginName(const FName& PluginName, FPackagePluginParams& Params);
+		static bool MakeFromPluginFriendlyName(const FName& PluginFriendlyName, FPackagePluginParams& Params);
 
 		// Returns whether the parameters is valid to start package plugin task.
 		// Returns true if the specified plugin exists and all engine versions are installed.
