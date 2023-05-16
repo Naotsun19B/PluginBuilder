@@ -42,6 +42,9 @@ namespace PluginBuilder
 		TSharedPtr<FUICommandInfo> CreateSubFolder;
 		TSharedPtr<FUICommandInfo> StrictIncludes;
 		TSharedPtr<FUICommandInfo> ZipUp;
+		TSharedPtr<FUICommandInfo> KeepBinariesFolder;
+		TSharedPtr<FUICommandInfo> OutputAllZipFilesToSingleFolder;
+		TSharedPtr<FUICommandInfo> KeepUPluginProperties;
 		TSharedPtr<FUICommandInfo> OpenBuildSettings;
 
 	private:

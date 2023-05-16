@@ -46,7 +46,7 @@ namespace PluginBuilder
 			Rocket,
 			"Rocket",
 			"Whether to handle older versions that do not use the Rocket.txt file.",
-			EUserInterfaceActionType::RadioButton,
+			EUserInterfaceActionType::ToggleButton,
 			FInputChord()
 		);
 
@@ -54,7 +54,7 @@ namespace PluginBuilder
 			CreateSubFolder,
 			"Create Sub Folder",
 			"Whether to create a subfolder in the output built plugins folder.",
-			EUserInterfaceActionType::RadioButton,
+			EUserInterfaceActionType::ToggleButton,
 			FInputChord()
 		);
 
@@ -62,7 +62,7 @@ namespace PluginBuilder
 			StrictIncludes,
 			"Strict Includes",
 			"Whether to judge the header inclusion of the plugin code strictly.",
-			EUserInterfaceActionType::RadioButton,
+			EUserInterfaceActionType::ToggleButton,
 			FInputChord()
 		);
 
@@ -70,7 +70,31 @@ namespace PluginBuilder
 			ZipUp,
 			"Zip Up",
 			"Whether to create a zip file that contains only the files we need after the build.",
-			EUserInterfaceActionType::RadioButton,
+			EUserInterfaceActionType::ToggleButton,
+			FInputChord()
+		);
+		
+		UI_COMMAND(
+			OutputAllZipFilesToSingleFolder,
+			"Output All Zip Files To Single Folder",
+			"Whether to put the zip files into a single folder.\nIf false will use a per engine folder for each zip file.",
+			EUserInterfaceActionType::ToggleButton,
+			FInputChord()
+		);
+
+		UI_COMMAND(
+			KeepBinariesFolder,
+			"Keep Binaries Folder",
+			"Whether the zip folder should keep the binaries folder.\nMarketplace submissions expect the binaries folder to be deleted.",
+			EUserInterfaceActionType::ToggleButton,
+			FInputChord()
+		);
+
+		UI_COMMAND(
+			KeepUPluginProperties,
+			"Keep .uplugin Properties",
+			"Whether to keep the properties of uplugin that are deleted when outputting from UAT even after outputting.\nExamples of properties to delete by UAT: IsBetaVersion, IsExperimentalVersion, EnabledByDefault, etc.\nMarketplace submissions expect to use the uplugin file output by UAT.",
+			EUserInterfaceActionType::ToggleButton,
 			FInputChord()
 		);
 		
@@ -144,6 +168,27 @@ namespace PluginBuilder
 			FExecuteAction::CreateStatic(&FPluginBuilderCommandActions::ToggleZipUp),
 			FCanExecuteAction(),
 			FIsActionChecked::CreateStatic(&FPluginBuilderCommandActions::GetZipUpState)
+		);
+
+		CommandBindings->MapAction(
+			KeepBinariesFolder,
+			FExecuteAction::CreateStatic(&FPluginBuilderCommandActions::ToggleKeepBinariesFolder),
+			FCanExecuteAction::CreateStatic(&FPluginBuilderCommandActions::GetZipUpState),
+			FIsActionChecked::CreateStatic(&FPluginBuilderCommandActions::GetKeepBinariesFolderState)
+		);
+
+		CommandBindings->MapAction(
+			OutputAllZipFilesToSingleFolder,
+			FExecuteAction::CreateStatic(&FPluginBuilderCommandActions::ToggleOutputAllZipFilesToSingleFolder),
+			FCanExecuteAction::CreateStatic(&FPluginBuilderCommandActions::GetZipUpState),
+			FIsActionChecked::CreateStatic(&FPluginBuilderCommandActions::GetOutputAllZipFilesToSingleFolderState)
+		);
+
+		CommandBindings->MapAction(
+			KeepUPluginProperties,
+			FExecuteAction::CreateStatic(&FPluginBuilderCommandActions::ToggleKeepUPluginProperties),
+			FCanExecuteAction::CreateStatic(&FPluginBuilderCommandActions::GetZipUpState),
+			FIsActionChecked::CreateStatic(&FPluginBuilderCommandActions::GetKeepUPluginPropertiesState)
 		);
 
 		CommandBindings->MapAction(

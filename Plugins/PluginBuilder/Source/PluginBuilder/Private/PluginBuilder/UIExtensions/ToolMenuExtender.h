@@ -23,7 +23,9 @@ namespace PluginBuilder
 		static const FName VersionsAndPlatformsSectionName;
 		static const FName EngineVersionsSubMenuName;
 		static const FName TargetPlatformsSubMenuName;
-		static const FName OptionsSectionName;
+		static const FName BuildOptionsSectionName;
+		static const FName ZipUpOptionsSectionName;
+		static const FName EngineVersionPresetSectionName;
 		
 	public:
 		// Registers-Unregisters the menu extension.

@@ -27,6 +27,9 @@ namespace PluginBuilder
 
 			// Returns the friendly name of the plugin to build.
 			FString GetPluginFriendlyName() const;
+
+			// Returns the plugin name formatted according to the bUseFriendlyName value specified in the editor preferences.
+			FString GetPluginNameInSpecifiedFormat() const;
 			
 			// Returns the description of the plugin to build.
 			FString GetPluginDescription() const;
@@ -50,7 +53,7 @@ namespace PluginBuilder
 			// A name of the plugin to build.
 			FString PluginName;
 
-			// The friendly name of the plugin to build.
+			// A friendly name of the plugin to build.
 			FString PluginFriendlyName;
 
 			// A description of the plugin to build.
@@ -77,9 +80,9 @@ namespace PluginBuilder
 		static TOptional<FBuildTarget> GetDefaultBuildTarget();
 
 		// Selects the specified build target.
-		static void SelectBuildTarget(const FBuildTarget BuildTarget);
+		static void ToggleBuildTarget(const FBuildTarget BuildTarget);
 
 		// Returns whether the specified build target is selected.
-		static bool IsBuildTargetSelected(const FBuildTarget BuildTarget);
+		static bool GetBuildTargetState(const FBuildTarget BuildTarget);
 	};
 }

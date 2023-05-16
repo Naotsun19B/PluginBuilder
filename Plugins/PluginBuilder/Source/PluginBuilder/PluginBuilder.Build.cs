@@ -34,6 +34,11 @@ public class PluginBuilder : ModuleRules
 				"DesktopPlatform",
 			}
 		);
+
+		if (Target.Version.MajorVersion >= 5)
+		{
+			PrivateDependencyModuleNames.Add("OutputLog");
+		}
 		
 		// To use version macros.
 		PublicIncludePaths.AddRange(

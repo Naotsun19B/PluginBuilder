@@ -11,9 +11,9 @@ namespace PluginBuilder
 {
 	namespace Settings
 	{
-		static const FName ContainerName    = TEXT("Editor");
-		static const FName CategoryName	    = TEXT("Plugins");
-		static const FName SectionName      = TEXT("PluginBuilderSettings");
+		static const FName ContainerName	= TEXT("Editor");
+		static const FName CategoryName		= TEXT("Plugins");
+		static const FName SectionName		= TEXT("PluginBuilderSettings");
 
 		ISettingsModule* GetSettingsModule()
 		{
@@ -27,6 +27,9 @@ UPluginBuilderSettings::UPluginBuilderSettings()
 	, bContainsProjectPlugins(true)
 	, bContainsEnginePlugins(false)
 	, bSelectOutputDirectoryManually(false)
+	, bOutputToBuildDirectoryOfEachProject(false)
+	, bUseFriendlyName(true)
+	, bShowOnlyLogsFromThisPluginWhenPackageProcessStarts(false)
 	, bStopPackagingProcessImmediately(false)
 	, SelectedBuildTargetName(NAME_None)
 	, bRocket(true)
@@ -35,9 +38,8 @@ UPluginBuilderSettings::UPluginBuilderSettings()
 	, bZipUp(true)
 	, bOutputAllZipFilesToSingleFolder(false)
 	, bKeepBinariesFolder(false)
-	, bUseFriendlyName(true)
+	, bKeepUPluginProperties(false)
 {
-	OutputDirectoryPath.Path = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir() / TEXT("Build"));
 }
 
 void UPluginBuilderSettings::Register()
@@ -90,7 +92,50 @@ void UPluginBuilderSettings::PostInitProperties()
 {
 	UObject::PostInitProperties();
 
+	ResetOutputDirectoryPath();
+	
 	SelectedBuildTarget = PluginBuilder::FBuildTargets::GetDefaultBuildTarget();
+}
+
+void UPluginBuilderSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	UObject::PostEditChangeProperty(PropertyChangedEvent);
+
+	if (PropertyChangedEvent.MemberProperty == nullptr)
+	{
+		return;
+	}
+
+	if (PropertyChangedEvent.MemberProperty->GetFName() == GET_MEMBER_NAME_CHECKED(UPluginBuilderSettings, OutputDirectoryPath) ||
+		PropertyChangedEvent.MemberProperty->GetFName() == GET_MEMBER_NAME_CHECKED(UPluginBuilderSettings, bOutputToBuildDirectoryOfEachProject))
+	{
+		ResetOutputDirectoryPath();
+	}
+}
+
+bool UPluginBuilderSettings::CanEditChange(const FProperty* InProperty) const
+{
+	if (!UObject::CanEditChange(InProperty) || (InProperty == nullptr))
+	{
+		return false;
+	}
+
+#if !UE_5_01_OR_LATER
+	if (InProperty->GetFName() == GET_MEMBER_NAME_CHECKED(UPluginBuilderSettings, bShowOnlyLogsFromThisPluginWhenPackageProcessStarts))
+	{
+		return false;
+	}
+#endif
+
+	return true;
+}
+
+void UPluginBuilderSettings::ResetOutputDirectoryPath()
+{
+	if (OutputDirectoryPath.Path.IsEmpty() || bOutputToBuildDirectoryOfEachProject)
+	{
+		OutputDirectoryPath.Path = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir() / TEXT("Build"));
+	}
 }
 
 bool UPluginBuilderSettings::IsReadyToStartPackagePluginTask() const

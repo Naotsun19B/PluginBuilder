@@ -217,6 +217,15 @@ namespace PluginBuilder
 			}
 		}
 
+		UnrealEngineVersions.Sort(
+			[](const FString& Lhs, const FString& Rhs) -> bool
+			{
+				const float LhsValue = FCString::Atof(*Lhs);
+				const float RhsValue = FCString::Atof(*Rhs);
+				return (LhsValue < RhsValue);
+			}
+		);
+
 		return UnrealEngineVersions;
 	}
 
@@ -237,6 +246,27 @@ namespace PluginBuilder
 		}
 
 		return false;
+	}
+
+	TArray<FString> FEngineVersions::GetMajorVersionNames(const bool bWithRefresh /* = true */)
+	{
+		if (bWithRefresh)
+		{
+			RefreshEngineVersions();
+		}
+
+		TArray<FString> MajorVersionNames;
+		for (const auto& EngineVersion : EngineVersions)
+		{
+			if (MajorVersionNames.Contains(EngineVersion.MajorVersionName))
+			{
+				continue;
+			}
+
+			MajorVersionNames.Add(EngineVersion.MajorVersionName);
+		}
+
+		return MajorVersionNames;
 	}
 
 	void FEngineVersions::ToggleEngineVersion(const FEngineVersion EngineVersion)
@@ -266,6 +296,54 @@ namespace PluginBuilder
 	bool FEngineVersions::GetEngineVersionState(const FEngineVersion EngineVersion)
 	{
 		return UPluginBuilderSettings::Get().EngineVersions.Contains(EngineVersion.VersionName);
+	}
+
+	void FEngineVersions::EnableByMajorVersion(const FString MajorVersionName)
+	{
+		auto& Settings = UPluginBuilderSettings::Get();
+
+		Settings.EngineVersions.Empty();
+		for (const auto& EngineVersion : EngineVersions)
+		{
+			if (!MajorVersionName.Equals(EngineVersion.MajorVersionName))
+			{
+				continue;
+			}
+
+			Settings.EngineVersions.Add(EngineVersion.VersionName);
+		}
+
+		Settings.EngineVersions.Sort(
+			[](const FString& Lhs, const FString& Rhs) -> bool
+			{
+				const float LhsValue = FCString::Atof(*Lhs);
+				const float RhsValue = FCString::Atof(*Rhs);
+				return (LhsValue < RhsValue);
+			}
+		);
+		Settings.SaveConfig();
+	}
+
+	void FEngineVersions::EnableLatest3EngineVersions()
+	{
+		auto& Settings = UPluginBuilderSettings::Get();
+
+		Settings.EngineVersions.Empty();
+		const int32 NumOfEngineVersions = EngineVersions.Num();
+		for (int32 Index = NumOfEngineVersions - 3; Index < NumOfEngineVersions; Index++)
+		{
+			Settings.EngineVersions.Add(EngineVersions[Index].VersionName);
+		}
+
+		Settings.EngineVersions.Sort(
+			[](const FString& Lhs, const FString& Rhs) -> bool
+			{
+				const float LhsValue = FCString::Atof(*Lhs);
+				const float RhsValue = FCString::Atof(*Rhs);
+				return (LhsValue < RhsValue);
+			}
+		);
+		Settings.SaveConfig();
 	}
 
 	TArray<FEngineVersions::FEngineVersion> FEngineVersions::EngineVersions;

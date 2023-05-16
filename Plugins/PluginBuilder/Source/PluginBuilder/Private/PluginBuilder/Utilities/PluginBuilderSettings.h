@@ -33,30 +33,31 @@ public:
 	// Whether to make plugins in the engine's plugins folder appear in the list of build targets.
 	UPROPERTY(EditAnywhere, Config, Category = "Build Target")
 	bool bContainsEnginePlugins;
-
-	// Whether the zip folder should keep the binaries folder. Marketplace submissions expect the binaries folder to be deleted.
-    UPROPERTY(EditAnywhere, Config, Category = "Zip Files")
-    bool bKeepBinariesFolder;
-	
-	// Whether to put the zip files into a single folder. If false will use a per engine folder for each zip file.
-	UPROPERTY(EditAnywhere, Config, Category = "Zip Files")
-	bool bOutputAllZipFilesToSingleFolder;
 	
 	// Whether to select the output directory before starting the packaging process.
 	UPROPERTY(EditAnywhere, Config, Category = "Output")
 	bool bSelectOutputDirectoryManually;
+
+	// Whether to use the Build directory for each project as the output directory.
+	UPROPERTY(EditAnywhere, Config, Category = "Output", meta = (EditCondition = "!bSelectOutputDirectoryManually"))
+	bool bOutputToBuildDirectoryOfEachProject;
 	
 	// A path to the directory where the packaged plugin will be output.
 	UPROPERTY(EditAnywhere, Config, Category = "Output", meta = (EditCondition = "!bSelectOutputDirectoryManually"))
 	FDirectoryPath OutputDirectoryPath;
 
-	// Whether to use the friendly name for the plugin output files or not.
-	UPROPERTY(EditAnywhere, Config, Category = "Output")
+	// Whether to use friendly names in plugin output files, editor menus, etc.
+	UPROPERTY(EditAnywhere, Config, Category = "Misc")
 	bool bUseFriendlyName;
+
+	// Whether to change the output log filter to show only log categories for this plugin when starting the package process.
+	// This feature is only available in UE5.1 or later.
+	UPROPERTY(EditAnywhere, Config, Category = "Misc")
+	bool bShowOnlyLogsFromThisPluginWhenPackageProcessStarts;
 
 	// Whether to stop the packaging process as soon as the cancel button is pressed during packaging.
 	// !!CAUTION!! You may get an error from UBT as it kills the process.
-	UPROPERTY(EditAnywhere, Config, Category = "Process")
+	UPROPERTY(EditAnywhere, Config, Category = "Misc")
 	bool bStopPackagingProcessImmediately;
 
 	// A name of the currently selected plugin to build.
@@ -87,6 +88,22 @@ public:
 	// Whether to create a zip file that contains only the files we need after the build.
 	UPROPERTY(Config)
 	bool bZipUp;
+
+	// Whether to put the zip files into a single folder.
+	// If false will use a per engine folder for each zip file.
+	UPROPERTY(Config)
+	bool bOutputAllZipFilesToSingleFolder;
+	
+	// Whether the zip folder should keep the binaries folder.
+	// Marketplace submissions expect the binaries folder to be deleted.
+	UPROPERTY(Config)
+	bool bKeepBinariesFolder;
+
+	// Whether to keep the properties of uplugin that are deleted when outputting from UAT even after outputting.
+	// Examples of properties to delete by UAT: IsBetaVersion, IsExperimentalVersion, EnabledByDefault, etc.
+	// Marketplace submissions expect to use the uplugin file output by UAT.
+	UPROPERTY(Config)
+	bool bKeepUPluginProperties;
 	
 public:
 	// Constructor.
@@ -104,8 +121,13 @@ public:
 
 	// UObject interface.
 	virtual void PostInitProperties() override;
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+	virtual bool CanEditChange(const FProperty* InProperty) const override;
 	// End of UObject interface.
 
+	// Resets the output directory path to its default value (Build folder directly under the project folder).
+	void ResetOutputDirectoryPath();
+	
 	// Returns whether the parameters is ready to start package plugin task.
 	bool IsReadyToStartPackagePluginTask() const;
 };

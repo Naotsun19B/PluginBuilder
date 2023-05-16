@@ -7,6 +7,16 @@
 
 namespace PluginBuilder
 {
+	FString FBuildPluginParams::GetPluginNameInSpecifiedFormat() const
+	{
+		return (bUseFriendlyName ? PluginFriendlyName : PluginName);
+	}
+
+	bool FBuildPluginParams::IsFormatExpectedByMarketplace() const
+	{
+		return (bZipUp && !bKeepBinariesFolder && !bKeepUPluginProperties);
+	}
+
 	bool FPackagePluginParams::MakeDefault(FPackagePluginParams& Default)
 	{
 		const auto& Settings = UPluginBuilderSettings::Get();
@@ -14,16 +24,14 @@ namespace PluginBuilder
 		{
 			return false;
 		}
-
-		Default.EngineVersions = Settings.EngineVersions;
-
+		
 		FBuildPluginParams BuildPluginParams;
 		{
 			const FBuildTargets::FBuildTarget& BuildTarget = Settings.SelectedBuildTarget.GetValue();
 			BuildPluginParams.PluginName = BuildTarget.GetPluginName();
 			BuildPluginParams.PluginFriendlyName = BuildTarget.GetPluginFriendlyName();
-			BuildPluginParams.PluginVersionName = BuildTarget.GetPluginVersionName();
 			BuildPluginParams.bUseFriendlyName = Settings.bUseFriendlyName;
+			BuildPluginParams.PluginVersionName = BuildTarget.GetPluginVersionName();
 			BuildPluginParams.bCanPluginContainContent = BuildTarget.CanPluginContainContent();
 			BuildPluginParams.UPluginFile = BuildTarget.GetUPluginFile();
 			BuildPluginParams.TargetPlatforms = Settings.TargetPlatforms;
@@ -31,16 +39,21 @@ namespace PluginBuilder
 			BuildPluginParams.bCreateSubFolder = Settings.bCreateSubFolder;
 			BuildPluginParams.bStrictIncludes = Settings.bStrictIncludes;
 			BuildPluginParams.bZipUp = Settings.bZipUp;
-			BuildPluginParams.bStopPackagingProcessImmediately = Settings.bStopPackagingProcessImmediately;
 			BuildPluginParams.bOutputAllZipFilesToSingleFolder = Settings.bOutputAllZipFilesToSingleFolder;
 			BuildPluginParams.bKeepBinariesFolder = Settings.bKeepBinariesFolder;
+			BuildPluginParams.bKeepUPluginProperties = Settings.bKeepUPluginProperties;
+			BuildPluginParams.bStopPackagingProcessImmediately = Settings.bStopPackagingProcessImmediately;
 			if (!Settings.bSelectOutputDirectoryManually)
 			{
 				BuildPluginParams.OutputDirectoryPath = Settings.OutputDirectoryPath.Path;
 			}
 		}
-		
+
+		Default.EngineVersions = Settings.EngineVersions;
 		Default.BuildPluginParams = BuildPluginParams;
+#if UE_5_00_OR_LATER
+		Default.bShowOnlyLogsFromThisPluginWhenPackageProcessStarts = Settings.bShowOnlyLogsFromThisPluginWhenPackageProcessStarts;
+#endif
 
 		return true;
 	}

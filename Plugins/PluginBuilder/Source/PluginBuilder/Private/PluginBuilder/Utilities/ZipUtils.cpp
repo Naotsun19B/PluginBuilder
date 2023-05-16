@@ -281,8 +281,21 @@ namespace PluginBuilder
 	
 	bool FZipUtils::ZipUp(const FString& DirectoryPathToZipUp, const FString& OutputZipFilePath)
 	{
+		return ZipUp(TArray<FString>{ DirectoryPathToZipUp }, OutputZipFilePath);
+	}
+
+	bool FZipUtils::ZipUp(const TArray<FString>& DirectoryPathsToZipUp, const FString& OutputZipFilePath)
+	{
 		WinShell::FZipWriter ZipWriter(OutputZipFilePath);
-		return ZipWriter.AddDirectoryToZip(DirectoryPathToZipUp);
+		for (const auto& DirectoryPathToZipUp : DirectoryPathsToZipUp)
+		{
+			if (!ZipWriter.AddDirectoryToZip(DirectoryPathToZipUp))
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
 }
 

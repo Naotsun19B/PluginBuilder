@@ -42,11 +42,20 @@ namespace PluginBuilder
 		// Searches for the RunUAT.bat file path from the version name.
 		static bool FindUATBatchFileByVersionName(const FString& VersionName, FString& UATBatchFile, const bool bWithRefresh = true);
 
+		// Returns a list of major version category names from engine version information.
+		static TArray<FString> GetMajorVersionNames(const bool bWithRefresh = true);
+		
 		// Toggles selection state the specified engine version.
 		static void ToggleEngineVersion(const FEngineVersion EngineVersion);
 
 		// Returns whether the specified engine version is selected.
 		static bool GetEngineVersionState(const FEngineVersion EngineVersion);
+
+		// Enables all engine versions belonging to the specified major version category.
+		static void EnableByMajorVersion(const FString MajorVersionName);
+
+		// Enables the latest 3 engine versions required when submitting to the marketplace.
+		static void EnableLatest3EngineVersions();
 		
 	private:
 		// A list of installed engine version information.

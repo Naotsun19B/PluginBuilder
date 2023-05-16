@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PluginBuilder/PluginBuilderGlobals.h"
 
 namespace PluginBuilder
 {
@@ -18,7 +19,7 @@ namespace PluginBuilder
 		// A friendly name of the plugin to build.
 		FString PluginFriendlyName;
 
-		// Whether to use the friendly name for outputs.
+		//Whether to use friendly names in plugin output files, editor menus, etc.
 		bool bUseFriendlyName = true;
 		
 		// A version name of the plugin to build.
@@ -47,15 +48,25 @@ namespace PluginBuilder
 
 		// Whether to create a zip file that contains only the files we need after the build.
 		bool bZipUp = false;
-
-		// Whether the zip folder should keep the binaries folder. Marketplace submissions expect the binaries folder to be deleted.
-		bool bKeepBinariesFolder = false;
 		
 		// Whether to put the zip files into a single folder. If false will use a per engine folder for each zip file.
 		bool bOutputAllZipFilesToSingleFolder = false;
+
+		// Whether the zip folder should keep the binaries folder. Marketplace submissions expect the binaries folder to be deleted.
+		bool bKeepBinariesFolder = false;
+
+		// Whether to keep the properties of uplugin that are deleted when outputting from UAT even after outputting.
+		bool bKeepUPluginProperties = false;
 		
 		// Whether to stop the packaging process as soon as the cancel button is pressed during packaging.
 		bool bStopPackagingProcessImmediately = false;
+
+	public:
+		// Returns the name of the plugin formatted according to the value of bUseFriendlyName.
+		FString GetPluginNameInSpecifiedFormat() const;
+
+		// Returns whether the format is acceptable for submission to the marketplace.
+		bool IsFormatExpectedByMarketplace() const;
 	};
 	
 	/**
@@ -69,6 +80,11 @@ namespace PluginBuilder
 
 		// A dataset used to process plugin build.
 		FBuildPluginParams BuildPluginParams;
+
+#if UE_5_00_OR_LATER
+		// Whether to change the output log filter to show only log categories for this plugin when starting the package process.
+		bool bShowOnlyLogsFromThisPluginWhenPackageProcessStarts = false;
+#endif
 
 	public:
 		// Creates a parameter set from the values set in the editor preferences.

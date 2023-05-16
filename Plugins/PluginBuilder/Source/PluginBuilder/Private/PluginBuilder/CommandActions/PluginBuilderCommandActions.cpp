@@ -67,6 +67,42 @@ namespace PluginBuilder
 		return UPluginBuilderSettings::Get().bZipUp;
 	}
 
+	void FPluginBuilderCommandActions::ToggleOutputAllZipFilesToSingleFolder()
+	{
+		auto& Settings = UPluginBuilderSettings::Get();
+		Settings.bOutputAllZipFilesToSingleFolder = !Settings.bOutputAllZipFilesToSingleFolder;
+		Settings.SaveConfig();
+	}
+
+	bool FPluginBuilderCommandActions::GetOutputAllZipFilesToSingleFolderState()
+	{
+		return UPluginBuilderSettings::Get().bOutputAllZipFilesToSingleFolder;
+	}
+
+	void FPluginBuilderCommandActions::ToggleKeepBinariesFolder()
+	{
+		auto& Settings = UPluginBuilderSettings::Get();
+		Settings.bKeepBinariesFolder = !Settings.bKeepBinariesFolder;
+		Settings.SaveConfig();
+	}
+
+	bool FPluginBuilderCommandActions::GetKeepBinariesFolderState()
+	{
+		return UPluginBuilderSettings::Get().bKeepBinariesFolder;
+	}
+
+	void FPluginBuilderCommandActions::ToggleKeepUPluginProperties()
+	{
+		auto& Settings = UPluginBuilderSettings::Get();
+		Settings.bKeepUPluginProperties = !Settings.bKeepUPluginProperties;
+		Settings.SaveConfig();
+	}
+
+	bool FPluginBuilderCommandActions::GetKeepUPluginPropertiesState()
+	{
+		return UPluginBuilderSettings::Get().bKeepUPluginProperties;
+	}
+
 	void FPluginBuilderCommandActions::OpenBuildSettings()
 	{
 		UPluginBuilderSettings::OpenSettings();

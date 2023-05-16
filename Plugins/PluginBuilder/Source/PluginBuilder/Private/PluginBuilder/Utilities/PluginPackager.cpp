@@ -8,6 +8,9 @@
 #include "Framework/Application/SlateApplication.h"
 #include "Framework/Docking/TabManager.h"
 #include "Editor.h"
+#if UE_5_01_OR_LATER
+#include "OutputLogModule.h"
+#endif
 
 #define LOCTEXT_NAMESPACE "PluginPackager"
 
@@ -168,6 +171,13 @@ namespace PluginBuilder
 
 		check(IsValid(GEditor));
 		GEditor->PlayEditorSound(TEXT("/Engine/EditorSounds/Notifications/CompileStart_Cue.CompileStart_Cue"));
+
+#if UE_5_01_OR_LATER
+		if (Params.bShowOnlyLogsFromThisPluginWhenPackageProcessStarts)
+		{
+			FOutputLogModule::Get().UpdateOutputLogFilter(TArray<FName>{ LogPluginBuilder.GetCategoryName() });
+		}
+#endif
 	}
 
 	void FPluginPackager::Terminate()
@@ -221,11 +231,7 @@ namespace PluginBuilder
 		static const FName OutputLogTabId = TEXT("OutputLog");
 							
 		const TSharedRef<FGlobalTabmanager> GlobalTabManager = FGlobalTabmanager::Get();
-#if UE_4_26_OR_LATER
 		GlobalTabManager->TryInvokeTab(OutputLogTabId);
-#else
-		GlobalTabManager->InvokeTab(OutputLogTabId);
-#endif
 	}
 
 	void FPluginPackager::OnCancelButtonPressed()

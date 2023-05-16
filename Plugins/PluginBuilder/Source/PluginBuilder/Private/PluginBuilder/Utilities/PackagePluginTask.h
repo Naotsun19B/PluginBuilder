@@ -51,6 +51,10 @@ namespace PluginBuilder
 		FString GetBuiltPluginDestinationPath() const;
 		FString GetPackagedPluginDestinationPath() const;
 		static FString GetZipTempDirectoryPath();
+
+	private:
+		// Copies the properties of the original uplugin file to the UAT output uplugin file.
+		bool CopyUPluginProperties() const;
 		
 	private:
 		// An engine version to build for this task

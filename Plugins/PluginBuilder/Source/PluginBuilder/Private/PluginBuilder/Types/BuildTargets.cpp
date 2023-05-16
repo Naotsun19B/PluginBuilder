@@ -30,6 +30,15 @@ namespace PluginBuilder
 		return PluginFriendlyName;
 	}
 
+	FString FBuildTargets::FBuildTarget::GetPluginNameInSpecifiedFormat() const
+	{
+		return (
+			UPluginBuilderSettings::Get().bUseFriendlyName ?
+			GetPluginFriendlyName() :
+			GetPluginName()
+		);
+	}
+
 	FString FBuildTargets::FBuildTarget::GetPluginDescription() const
 	{
 		return PluginDescription;
@@ -131,7 +140,7 @@ namespace PluginBuilder
 		return BuildTargets[0];
 	}
 
-	void FBuildTargets::SelectBuildTarget(const FBuildTarget BuildTarget)
+	void FBuildTargets::ToggleBuildTarget(const FBuildTarget BuildTarget)
 	{
 		auto& Settings = UPluginBuilderSettings::Get();
 		Settings.SelectedBuildTargetName = *BuildTarget.GetPluginFriendlyName();
@@ -139,7 +148,7 @@ namespace PluginBuilder
 		Settings.SaveConfig();
 	}
 
-	bool FBuildTargets::IsBuildTargetSelected(const FBuildTarget BuildTarget)
+	bool FBuildTargets::GetBuildTargetState(const FBuildTarget BuildTarget)
 	{
 		const TOptional<FBuildTarget>& SelectedBuildTarget = UPluginBuilderSettings::Get().SelectedBuildTarget;
 		if (SelectedBuildTarget.IsSet())

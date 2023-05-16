@@ -27,7 +27,7 @@ namespace PluginBuilder
 	{
 		return bHasAnyError;
 	}
-
+	
 	void FPackagePluginTask::Initialize()
 	{
 		FString UATBatchFile;
@@ -38,9 +38,9 @@ namespace PluginBuilder
 			State = EState::Terminated;
 			return;
 		}
-
+		
 		UE_LOG(LogPluginBuilder, Log, TEXT("===================================================================================================="));
-		UE_LOG(LogPluginBuilder, Log, TEXT("[Plugin Name] %s / [Plugin Version] %s / [Engine Version] %s"), *Params.PluginFriendlyName, *Params.PluginVersionName, *EngineVersion);
+		UE_LOG(LogPluginBuilder, Log, TEXT("[Plugin Name] %s / [Plugin Version] %s / [Engine Version] %s"), *Params.GetPluginNameInSpecifiedFormat(), *Params.PluginVersionName, *EngineVersion);
 		UE_LOG(LogPluginBuilder, Log, TEXT("----------------------------------------------------------------------------------------------------"));
 
 		TArray<FString> Arguments = {
@@ -164,8 +164,16 @@ namespace PluginBuilder
 		}
 		else if (Params.bZipUp)
 		{
+			if (Params.bKeepUPluginProperties)
+			{
+				if (!CopyUPluginProperties())
+				{
+					UE_LOG(LogPluginBuilder, Error, TEXT("Failed to copy uplugin file."));
+				}
+			}
+			
 			const FString ZipTempDirectoryPath = (
-				GetZipTempDirectoryPath() / GetDestinationDirectoryName() / Params.PluginName
+				GetZipTempDirectoryPath() / GetDestinationDirectoryName() / Params.GetPluginNameInSpecifiedFormat()
 			);
 			PlatformFile.CreateDirectoryTree(*ZipTempDirectoryPath);
 			PlatformFile.CopyDirectoryTree(*ZipTempDirectoryPath, *GetBuiltPluginDestinationPath(), true);
@@ -185,23 +193,29 @@ namespace PluginBuilder
 				PlatformFile.DeleteDirectoryRecursively(*DirectoryPathToDelete);
 			}
 			
-			FString ZipFileName, ZipFilePath;
-			if( Params.bOutputAllZipFilesToSingleFolder )
+			FString ZipFilePath;
+			if (Params.bOutputAllZipFilesToSingleFolder)
 			{
-				ZipFileName = FString::Printf(TEXT("%s_%s.zip"), *GetDestinationDirectoryName(), *Params.PluginVersionName);
+				const FString ZipFileName = FString::Printf(
+					TEXT("%s_%s.zip"),
+					*GetDestinationDirectoryName(),
+					*Params.PluginVersionName
+				);
 				ZipFilePath = (
 					GetPackagedPluginDestinationPath() / ZipFileName
 				);
 			}
 			else
 			{
-				ZipFileName = FString::Printf(TEXT("%s%s.zip"), Params.bUseFriendlyName ? *Params.PluginFriendlyName : *Params.PluginName, *Params.PluginVersionName);
+				const FString ZipFileName = FString::Printf(
+					TEXT("%s%s.zip"),
+					*Params.GetPluginNameInSpecifiedFormat(),
+					*Params.PluginVersionName
+				);
 				ZipFilePath = (
 					GetPackagedPluginDestinationPath() /  GetDestinationDirectoryName() / ZipFileName
 				);
 			}
-			
-
 			if (PlatformFile.FileExists(*ZipFilePath))
 			{
 				PlatformFile.DeleteFile(*ZipFilePath);
@@ -216,6 +230,12 @@ namespace PluginBuilder
 				UE_LOG(LogPluginBuilder, Error, TEXT("Failed to create the zip file."));
 				bHasAnyError = true;
 			}
+		}
+
+		if (!Params.IsFormatExpectedByMarketplace())
+		{
+			UE_LOG(LogPluginBuilder, Warning, TEXT("The created package is not in a format that can be submitted to the marketplace."));
+			UE_LOG(LogPluginBuilder, Warning, TEXT("If you plan to submit to the marketplace, please review the build options and zip up options."));
 		}
 
 		FPlatformProcess::CloseProc(ProcessHandle);
@@ -234,7 +254,7 @@ namespace PluginBuilder
 
 	FString FPackagePluginTask::GetDestinationDirectoryName() const
 	{
-		return FString::Printf(TEXT("%s_%s"), Params.bUseFriendlyName ? *Params.PluginFriendlyName : *Params.PluginName, *EngineVersion);
+		return FString::Printf(TEXT("%s_%s"), *Params.GetPluginNameInSpecifiedFormat(), *EngineVersion);
 	}
 
 	FString FPackagePluginTask::GetBuiltPluginDestinationPath() const
@@ -250,5 +270,22 @@ namespace PluginBuilder
 	FString FPackagePluginTask::GetZipTempDirectoryPath()
 	{
 		return (FString(FPlatformProcess::UserTempDir()) / TEXT("PluginBuilder"));
+	}
+
+	bool FPackagePluginTask::CopyUPluginProperties() const
+	{
+		const FString& OriginalUPluginFile = Params.UPluginFile;
+		const FString& OutputUPluginFile = (GetBuiltPluginDestinationPath() / FPaths::GetCleanFilename(Params.UPluginFile));
+		
+		IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+		if (!PlatformFile.FileExists(*OriginalUPluginFile) || !PlatformFile.FileExists(*OutputUPluginFile))
+		{
+			return false;
+		}
+		
+		return PlatformFile.CopyFile(
+			*OutputUPluginFile,
+			*OriginalUPluginFile
+		);
 	}
 }

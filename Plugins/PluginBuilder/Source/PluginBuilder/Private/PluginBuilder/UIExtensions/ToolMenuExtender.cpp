@@ -25,7 +25,9 @@ namespace PluginBuilder
 	const FName FToolMenuExtender::VersionsAndPlatformsSectionName	= TEXT("VersionsAndPlatforms");
 	const FName FToolMenuExtender::EngineVersionsSubMenuName		= TEXT("PluginBuilder.PackagePlugin.BuildConfigurations.EngineVersions");
 	const FName FToolMenuExtender::TargetPlatformsSubMenuName		= TEXT("PluginBuilder.PackagePlugin.BuildConfigurations.TargetPlatforms");
-	const FName FToolMenuExtender::OptionsSectionName				= TEXT("Options");
+	const FName FToolMenuExtender::BuildOptionsSectionName			= TEXT("BuildOptions");
+	const FName FToolMenuExtender::ZipUpOptionsSectionName			= TEXT("ZipUpOptions");
+	const FName FToolMenuExtender::EngineVersionPresetSectionName	= TEXT("EngineVersionPreset");
 	
 	void FToolMenuExtender::Register()
 	{
@@ -160,15 +162,24 @@ namespace PluginBuilder
 			false
 		);
 
-		FToolMenuSection& OptionsSection = ToolMenu->AddSection(
-			OptionsSectionName,
-			LOCTEXT("OptionsLabel", "Options")
+		FToolMenuSection& BuildOptionsSection = ToolMenu->AddSection(
+			BuildOptionsSectionName,
+			LOCTEXT("BuildOptionsLabel", "Build Options")
 		);
 		
-		OptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().Rocket);
-		OptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().CreateSubFolder);
-		OptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().StrictIncludes);
-		OptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().ZipUp);
+		BuildOptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().Rocket);
+		BuildOptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().CreateSubFolder);
+		BuildOptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().StrictIncludes);
+
+		FToolMenuSection& ZipUpOptionsSection = ToolMenu->AddSection(
+			ZipUpOptionsSectionName,
+			LOCTEXT("ZipUpOptionsLabel", "Zip Up Options")
+		);
+		
+		ZipUpOptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().ZipUp);
+		ZipUpOptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().OutputAllZipFilesToSingleFolder);
+		ZipUpOptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().KeepBinariesFolder);
+		ZipUpOptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().KeepUPluginProperties);
 	}
 
 	void FToolMenuExtender::OnExtendEngineVersionsSubMenu(UToolMenu* ToolMenu)
@@ -205,6 +216,40 @@ namespace PluginBuilder
                 EUserInterfaceActionType::ToggleButton
             );
 		}
+
+		FToolMenuSection& EngineVersionPresetSection = ToolMenu->AddSection(
+			EngineVersionPresetSectionName,
+			LOCTEXT("EngineVersionPresetSectionLabel", "Preset")
+		);
+
+		const TArray<FString>& MajorVersionNames = FEngineVersions::GetMajorVersionNames();
+		for (const auto& MajorVersionName : MajorVersionNames)
+		{
+			EngineVersionPresetSection.AddMenuEntry(
+				*MajorVersionName,
+				FText::FromString(MajorVersionName),
+				FText::Format(
+					LOCTEXT("MajorVersionPresetTooltipFormat", "Enable only all engine versions belonging to {0} category."),
+					FText::FromString(MajorVersionName)
+				),
+				FSlateIcon(),
+				FUIAction(
+					FExecuteAction::CreateStatic(&FEngineVersions::EnableByMajorVersion, MajorVersionName)
+				),
+				EUserInterfaceActionType::Button
+			);
+		}
+
+		EngineVersionPresetSection.AddMenuEntry(
+			GET_FUNCTION_NAME_CHECKED(FEngineVersions, EnableLatest3EngineVersions),
+			LOCTEXT("Latest3EngineVersionsPresetLabel", "Latest 3 Engine Versions"),
+			LOCTEXT("Latest3EngineVersionsPresetTooltip", "Enables the latest 3 engine versions required when submitting to the marketplace."),
+			FSlateIcon(),
+			FUIAction(
+				FExecuteAction::CreateStatic(&FEngineVersions::EnableLatest3EngineVersions)
+			),
+			EUserInterfaceActionType::Button
+		);
 	}
 
 	void FToolMenuExtender::OnExtendTargetPlatformsSubMenu(UToolMenu* ToolMenu)
@@ -261,20 +306,20 @@ namespace PluginBuilder
 			Section.Label = FText::FromString(PluginCategory);
 			
 			Section.AddMenuEntry(
-				*BuildTarget.GetPluginFriendlyName(),
+				*BuildTarget.GetPluginName(),
 				FText::Format(
 					LOCTEXT("BuildTargetLabelFormat", "{0} ({1})"),
-					FText::FromString(BuildTarget.GetPluginFriendlyName()),
+					FText::FromString(BuildTarget.GetPluginNameInSpecifiedFormat()),
 					FText::FromString(BuildTarget.GetPluginVersionName())
 				),
 				FText::FromString(BuildTarget.GetPluginDescription()),
 				BuildTarget.GetPluginIcon(),
 				FUIAction(
-					FExecuteAction::CreateStatic(&FBuildTargets::SelectBuildTarget, BuildTarget),
+					FExecuteAction::CreateStatic(&FBuildTargets::ToggleBuildTarget, BuildTarget),
 					FCanExecuteAction(),
-					FIsActionChecked::CreateStatic(&FBuildTargets::IsBuildTargetSelected, BuildTarget)
+					FIsActionChecked::CreateStatic(&FBuildTargets::GetBuildTargetState, BuildTarget)
 				),
-				EUserInterfaceActionType::RadioButton
+				EUserInterfaceActionType::ToggleButton
 			);
 		}
 	}

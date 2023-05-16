@@ -36,6 +36,22 @@ namespace PluginBuilder
 		static void ToggleZipUp();
 		static bool GetZipUpState();
 		
+		// Whether to put the zip files into a single folder.
+		// If false will use a per engine folder for each zip file.
+		static void ToggleOutputAllZipFilesToSingleFolder();
+		static bool GetOutputAllZipFilesToSingleFolderState();
+
+		// Whether the zip folder should keep the binaries folder.
+		// Marketplace submissions expect the binaries folder to be deleted.
+		static void ToggleKeepBinariesFolder();
+		static bool GetKeepBinariesFolderState();
+
+		// Whether to keep the properties of uplugin that are deleted when outputting from UAT even after outputting.
+		// Examples of properties to delete by UAT: IsBetaVersion, IsExperimentalVersion, EnabledByDefault, etc.
+		// Marketplace submissions expect to use the uplugin file output by UAT.
+		static void ToggleKeepUPluginProperties();
+		static bool GetKeepUPluginPropertiesState();
+		
 		// Opens the settings for Plugin Builder.
 		static void OpenBuildSettings();
 	};
