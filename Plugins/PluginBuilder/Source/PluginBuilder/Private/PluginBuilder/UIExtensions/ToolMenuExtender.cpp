@@ -202,7 +202,7 @@ namespace PluginBuilder
 					FCanExecuteAction(),
 					FIsActionChecked::CreateStatic(&FEngineVersions::GetEngineVersionState, EngineVersion)
                 ),
-                EUserInterfaceActionType::RadioButton
+                EUserInterfaceActionType::ToggleButton
             );
 		}
 	}
@@ -241,7 +241,7 @@ namespace PluginBuilder
 				   FCanExecuteAction(),
 				   FIsActionChecked::CreateStatic(&FTargetPlatforms::GetTargetPlatformState, PlatformName)
 			   ),
-			   EUserInterfaceActionType::RadioButton
+			   EUserInterfaceActionType::ToggleButton
 			);
 		}
 	}
@@ -261,10 +261,10 @@ namespace PluginBuilder
 			Section.Label = FText::FromString(PluginCategory);
 			
 			Section.AddMenuEntry(
-				*BuildTarget.GetPluginName(),
+				*BuildTarget.GetPluginFriendlyName(),
 				FText::Format(
 					LOCTEXT("BuildTargetLabelFormat", "{0} ({1})"),
-					FText::FromString(BuildTarget.GetPluginName()),
+					FText::FromString(BuildTarget.GetPluginFriendlyName()),
 					FText::FromString(BuildTarget.GetPluginVersionName())
 				),
 				FText::FromString(BuildTarget.GetPluginDescription()),
