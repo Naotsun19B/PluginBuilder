@@ -28,7 +28,7 @@ namespace PluginBuilder
 		void Fadeout();
 			
 	private:
-		// An indirectly operated SNotificationItem.
+		// The indirectly operated SNotificationItem.
 		TSharedPtr<SNotificationItem> NotificationItem;
 	};
 	
@@ -38,7 +38,7 @@ namespace PluginBuilder
 	struct PLUGINBUILDER_API FNotificationInteraction
 	{
 	public:
-		// Types of things that users of editor notifications can interact with.
+		// An enum class that defines type of things that users of editor notifications can interact with.
 		enum class EInteractionType : uint8 
 		{
 			Hyperlink,
@@ -46,13 +46,13 @@ namespace PluginBuilder
 		};
 		EInteractionType Type;
 
-		// A text displayed by the button or hyperlink.
+		// The text displayed by the button or hyperlink.
 		FText Text;
 
-		// A tooltip text that appears when you hover over a button.
+		// The tooltip text that appears when you hover over a button.
 		FText Tooltip;
 
-		// A callback that is called when a button or hyperlink is pressed.
+		// The callback that is called when a button or hyperlink is pressed.
 		FSimpleDelegate Callback;
 
 	public:

@@ -53,7 +53,7 @@ namespace PluginBuilder
 			Arguments.Add(
 				FString::Printf(
 						TEXT("-targetplatform=\"%s\""),
-						*FString::Join(Params.TargetPlatforms, TEXT(",")
+						*FString::Join(Params.TargetPlatforms, TEXT("+")
 					)
 				)
 			);

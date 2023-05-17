@@ -14,7 +14,7 @@ namespace PluginBuilder
 	class PLUGINBUILDER_API FPackagePluginTask
 	{
 	public:
-		// Defines the types of task progress states.
+		// An enum class that defines state of task progress.
 		enum class EState : uint8
 		{
 			PreInitialize,
@@ -57,22 +57,22 @@ namespace PluginBuilder
 		bool CopyUPluginProperties() const;
 		
 	private:
-		// An engine version to build for this task
+		// The engine version to build for this task
 		FString EngineVersion;
 		
-		// A dataset used to process plugin build.
+		// The dataset used to process plugin build.
 		FBuildPluginParams Params;
 
-		// A task progress state.
+		// The task progress state.
 		EState State;
 
 		// Whether any error occurred during the packaging process.
 		bool bHasAnyError;
 
-		// A process handle of the batch file.
+		// The process handle of the batch file.
 		FProcHandle ProcessHandle;
 		
-		// A read pipe for outputting from the standard output of a batch file to the output log.
+		// The read pipe for outputting from the standard output of a batch file to the output log.
 		void* ReadPipe;
 	};
 }

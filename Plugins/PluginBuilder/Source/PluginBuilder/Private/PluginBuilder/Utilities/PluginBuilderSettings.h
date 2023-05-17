@@ -42,7 +42,7 @@ public:
 	UPROPERTY(EditAnywhere, Config, Category = "Output", meta = (EditCondition = "!bSelectOutputDirectoryManually"))
 	bool bOutputToBuildDirectoryOfEachProject;
 	
-	// A path to the directory where the packaged plugin will be output.
+	// The path to the directory where the packaged plugin will be output.
 	UPROPERTY(EditAnywhere, Config, Category = "Output", meta = (EditCondition = "!bSelectOutputDirectoryManually"))
 	FDirectoryPath OutputDirectoryPath;
 
@@ -60,16 +60,16 @@ public:
 	UPROPERTY(EditAnywhere, Config, Category = "Misc")
 	bool bStopPackagingProcessImmediately;
 
-	// A name of the currently selected plugin to build.
+	// The name of the currently selected plugin to build.
 	UPROPERTY(Config)
 	FName SelectedBuildTargetName;
 	TOptional<PluginBuilder::FBuildTargets::FBuildTarget> SelectedBuildTarget;
 	
-	// A list of engine versions to build the plugin.
+	// The list of engine versions to build the plugin.
 	UPROPERTY(Config)
 	TArray<FString> EngineVersions;
 
-	// A list of target platforms to build the plugin.
+	// The list of target platforms to build the plugin.
 	UPROPERTY(Config)
 	TArray<FString> TargetPlatforms;
 

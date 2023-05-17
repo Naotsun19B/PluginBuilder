@@ -30,7 +30,7 @@ namespace PluginBuilder
 		static FName GetPropertyName(const FString& PluginFriendlyName);
 		
 	private:
-		// An instance of this style class.
+		// The instance of this style class.
 		static TSharedPtr<FPluginBuilderStyle> Instance;
 	};
 }

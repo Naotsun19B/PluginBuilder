@@ -13,28 +13,28 @@ namespace PluginBuilder
 	struct PLUGINBUILDER_API FBuildPluginParams
 	{
 	public:
-		// A name of the plugin to build.
+		// The name of the plugin to build.
 		FString PluginName;
 
-		// A friendly name of the plugin to build.
+		// The friendly name of the plugin to build.
 		FString PluginFriendlyName;
 
-		//Whether to use friendly names in plugin output files, editor menus, etc.
+		// Whether to use friendly names in plugin output files, editor menus, etc.
 		bool bUseFriendlyName = true;
 		
-		// A version name of the plugin to build.
+		// The version name of the plugin to build.
 		FString PluginVersionName;
 
 		// Whether the plugin to build uses the content folder.
 		bool bCanPluginContainContent = false;
 		
-		// A path to the .uplugin file for the plugin you want to build.
+		// The path to the .uplugin file for the plugin you want to build.
 		FString UPluginFile;
 
-		// A path of the directory where pre-built plugins, zipped plugins, etc. are output.
+		// The path of the directory where pre-built plugins, zipped plugins, etc. are output.
 		TOptional<FString> OutputDirectoryPath;
 		
-		// A list of target platforms to build the plugin.
+		// The list of target platforms to build the plugin.
 		TArray<FString> TargetPlatforms;
 		
 		// Whether to handle older versions that do not use the Rocket.txt file.
@@ -75,10 +75,10 @@ namespace PluginBuilder
 	struct PLUGINBUILDER_API FPackagePluginParams
 	{
 	public:
-		// A list of engine versions to build the plugin.
+		// The list of engine versions to build the plugin.
 		TArray<FString> EngineVersions;
 
-		// A dataset used to process plugin build.
+		// The dataset used to process plugin build.
 		FBuildPluginParams BuildPluginParams;
 
 #if UE_5_00_OR_LATER

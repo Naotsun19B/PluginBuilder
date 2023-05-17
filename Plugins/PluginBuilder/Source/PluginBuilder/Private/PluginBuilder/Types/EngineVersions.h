@@ -16,16 +16,16 @@ namespace PluginBuilder
 		struct PLUGINBUILDER_API FEngineVersion
 		{
 		public:
-			// A installed engine version string.
+			// The installed engine version string.
 			FString VersionName;
 
-			// A path to the root directory of the installed engine.
+			// The path to the root directory of the installed engine.
 			FString InstalledDirectory;
 			
-			// A RunUAT.bat file path for the installed engine.
+			// The RunUAT.bat file path for the installed engine.
 			FString UATBatchFile;
 
-			// Kind of like UE4 or UE5 or a custom version.
+			// The category of like UE4 or UE5 or a custom version.
 			FString MajorVersionName;
 		};
 		
@@ -58,7 +58,7 @@ namespace PluginBuilder
 		static void EnableLatest3EngineVersions();
 		
 	private:
-		// A list of installed engine version information.
+		// The list of installed engine version information.
 		static TArray<FEngineVersion> EngineVersions;
 	};
 }

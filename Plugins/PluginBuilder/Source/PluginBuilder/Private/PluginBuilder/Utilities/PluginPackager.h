@@ -47,16 +47,16 @@ namespace PluginBuilder
 		void OnCancelButtonPressed();
 		
 	private:
-		// A running task that packages a plugin.
+		// The running task that packages a plugin.
 		static TUniquePtr<FPluginPackager> Instance;
 
-		// An editor notification item that package a plugin.
+		// The editor notification item that package a plugin.
 		static FNotificationHandle PendingNotificationHandle;
 
-		// A dataset used to process plugin packages.
+		// The dataset used to process plugin packages.
 		FPackagePluginParams Params;
 
-		// A list of tasks scheduled to process.
+		// The list of tasks scheduled to process.
 		TArray<TSharedRef<FPackagePluginTask>> Tasks;
 		
 		// Whether the task was canceled.

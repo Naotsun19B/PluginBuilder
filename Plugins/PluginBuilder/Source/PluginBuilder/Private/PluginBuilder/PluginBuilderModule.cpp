@@ -44,8 +44,7 @@ namespace PluginBuilder
 
 		// Register menu extension.
 		FToolMenuExtender::Register();
-
-		//
+		
 		{
 			UE_LOG(LogPluginBuilder, Log, TEXT("==================== Installed Engine Versions ===================="));
 			
