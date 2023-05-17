@@ -77,18 +77,19 @@ namespace PluginBuilder
 
 	void FTargetPlatforms::ToggleTargetPlatform(const FTargetPlatform TargetPlatform)
 	{
-		auto& Settings = UPluginBuilderSettings::Get();
-		
-		if (Settings.TargetPlatforms.Contains(TargetPlatform.UBTPlatformName))
-		{
-			Settings.TargetPlatforms.Remove(TargetPlatform.UBTPlatformName);
-		}
-		else
-		{
-			Settings.TargetPlatforms.Add(TargetPlatform.UBTPlatformName);
-		}
-
-		Settings.SaveConfig();
+		UPluginBuilderSettings::ModifyProperties(
+			[&TargetPlatform](UPluginBuilderSettings& Settings)
+			{
+				if (Settings.TargetPlatforms.Contains(TargetPlatform.UBTPlatformName))
+				{
+					Settings.TargetPlatforms.Remove(TargetPlatform.UBTPlatformName);
+				}
+				else
+				{
+					Settings.TargetPlatforms.Add(TargetPlatform.UBTPlatformName);
+				}
+			}
+		);
 	}
 
 	bool FTargetPlatforms::GetTargetPlatformState(const FTargetPlatform TargetPlatform)

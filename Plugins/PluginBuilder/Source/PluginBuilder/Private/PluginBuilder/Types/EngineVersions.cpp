@@ -271,26 +271,20 @@ namespace PluginBuilder
 
 	void FEngineVersions::ToggleEngineVersion(const FEngineVersion EngineVersion)
 	{
-		auto& Settings = UPluginBuilderSettings::Get();
-
-		if (Settings.EngineVersions.Contains(EngineVersion.VersionName))
-		{
-			Settings.EngineVersions.Remove(EngineVersion.VersionName);
-		}
-		else
-		{
-			Settings.EngineVersions.Add(EngineVersion.VersionName);
-		}
-
-		Settings.EngineVersions.Sort(
-			[](const FString& Lhs, const FString& Rhs) -> bool
+		UPluginBuilderSettings::ModifyProperties(
+			[&EngineVersion](UPluginBuilderSettings& Settings)
 			{
-				const float LhsValue = FCString::Atof(*Lhs);
-				const float RhsValue = FCString::Atof(*Rhs);
-				return (LhsValue < RhsValue);
-			}
+				if (Settings.EngineVersions.Contains(EngineVersion.VersionName))
+				{
+					Settings.EngineVersions.Remove(EngineVersion.VersionName);
+				}
+				else
+				{
+					Settings.EngineVersions.Add(EngineVersion.VersionName);
+				}
+			},
+			UPluginBuilderSettings::EPostModifiedProcessing::SortEngineVersion
 		);
-		Settings.SaveConfig();
 	}
 
 	bool FEngineVersions::GetEngineVersionState(const FEngineVersion EngineVersion)
@@ -298,52 +292,55 @@ namespace PluginBuilder
 		return UPluginBuilderSettings::Get().EngineVersions.Contains(EngineVersion.VersionName);
 	}
 
+	void FEngineVersions::EnableAllEngineVersions()
+	{
+		UPluginBuilderSettings::ModifyProperties(
+			[](UPluginBuilderSettings& Settings)
+			{
+				Settings.EngineVersions.Reset(EngineVersions.Num());
+				for (const auto& EngineVersion : EngineVersions)
+				{
+					Settings.EngineVersions.Add(EngineVersion.VersionName);
+				}
+			},
+			UPluginBuilderSettings::EPostModifiedProcessing::SortEngineVersion
+		);
+	}
+
 	void FEngineVersions::EnableByMajorVersion(const FString MajorVersionName)
 	{
-		auto& Settings = UPluginBuilderSettings::Get();
-
-		Settings.EngineVersions.Empty();
-		for (const auto& EngineVersion : EngineVersions)
-		{
-			if (!MajorVersionName.Equals(EngineVersion.MajorVersionName))
+		UPluginBuilderSettings::ModifyProperties(
+			[&MajorVersionName](UPluginBuilderSettings& Settings)
 			{
-				continue;
-			}
+				Settings.EngineVersions.Empty();
+				for (const auto& EngineVersion : EngineVersions)
+				{
+					if (!MajorVersionName.Equals(EngineVersion.MajorVersionName))
+					{
+						continue;
+					}
 
-			Settings.EngineVersions.Add(EngineVersion.VersionName);
-		}
-
-		Settings.EngineVersions.Sort(
-			[](const FString& Lhs, const FString& Rhs) -> bool
-			{
-				const float LhsValue = FCString::Atof(*Lhs);
-				const float RhsValue = FCString::Atof(*Rhs);
-				return (LhsValue < RhsValue);
-			}
+					Settings.EngineVersions.Add(EngineVersion.VersionName);
+				}
+			},
+			UPluginBuilderSettings::EPostModifiedProcessing::SortEngineVersion
 		);
-		Settings.SaveConfig();
 	}
 
 	void FEngineVersions::EnableLatest3EngineVersions()
 	{
-		auto& Settings = UPluginBuilderSettings::Get();
-
-		Settings.EngineVersions.Empty();
-		const int32 NumOfEngineVersions = EngineVersions.Num();
-		for (int32 Index = NumOfEngineVersions - 3; Index < NumOfEngineVersions; Index++)
-		{
-			Settings.EngineVersions.Add(EngineVersions[Index].VersionName);
-		}
-
-		Settings.EngineVersions.Sort(
-			[](const FString& Lhs, const FString& Rhs) -> bool
+		UPluginBuilderSettings::ModifyProperties(
+			[](UPluginBuilderSettings& Settings)
 			{
-				const float LhsValue = FCString::Atof(*Lhs);
-				const float RhsValue = FCString::Atof(*Rhs);
-				return (LhsValue < RhsValue);
-			}
+				Settings.EngineVersions.Empty();
+				const int32 NumOfEngineVersions = EngineVersions.Num();
+				for (int32 Index = NumOfEngineVersions - 3; Index < NumOfEngineVersions; Index++)
+				{
+					Settings.EngineVersions.Add(EngineVersions[Index].VersionName);
+				}
+			},
+			UPluginBuilderSettings::EPostModifiedProcessing::SortEngineVersion
 		);
-		Settings.SaveConfig();
 	}
 
 	TArray<FEngineVersions::FEngineVersion> FEngineVersions::EngineVersions;

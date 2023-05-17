@@ -51,6 +51,9 @@ namespace PluginBuilder
 		// Returns whether the specified engine version is selected.
 		static bool GetEngineVersionState(const FEngineVersion EngineVersion);
 
+		// Enables all installed engine versions.
+		static void EnableAllEngineVersions();
+		
 		// Enables all engine versions belonging to the specified major version category.
 		static void EnableByMajorVersion(const FString MajorVersionName);
 

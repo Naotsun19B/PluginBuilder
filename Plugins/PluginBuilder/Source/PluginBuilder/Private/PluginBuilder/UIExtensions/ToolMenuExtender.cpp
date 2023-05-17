@@ -222,6 +222,17 @@ namespace PluginBuilder
 			LOCTEXT("EngineVersionPresetSectionLabel", "Preset")
 		);
 
+		EngineVersionPresetSection.AddMenuEntry(
+			GET_FUNCTION_NAME_CHECKED(FEngineVersions, EnableAllEngineVersions),
+			LOCTEXT("EnableAllEngineVersionsPresetLabel", "All Engine Versions"),
+			LOCTEXT("EnableAllEngineVersionsPresetTooltip", "Enables all installed engine versions."),
+			FSlateIcon(),
+			FUIAction(
+				FExecuteAction::CreateStatic(&FEngineVersions::EnableAllEngineVersions)
+			),
+			EUserInterfaceActionType::Button
+		);
+
 		const TArray<FString>& MajorVersionNames = FEngineVersions::GetMajorVersionNames();
 		for (const auto& MajorVersionName : MajorVersionNames)
 		{

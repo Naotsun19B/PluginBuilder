@@ -114,11 +114,24 @@ public:
 	static void Unregister();
 	
 	// Returns reference of this settings.
-	static UPluginBuilderSettings& Get();
+	static const UPluginBuilderSettings& Get();
 
 	// Opens the settings menu for this plugin.
 	static void OpenSettings();
 
+	// An enum class that defines post modified processing.
+	enum class EPostModifiedProcessing : uint8
+	{
+		None,
+		SortEngineVersion,
+	};
+	
+	// Modifies to the properties of the default object of this class.
+	static void ModifyProperties(
+		const TFunction<void(UPluginBuilderSettings& Settings)>& Predicate,
+		const EPostModifiedProcessing PostModifiedProcessing = EPostModifiedProcessing::None
+	);
+	
 	// UObject interface.
 	virtual void PostInitProperties() override;
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;

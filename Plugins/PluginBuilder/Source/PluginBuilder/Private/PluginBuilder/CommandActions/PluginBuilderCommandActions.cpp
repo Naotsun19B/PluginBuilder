@@ -21,9 +21,12 @@ namespace PluginBuilder
 	
 	void FPluginBuilderCommandActions::ToggleRocket()
 	{
-		auto& Settings = UPluginBuilderSettings::Get();
-		Settings.bRocket = !Settings.bRocket;
-		Settings.SaveConfig();
+		UPluginBuilderSettings::ModifyProperties(
+			[](UPluginBuilderSettings& Settings)
+			{
+				Settings.bRocket = !Settings.bRocket;
+			}
+		);
 	}
 
 	bool FPluginBuilderCommandActions::GetRocketState()
@@ -33,9 +36,12 @@ namespace PluginBuilder
 
 	void FPluginBuilderCommandActions::ToggleCreateSubFolder()
 	{
-		auto& Settings = UPluginBuilderSettings::Get();
-		Settings.bCreateSubFolder = !Settings.bCreateSubFolder;
-		Settings.SaveConfig();
+		UPluginBuilderSettings::ModifyProperties(
+			[](UPluginBuilderSettings& Settings)
+			{
+				Settings.bCreateSubFolder = !Settings.bCreateSubFolder;
+			}
+		);
 	}
 
 	bool FPluginBuilderCommandActions::GetCreateSubFolderState()
@@ -45,9 +51,12 @@ namespace PluginBuilder
 
 	void FPluginBuilderCommandActions::ToggleStrictIncludes()
 	{
-		auto& Settings = UPluginBuilderSettings::Get();
-		Settings.bStrictIncludes = !Settings.bStrictIncludes;
-		Settings.SaveConfig();
+		UPluginBuilderSettings::ModifyProperties(
+			[](UPluginBuilderSettings& Settings)
+			{
+				Settings.bStrictIncludes = !Settings.bStrictIncludes;
+			}
+		);
 	}
 
 	bool FPluginBuilderCommandActions::GetStrictIncludesState()
@@ -57,9 +66,12 @@ namespace PluginBuilder
 
 	void FPluginBuilderCommandActions::ToggleZipUp()
 	{
-		auto& Settings = UPluginBuilderSettings::Get();
-    	Settings.bZipUp = !Settings.bZipUp;
-    	Settings.SaveConfig();
+		UPluginBuilderSettings::ModifyProperties(
+			[](UPluginBuilderSettings& Settings)
+			{
+				Settings.bZipUp = !Settings.bZipUp;
+			}
+		);
 	}
 
 	bool FPluginBuilderCommandActions::GetZipUpState()
@@ -69,9 +81,12 @@ namespace PluginBuilder
 
 	void FPluginBuilderCommandActions::ToggleOutputAllZipFilesToSingleFolder()
 	{
-		auto& Settings = UPluginBuilderSettings::Get();
-		Settings.bOutputAllZipFilesToSingleFolder = !Settings.bOutputAllZipFilesToSingleFolder;
-		Settings.SaveConfig();
+		UPluginBuilderSettings::ModifyProperties(
+			[](UPluginBuilderSettings& Settings)
+			{
+				Settings.bOutputAllZipFilesToSingleFolder = !Settings.bOutputAllZipFilesToSingleFolder;
+			}
+		);
 	}
 
 	bool FPluginBuilderCommandActions::GetOutputAllZipFilesToSingleFolderState()
@@ -81,9 +96,12 @@ namespace PluginBuilder
 
 	void FPluginBuilderCommandActions::ToggleKeepBinariesFolder()
 	{
-		auto& Settings = UPluginBuilderSettings::Get();
-		Settings.bKeepBinariesFolder = !Settings.bKeepBinariesFolder;
-		Settings.SaveConfig();
+		UPluginBuilderSettings::ModifyProperties(
+			[](UPluginBuilderSettings& Settings)
+			{
+				Settings.bKeepBinariesFolder = !Settings.bKeepBinariesFolder;
+			}
+		);
 	}
 
 	bool FPluginBuilderCommandActions::GetKeepBinariesFolderState()
@@ -93,9 +111,12 @@ namespace PluginBuilder
 
 	void FPluginBuilderCommandActions::ToggleKeepUPluginProperties()
 	{
-		auto& Settings = UPluginBuilderSettings::Get();
-		Settings.bKeepUPluginProperties = !Settings.bKeepUPluginProperties;
-		Settings.SaveConfig();
+		UPluginBuilderSettings::ModifyProperties(
+			[](UPluginBuilderSettings& Settings)
+			{
+				Settings.bKeepUPluginProperties = !Settings.bKeepUPluginProperties;
+			}
+		);
 	}
 
 	bool FPluginBuilderCommandActions::GetKeepUPluginPropertiesState()

@@ -69,9 +69,9 @@ void UPluginBuilderSettings::Unregister()
 	}
 }
 
-UPluginBuilderSettings& UPluginBuilderSettings::Get()
+const UPluginBuilderSettings& UPluginBuilderSettings::Get()
 {
-	auto* Settings = GetMutableDefault<UPluginBuilderSettings>();
+	const auto* Settings = GetDefault<UPluginBuilderSettings>();
 	check(IsValid(Settings));
 	return *Settings;
 }
@@ -86,6 +86,31 @@ void UPluginBuilderSettings::OpenSettings()
 			PluginBuilder::Settings::SectionName
 		);
 	}
+}
+
+void UPluginBuilderSettings::ModifyProperties(
+	const TFunction<void(UPluginBuilderSettings& Settings)>& Predicate,
+	const EPostModifiedProcessing PostModifiedProcessing /* = EPostModifiedProcessing::None */
+)
+{
+	auto* Settings = GetMutableDefault<UPluginBuilderSettings>();
+	check(IsValid(Settings));
+	
+	Predicate(*Settings);
+
+	if (PostModifiedProcessing == EPostModifiedProcessing::SortEngineVersion)
+	{
+		Settings->EngineVersions.Sort(
+			[](const FString& Lhs, const FString& Rhs) -> bool
+			{
+				const float LhsValue = FCString::Atof(*Lhs);
+				const float RhsValue = FCString::Atof(*Rhs);
+				return (LhsValue < RhsValue);
+			}
+		);
+	}
+
+	Settings->SaveConfig();
 }
 
 void UPluginBuilderSettings::PostInitProperties()

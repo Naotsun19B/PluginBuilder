@@ -142,10 +142,13 @@ namespace PluginBuilder
 
 	void FBuildTargets::ToggleBuildTarget(const FBuildTarget BuildTarget)
 	{
-		auto& Settings = UPluginBuilderSettings::Get();
-		Settings.SelectedBuildTargetName = *BuildTarget.GetPluginFriendlyName();
-		Settings.SelectedBuildTarget = BuildTarget;
-		Settings.SaveConfig();
+		UPluginBuilderSettings::ModifyProperties(
+			[&BuildTarget](UPluginBuilderSettings& Settings)
+			{
+				Settings.SelectedBuildTargetName = *BuildTarget.GetPluginFriendlyName();
+				Settings.SelectedBuildTarget = BuildTarget;
+			}
+		);
 	}
 
 	bool FBuildTargets::GetBuildTargetState(const FBuildTarget BuildTarget)
