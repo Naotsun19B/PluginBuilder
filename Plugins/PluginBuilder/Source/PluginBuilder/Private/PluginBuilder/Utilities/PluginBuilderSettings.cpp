@@ -4,6 +4,7 @@
 #include "Modules/ModuleManager.h"
 #include "ISettingsModule.h"
 #include "Misc/Paths.h"
+#include "Misc/App.h"
 
 #define LOCTEXT_NAMESPACE "PluginBuilderSettings"
 
@@ -31,7 +32,6 @@ UPluginBuilderSettings::UPluginBuilderSettings()
 	, bUseFriendlyName(true)
 	, bShowOnlyLogsFromThisPluginWhenPackageProcessStarts(false)
 	, bStopPackagingProcessImmediately(false)
-	, SelectedBuildTargetName(NAME_None)
 	, bRocket(true)
 	, bCreateSubFolder(false)
 	, bStrictIncludes(false)
@@ -117,9 +117,13 @@ void UPluginBuilderSettings::PostInitProperties()
 {
 	UObject::PostInitProperties();
 
-	ResetOutputDirectoryPath();
-	
-	SelectedBuildTarget = PluginBuilder::FBuildTargets::GetDefaultBuildTarget();
+	ModifyProperties(
+		[](UPluginBuilderSettings& Settings)
+		{
+			Settings.ResetOutputDirectoryPath();
+			Settings.SelectedBuildTarget = PluginBuilder::FBuildTargets::GetDefaultBuildTarget();
+		}
+	);
 }
 
 void UPluginBuilderSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
@@ -134,7 +138,12 @@ void UPluginBuilderSettings::PostEditChangeProperty(FPropertyChangedEvent& Prope
 	if (PropertyChangedEvent.MemberProperty->GetFName() == GET_MEMBER_NAME_CHECKED(UPluginBuilderSettings, OutputDirectoryPath) ||
 		PropertyChangedEvent.MemberProperty->GetFName() == GET_MEMBER_NAME_CHECKED(UPluginBuilderSettings, bOutputToBuildDirectoryOfEachProject))
 	{
-		ResetOutputDirectoryPath();
+		ModifyProperties(
+			[](UPluginBuilderSettings& Settings)
+			{
+				Settings.ResetOutputDirectoryPath();
+			}
+		);
 	}
 }
 
@@ -161,6 +170,25 @@ void UPluginBuilderSettings::ResetOutputDirectoryPath()
 	{
 		OutputDirectoryPath.Path = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir() / TEXT("Build"));
 	}
+}
+
+bool UPluginBuilderSettings::GetSelectedBuildTargetName(FName& SelectedBuildTargetName) const
+{
+	const FName ProjectName(FApp::GetProjectName());
+	if (const FName* FoundSelectedBuildTargetName = SelectedBuildTargetNamePerProject.Find(ProjectName))
+	{
+		SelectedBuildTargetName = *FoundSelectedBuildTargetName;
+
+		return true;
+	}
+
+	return false;
+}
+
+void UPluginBuilderSettings::SetSelectedBuildTargetName(const FName& SelectedBuildTargetName)
+{
+	const FName ProjectName(FApp::GetProjectName());
+	SelectedBuildTargetNamePerProject.FindOrAdd(ProjectName) = SelectedBuildTargetName;
 }
 
 bool UPluginBuilderSettings::IsReadyToStartPackagePluginTask() const

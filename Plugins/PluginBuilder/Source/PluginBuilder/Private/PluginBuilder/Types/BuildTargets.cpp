@@ -117,7 +117,13 @@ namespace PluginBuilder
 		const FBuildTarget* SavedBuildTarget = BuildTargets.FindByPredicate(
 			[](const FBuildTarget& BuildTarget) -> bool
 			{
-				return UPluginBuilderSettings::Get().SelectedBuildTargetName.IsEqual(*BuildTarget.GetPluginFriendlyName());
+				FName SelectedBuildTargetName;
+				if (UPluginBuilderSettings::Get().GetSelectedBuildTargetName(SelectedBuildTargetName))
+				{
+					return SelectedBuildTargetName.IsEqual(*BuildTarget.GetPluginFriendlyName());
+				}
+				
+				return false;
 			}
 		);
 		if (SavedBuildTarget != nullptr)
@@ -145,7 +151,7 @@ namespace PluginBuilder
 		UPluginBuilderSettings::ModifyProperties(
 			[&BuildTarget](UPluginBuilderSettings& Settings)
 			{
-				Settings.SelectedBuildTargetName = *BuildTarget.GetPluginFriendlyName();
+				Settings.SetSelectedBuildTargetName(*BuildTarget.GetPluginName());
 				Settings.SelectedBuildTarget = BuildTarget;
 			}
 		);

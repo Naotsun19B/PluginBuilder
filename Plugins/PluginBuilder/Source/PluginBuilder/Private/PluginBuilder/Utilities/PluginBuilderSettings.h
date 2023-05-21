@@ -61,8 +61,9 @@ public:
 	bool bStopPackagingProcessImmediately;
 
 	// The name of the currently selected plugin to build.
+	// This item saves a value for each project.
 	UPROPERTY(Config)
-	FName SelectedBuildTargetName;
+	TMap<FName, FName> SelectedBuildTargetNamePerProject;
 	TOptional<PluginBuilder::FBuildTargets::FBuildTarget> SelectedBuildTarget;
 	
 	// The list of engine versions to build the plugin.
@@ -140,6 +141,12 @@ public:
 
 	// Resets the output directory path to its default value (Build folder directly under the project folder).
 	void ResetOutputDirectoryPath();
+
+	// Returns the name of the build target associated with the project.
+	bool GetSelectedBuildTargetName(FName& SelectedBuildTargetName) const;
+
+	// Sets the name of the build target associated with the project.
+	void SetSelectedBuildTargetName(const FName& SelectedBuildTargetName);
 	
 	// Returns whether the parameters is ready to start package plugin task.
 	bool IsReadyToStartPackagePluginTask() const;
