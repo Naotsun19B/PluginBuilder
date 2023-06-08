@@ -1,4 +1,4 @@
-﻿// Copyright 2022-2023 Naotsun. All Rights Reserved.
+// Copyright 2022-2023 Naotsun. All Rights Reserved.
 
 #include "PluginBuilder/CommandActions/PluginBuilderCommandActions.h"
 #include "PluginBuilder/Utilities/PluginPackager.h"
