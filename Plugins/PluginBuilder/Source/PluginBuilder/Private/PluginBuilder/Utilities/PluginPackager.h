@@ -9,7 +9,7 @@
 
 namespace PluginBuilder
 {
-	class FPackagePluginTask;
+	class IUATBatchFileTask;
 	
 	/**
 	 * A class that handles the packaging of plugins.
@@ -57,7 +57,7 @@ namespace PluginBuilder
 		FPackagePluginParams Params;
 
 		// The list of tasks scheduled to process.
-		TArray<TSharedRef<FPackagePluginTask>> Tasks;
+		TArray<TSharedRef<IUATBatchFileTask>> Tasks;
 		
 		// Whether the task was canceled.
 		bool bWasCanceled = false;

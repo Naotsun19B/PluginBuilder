@@ -4,12 +4,8 @@
 
 #include "CoreMinimal.h"
 
-class SNotificationItem;
-
 namespace PluginBuilder
 {
-	class FPackagePluginTask;
-	
 	/**
 	 * A class that defines the function executed from the shortcut key.
 	 */

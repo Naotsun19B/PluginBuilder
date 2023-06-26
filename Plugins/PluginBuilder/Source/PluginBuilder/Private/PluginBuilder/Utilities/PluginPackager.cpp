@@ -1,7 +1,9 @@
 // Copyright 2022-2023 Naotsun. All Rights Reserved.
 
 #include "PluginBuilder/Utilities/PluginPackager.h"
-#include "PluginBuilder/Utilities/PackagePluginTask.h"
+#include "PluginBuilder/Tasks/IUATBatchFileTask.h"
+#include "PluginBuilder/Tasks/BuildPluginTask.h"
+#include "PluginBuilder/Tasks/ZipUpPluginTask.h"
 #include "PluginBuilder/PluginBuilderGlobals.h"
 #include "DesktopPlatformModule.h"
 #include "HAL/PlatformFileManager.h"
@@ -22,7 +24,7 @@ namespace PluginBuilder
 	{
 		if (IsPackagePluginTaskRunning())
 		{
-			UE_LOG(LogPluginBuilder, Warning, TEXT("A package plugin task is currently running. (plugin in package : %s)"), *Instance->Params.BuildPluginParams.PluginFriendlyName);
+			UE_LOG(LogPluginBuilder, Warning, TEXT("A package plugin task is currently running. (plugin in package : %s)"), *Instance->Params.UATBatchFileParams.PluginFriendlyName);
 			return false;
 		}
 
@@ -45,7 +47,7 @@ namespace PluginBuilder
 			return false;
 		}
 
-		if (!ParamsToPass.BuildPluginParams.OutputDirectoryPath.IsSet())
+		if (!ParamsToPass.UATBatchFileParams.OutputDirectoryPath.IsSet())
 		{
 			if (IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get())
 			{
@@ -58,11 +60,11 @@ namespace PluginBuilder
 				);
 				if (bWasSelected)
 				{
-					ParamsToPass.BuildPluginParams.OutputDirectoryPath = OutputDirectoryPath;
+					ParamsToPass.UATBatchFileParams.OutputDirectoryPath = OutputDirectoryPath;
 				}
 			}
 		}
-		if (!ParamsToPass.BuildPluginParams.OutputDirectoryPath.IsSet())
+		if (!ParamsToPass.UATBatchFileParams.OutputDirectoryPath.IsSet())
 		{
 			return false;
 		}
@@ -82,21 +84,21 @@ namespace PluginBuilder
 	void FPluginPackager::Tick(float DeltaTime)
 	{
 		check(Tasks.IsValidIndex(0));
-		const TSharedRef<FPackagePluginTask>& Task = Tasks[0];
+		const TSharedRef<IUATBatchFileTask>& Task = Tasks[0];
 
-		if (Task->GetState() == FPackagePluginTask::EState::PreInitialize)
+		if (Task->GetState() == IUATBatchFileTask::EState::PreInitialize)
 		{
 			Task->Initialize();
 		}
-		if (Task->GetState() == FPackagePluginTask::EState::Processing)
+		if (Task->GetState() == IUATBatchFileTask::EState::Processing)
 		{
 			Task->Tick(DeltaTime);
 		}
-		if (Task->GetState() == FPackagePluginTask::EState::PreTerminate)
+		if (Task->GetState() == IUATBatchFileTask::EState::PreTerminate)
 		{
 			Task->Terminate();
 		}
-		if (Task->GetState() == FPackagePluginTask::EState::Terminated)
+		if (Task->GetState() == IUATBatchFileTask::EState::Terminated)
 		{
 			if (Task->HasAnyError())
 			{
@@ -143,14 +145,34 @@ namespace PluginBuilder
 	{
 		for (const auto& EngineVersion : Params.EngineVersions)
 		{
-			Tasks.Add(MakeShared<FPackagePluginTask>(EngineVersion, Params.BuildPluginParams));
+			if (Params.BuildPluginParams.IsSet())
+			{
+				Tasks.Add(
+					MakeShared<FBuildPluginTask>(
+						EngineVersion,
+						Params.UATBatchFileParams,
+						Params.BuildPluginParams.GetValue()
+					)
+				);
+			}
+			
+			if (Params.ZipUpPluginParams.IsSet())
+			{
+				Tasks.Add(
+					MakeShared<FZipUpPluginTask>(
+						EngineVersion,
+						Params.UATBatchFileParams,
+						Params.ZipUpPluginParams.GetValue()
+					)
+				);
+			}
 		}
 		
 		PendingNotificationHandle = FEditorNotificationUtils::ShowNotification(
 			FText::Format(
 				LOCTEXT("NotificationTextFormat", "Packaging {0} ({1})..."),
-				FText::FromString(Params.BuildPluginParams.PluginFriendlyName),
-				FText::FromString(Params.BuildPluginParams.PluginVersionName)
+				FText::FromString(Params.UATBatchFileParams.PluginFriendlyName),
+				FText::FromString(Params.UATBatchFileParams.PluginVersionName)
 			),
 			FEditorNotificationUtils::CS_Pending,
 			0.f,
@@ -219,10 +241,7 @@ namespace PluginBuilder
 		{
 			GEditor->PlayEditorSound(TEXT("/Engine/EditorSounds/Notifications/CompileFailed_Cue.CompileFailed_Cue"));
 		}
-
-		IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
-		PlatformFile.DeleteDirectoryRecursively(*FPackagePluginTask::GetZipTempDirectoryPath());
-
+		
 		Instance.Reset();
 	}
 

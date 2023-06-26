@@ -1,17 +1,16 @@
-// Copyright 2022-2023 Naotsun. All Rights Reserved.
+﻿// Copyright 2022-2023 Naotsun. All Rights Reserved.
 
 #pragma once
 
 #include "CoreMinimal.h"
-#include "TickableEditorObject.h"
 #include "PluginBuilder/Types/PackagePluginParams.h"
 
 namespace PluginBuilder
 {
-	/**
-	 * A task class that packages plugins.
+    /**
+	 * An interface class for tasks used in the processing of this plugin.
 	 */
-	class PLUGINBUILDER_API FPackagePluginTask
+	class PLUGINBUILDER_API IUATBatchFileTask
 	{
 	public:
 		// An enum class that defines state of task progress.
@@ -22,46 +21,50 @@ namespace PluginBuilder
 			PreTerminate,
 			Terminated,
 		};
-		
+
 	public:
 		// Constructor.
-		FPackagePluginTask(const FString& InEngineVersion, const FBuildPluginParams& InParams);
+		IUATBatchFileTask(const FString& InEngineVersion, const FUATBatchFileParams& InUATBatchFileParams);
 
+		// Destructor.
+		virtual ~IUATBatchFileTask() = default;
+		
 		// Returns the types of task progress states.
-		EState GetState() const;
+		virtual EState GetState() const;
 
 		// Returns whether any error occurred during the packaging process.
-		bool HasAnyError() const;
+		virtual bool HasAnyError() const;
 		
 		// Called only once when task processing starts.
-		void Initialize();
-
+		virtual void Initialize();
+		
 		// Called every frame while the task is being processed.
-		void Tick(float DeltaTime);
+		virtual void Tick(float DeltaTime);
 
 		// Called only once when task processing ends.
-		void Terminate();
+		virtual void Terminate();
 
 		// Requests cancellation of the task.
-		void RequestCancel();
+		virtual void RequestCancel();
+
+	protected:
+		// Returns a list of arguments to pass to the UAT batch file.
+		virtual TArray<FString> GetUATArguments() const = 0;
 		
-		// Functions that returns the path of a directory or working directory that
-		// outputs pre-built or packaged plugins.
+		// Returns the path of the directory where task results are output.
+		virtual FString GetDestinationDirectoryPath() const = 0;
+		
+		// Functions that returns the path of a directory or working directory that outputs pre-built or packaged plugins.
 		FString GetDestinationDirectoryName() const;
 		FString GetBuiltPluginDestinationPath() const;
 		FString GetPackagedPluginDestinationPath() const;
-		static FString GetZipTempDirectoryPath();
-
-	private:
-		// Copies the properties of the original uplugin file to the UAT output uplugin file.
-		bool CopyUPluginProperties() const;
 		
-	private:
+	protected:
 		// The engine version to build for this task
 		FString EngineVersion;
 		
-		// The dataset used to process plugin build.
-		FBuildPluginParams Params;
+		// The dataset used to process UAT batch file.
+		FUATBatchFileParams UATBatchFileParams;
 
 		// The task progress state.
 		EState State;

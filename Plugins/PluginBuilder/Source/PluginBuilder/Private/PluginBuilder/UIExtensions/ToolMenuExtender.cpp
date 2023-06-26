@@ -2,11 +2,13 @@
 
 #include "PluginBuilder/UIExtensions/ToolMenuExtender.h"
 #include "PluginBuilder/CommandActions/PluginBuilderCommands.h"
+#include "PluginBuilder/Utilities/PluginBuilderSettings.h"
 #include "PluginBuilder/Types/BuildTargets.h"
 #include "PluginBuilder/Types/EngineVersions.h"
 #include "PluginBuilder/Types/TargetPlatforms.h"
 #include "PluginBuilder/PluginBuilderGlobals.h"
 #include "ToolMenus.h"
+#include "Widgets/Input/SNumericEntryBox.h"
 #if UE_5_00_OR_LATER
 #include "Styling/AppStyle.h"
 #else
@@ -180,6 +182,61 @@ namespace PluginBuilder
 		ZipUpOptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().OutputAllZipFilesToSingleFolder);
 		ZipUpOptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().KeepBinariesFolder);
 		ZipUpOptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().KeepUPluginProperties);
+		{
+			const TSharedRef<SNumericEntryBox<uint8>> CompressionLevelWidget = SNew(SNumericEntryBox<uint8>)
+				.AllowSpin(true)
+				.MinValue(0)
+				.MaxValue(9)
+				.MinSliderValue(0)
+				.MaxSliderValue(9)
+				.Value_Lambda(
+					[]() -> uint8
+					{
+						return UPluginBuilderSettings::Get().CompressionLevel;
+					}
+				)
+				.OnValueChanged_Lambda(
+					[](const uint8 Value)
+					{
+						UPluginBuilderSettings::ModifyProperties(
+							[&](UPluginBuilderSettings& Settings)
+							{
+								Settings.CompressionLevel = Value;
+							}
+						);
+					}
+				);
+			
+			const FName VariableName = GET_MEMBER_NAME_CHECKED(UPluginBuilderSettings, CompressionLevel);
+			FText VariableTooltip;
+			for (const auto* ByteProperty : TFieldRange<FByteProperty>(UPluginBuilderSettings::StaticClass()))
+			{
+				if (ByteProperty == nullptr)
+				{
+					continue;
+				}
+
+				if (ByteProperty->GetFName() != VariableName)
+				{
+					continue;
+				}
+
+				VariableTooltip = ByteProperty->GetToolTipText();
+				break;
+			}
+			
+			ZipUpOptionsSection.AddEntry(
+				FToolMenuEntry::InitWidget(
+					VariableName,
+					CompressionLevelWidget,
+					FText::FromName(VariableName),
+					false,
+					true,
+					false,
+					VariableTooltip
+				)
+			);
+		}
 	}
 
 	void FToolMenuExtender::OnExtendEngineVersionsSubMenu(UToolMenu* ToolMenu)

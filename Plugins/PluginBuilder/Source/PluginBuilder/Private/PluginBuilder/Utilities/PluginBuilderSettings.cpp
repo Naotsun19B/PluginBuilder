@@ -39,6 +39,7 @@ UPluginBuilderSettings::UPluginBuilderSettings()
 	, bOutputAllZipFilesToSingleFolder(false)
 	, bKeepBinariesFolder(false)
 	, bKeepUPluginProperties(false)
+	, CompressionLevel(5)
 {
 }
 

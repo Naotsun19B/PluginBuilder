@@ -7,14 +7,14 @@
 
 namespace PluginBuilder
 {
-	FString FBuildPluginParams::GetPluginNameInSpecifiedFormat() const
+	FString FUATBatchFileParams::GetPluginNameInSpecifiedFormat() const
 	{
 		return (bUseFriendlyName ? PluginFriendlyName : PluginName);
 	}
 
-	bool FBuildPluginParams::IsFormatExpectedByMarketplace() const
+	bool FZipUpPluginParams::IsFormatExpectedByMarketplace() const
 	{
-		return (bZipUp && !bKeepBinariesFolder && !bKeepUPluginProperties);
+		return (!bKeepBinariesFolder && !bKeepUPluginProperties);
 	}
 
 	bool FPackagePluginParams::MakeDefault(FPackagePluginParams& Default)
@@ -24,33 +24,47 @@ namespace PluginBuilder
 		{
 			return false;
 		}
+
+		const FBuildTargets::FBuildTarget& BuildTarget = Settings.SelectedBuildTarget.GetValue();
+		
+		FUATBatchFileParams UATBatchFileParams;
+		{
+			UATBatchFileParams.PluginName = BuildTarget.GetPluginName();
+			UATBatchFileParams.PluginFriendlyName = BuildTarget.GetPluginFriendlyName();
+			UATBatchFileParams.bUseFriendlyName = Settings.bUseFriendlyName;
+			UATBatchFileParams.PluginVersionName = BuildTarget.GetPluginVersionName();
+			UATBatchFileParams.UPluginFile = BuildTarget.GetUPluginFile();
+			if (!Settings.bSelectOutputDirectoryManually)
+			{
+				UATBatchFileParams.OutputDirectoryPath = Settings.OutputDirectoryPath.Path;
+			}
+			UATBatchFileParams.bStopPackagingProcessImmediately = Settings.bStopPackagingProcessImmediately;
+		}
 		
 		FBuildPluginParams BuildPluginParams;
 		{
-			const FBuildTargets::FBuildTarget& BuildTarget = Settings.SelectedBuildTarget.GetValue();
-			BuildPluginParams.PluginName = BuildTarget.GetPluginName();
-			BuildPluginParams.PluginFriendlyName = BuildTarget.GetPluginFriendlyName();
-			BuildPluginParams.bUseFriendlyName = Settings.bUseFriendlyName;
-			BuildPluginParams.PluginVersionName = BuildTarget.GetPluginVersionName();
-			BuildPluginParams.bCanPluginContainContent = BuildTarget.CanPluginContainContent();
-			BuildPluginParams.UPluginFile = BuildTarget.GetUPluginFile();
 			BuildPluginParams.TargetPlatforms = Settings.TargetPlatforms;
 			BuildPluginParams.bRocket = Settings.bRocket;
 			BuildPluginParams.bCreateSubFolder = Settings.bCreateSubFolder;
 			BuildPluginParams.bStrictIncludes = Settings.bStrictIncludes;
-			BuildPluginParams.bZipUp = Settings.bZipUp;
-			BuildPluginParams.bOutputAllZipFilesToSingleFolder = Settings.bOutputAllZipFilesToSingleFolder;
-			BuildPluginParams.bKeepBinariesFolder = Settings.bKeepBinariesFolder;
-			BuildPluginParams.bKeepUPluginProperties = Settings.bKeepUPluginProperties;
-			BuildPluginParams.bStopPackagingProcessImmediately = Settings.bStopPackagingProcessImmediately;
-			if (!Settings.bSelectOutputDirectoryManually)
-			{
-				BuildPluginParams.OutputDirectoryPath = Settings.OutputDirectoryPath.Path;
-			}
+		}
+
+		FZipUpPluginParams ZipUpPluginParams;
+		{
+			ZipUpPluginParams.bCanPluginContainContent = BuildTarget.CanPluginContainContent();
+			ZipUpPluginParams.bOutputAllZipFilesToSingleFolder = Settings.bOutputAllZipFilesToSingleFolder;
+			ZipUpPluginParams.bKeepBinariesFolder = Settings.bKeepBinariesFolder;
+			ZipUpPluginParams.bKeepUPluginProperties = Settings.bKeepUPluginProperties;
+			ZipUpPluginParams.CompressionLevel = Settings.CompressionLevel;
 		}
 
 		Default.EngineVersions = Settings.EngineVersions;
+		Default.UATBatchFileParams = UATBatchFileParams;
 		Default.BuildPluginParams = BuildPluginParams;
+		if (Settings.bZipUp)
+		{
+			Default.ZipUpPluginParams = ZipUpPluginParams;
+		}
 #if UE_5_00_OR_LATER
 		Default.bShowOnlyLogsFromThisPluginWhenPackageProcessStarts = Settings.bShowOnlyLogsFromThisPluginWhenPackageProcessStarts;
 #endif
@@ -72,11 +86,14 @@ namespace PluginBuilder
 			return false;
 		}
 
-		Params.BuildPluginParams.PluginName = FoundBuildTarget->GetPluginName();
-		Params.BuildPluginParams.PluginFriendlyName = FoundBuildTarget->GetPluginFriendlyName();
-		Params.BuildPluginParams.PluginVersionName = FoundBuildTarget->GetPluginVersionName();
-		Params.BuildPluginParams.bCanPluginContainContent = FoundBuildTarget->CanPluginContainContent();
-		Params.BuildPluginParams.UPluginFile = FoundBuildTarget->GetUPluginFile();
+		Params.UATBatchFileParams.PluginName = FoundBuildTarget->GetPluginName();
+		Params.UATBatchFileParams.PluginFriendlyName = FoundBuildTarget->GetPluginFriendlyName();
+		Params.UATBatchFileParams.PluginVersionName = FoundBuildTarget->GetPluginVersionName();
+		Params.UATBatchFileParams.UPluginFile = FoundBuildTarget->GetUPluginFile();
+		if (Params.ZipUpPluginParams.IsSet())
+		{
+			Params.ZipUpPluginParams.GetValue().bCanPluginContainContent = FoundBuildTarget->CanPluginContainContent();
+		}
 
 		return true;
 	}
@@ -87,7 +104,7 @@ namespace PluginBuilder
 		{
 			auto Predicate = [&](const FBuildTargets::FBuildTarget& BuildTarget) -> bool
 			{
-				return BuildPluginParams.PluginFriendlyName.Equals(BuildTarget.GetPluginFriendlyName());
+				return UATBatchFileParams.PluginFriendlyName.Equals(BuildTarget.GetPluginFriendlyName());
 			};
 		
 			const TArray<FBuildTargets::FBuildTarget>& BuildTargets = FBuildTargets::GetFilteredBuildTargets();

@@ -105,6 +105,10 @@ public:
 	// Marketplace submissions expect to use the uplugin file output by UAT.
 	UPROPERTY(Config)
 	bool bKeepUPluginProperties;
+
+	// The compressibility strength. Specify from 0 to 9.
+	UPROPERTY(Config)
+	uint8 CompressionLevel;
 	
 public:
 	// Constructor.
