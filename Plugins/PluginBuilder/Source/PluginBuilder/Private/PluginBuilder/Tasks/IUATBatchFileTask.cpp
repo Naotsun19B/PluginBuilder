@@ -2,6 +2,10 @@
 
 #include "PluginBuilder/Tasks/IUATBatchFileTask.h"
 #include "PluginBuilder/Types/EngineVersions.h"
+#include "PluginBuilder/PluginBuilderGlobals.h"
+#include "HAL/PlatformFileManager.h"
+#include "HAL/PlatformFile.h"
+#include "Misc/Paths.h"
 
 namespace PluginBuilder
 {

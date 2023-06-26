@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "1.2",
+	"VersionName": "1.3",
 	"FriendlyName": "PluginBuilder",
 	"Description": "Adds a tools menu to build plugin with multiple engine versions and compress the built plugin into a zip file that can be submitted to the marketplace.",
 	"Category": "Programming",

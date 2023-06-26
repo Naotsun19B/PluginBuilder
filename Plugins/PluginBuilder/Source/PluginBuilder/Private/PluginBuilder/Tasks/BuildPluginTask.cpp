@@ -2,8 +2,6 @@
 
 #include "PluginBuilder/Tasks/BuildPluginTask.h"
 #include "PluginBuilder/PluginBuilderGlobals.h"
-#include "HAL/PlatformFileManager.h"
-#include "Editor.h"
 
 namespace PluginBuilder
 {

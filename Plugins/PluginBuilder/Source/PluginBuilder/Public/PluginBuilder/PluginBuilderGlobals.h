@@ -24,6 +24,14 @@ namespace PluginBuilder
 #define COMPARE_ENGINE_VERSION(MajorVersion, MinorVersion) ENGINE_VERSION_NUMBER(ENGINE_MAJOR_VERSION, ENGINE_MINOR_VERSION) >= ENGINE_VERSION_NUMBER(MajorVersion, MinorVersion)
 #endif
 
+#ifndef UE_5_02_OR_LATER
+#if COMPARE_ENGINE_VERSION(5, 2)
+#define UE_5_02_OR_LATER 1
+#else
+#define UE_5_02_OR_LATER 0
+#endif
+#endif
+
 #ifndef UE_5_01_OR_LATER
 #if COMPARE_ENGINE_VERSION(5, 1)
 #define UE_5_01_OR_LATER 1

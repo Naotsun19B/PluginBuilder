@@ -3,7 +3,8 @@
 #include "PluginBuilder/Tasks/ZipUpPluginTask.h"
 #include "PluginBuilder/PluginBuilderGlobals.h"
 #include "HAL/PlatformFileManager.h"
-#include "Editor.h"
+#include "HAL/PlatformFile.h"
+#include "Misc/Paths.h"
 
 namespace PluginBuilder
 {
@@ -29,8 +30,10 @@ namespace PluginBuilder
 			}
 		}
 		
-		PlatformFile.CreateDirectoryTree(*GetZipTempDirectoryPath());
-		PlatformFile.CopyDirectoryTree(*GetZipTempDirectoryPath(), *GetBuiltPluginDestinationPath(), true);
+		const FString ZipTempDirectoryPath = GetZipTempDirectoryPath() / UATBatchFileParams.GetPluginNameInSpecifiedFormat();
+		
+		PlatformFile.CreateDirectoryTree(*ZipTempDirectoryPath);
+		PlatformFile.CopyDirectoryTree(*ZipTempDirectoryPath, *GetBuiltPluginDestinationPath(), true);
 						
 		TArray<FString> DirectoryNamesToDelete = { TEXT("Intermediate") };
 		if (!ZipUpPluginParams.bKeepBinariesFolder)
@@ -43,7 +46,7 @@ namespace PluginBuilder
 		}
 		for (const auto& DirectoryNameToDelete : DirectoryNamesToDelete)
 		{
-			const FString DirectoryPathToDelete = GetZipTempDirectoryPath() / DirectoryNameToDelete;
+			const FString DirectoryPathToDelete = ZipTempDirectoryPath / DirectoryNameToDelete;
 			PlatformFile.DeleteDirectoryRecursively(*DirectoryPathToDelete);
 		}
 		
@@ -73,9 +76,6 @@ namespace PluginBuilder
 		if (PlatformFile.FileExists(*ZipFilePath))
 		{
 			PlatformFile.DeleteFile(*ZipFilePath);
-			bHasAnyError = true;
-			State = EState::PreTerminate;
-			return;
 		}
 
 		UE_LOG(LogPluginBuilder, Log, TEXT("----------------------------------------------------------------------------------------------------"));
@@ -102,7 +102,6 @@ namespace PluginBuilder
 	{
 		return TArray<FString> {
 			TEXT("ZipUtils"),
-			TEXT("-nocompile"),
 			FString::Printf(TEXT("-archive=\"%s\""), *ZipFilePath),
 			FString::Printf(TEXT("-add=\"%s\""), *GetZipTempDirectoryPath()),
 			FString::Printf(TEXT("-compression=%u"), FMath::Min(ZipUpPluginParams.CompressionLevel,static_cast<uint8>(9)))
@@ -119,8 +118,7 @@ namespace PluginBuilder
 		return (
 			FString(FPlatformProcess::UserTempDir()) /
 			Global::PluginName.ToString() /
-			GetDestinationDirectoryName() /
-			UATBatchFileParams.GetPluginNameInSpecifiedFormat()
+			GetDestinationDirectoryName()
 		);
 	}
 

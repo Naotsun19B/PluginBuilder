@@ -208,6 +208,7 @@ namespace PluginBuilder
 				);
 			
 			const FName VariableName = GET_MEMBER_NAME_CHECKED(UPluginBuilderSettings, CompressionLevel);
+#if UE_5_02_OR_LATER
 			FText VariableTooltip;
 			for (const auto* ByteProperty : TFieldRange<FByteProperty>(UPluginBuilderSettings::StaticClass()))
 			{
@@ -224,16 +225,20 @@ namespace PluginBuilder
 				VariableTooltip = ByteProperty->GetToolTipText();
 				break;
 			}
+#endif
 			
 			ZipUpOptionsSection.AddEntry(
 				FToolMenuEntry::InitWidget(
 					VariableName,
 					CompressionLevelWidget,
-					FText::FromName(VariableName),
+					FText::FromName(VariableName)
+#if UE_5_02_OR_LATER
+					,
 					false,
 					true,
 					false,
 					VariableTooltip
+#endif
 				)
 			);
 		}
