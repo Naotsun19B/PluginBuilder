@@ -30,12 +30,19 @@ namespace PluginBuilderTest
 				{
 					return;
 				}
+
+				PluginBuilder::FBuildPluginParams BuildPluginParams;
+				BuildPluginParams.bRocket = true;
+				BuildPluginParams.bCreateSubFolder = false;
+				BuildPluginParams.bStrictIncludes = true;
+
+				PluginBuilder::FZipUpPluginParams ZipUpPluginParams;
+				ZipUpPluginParams.bKeepBinariesFolder = true;
+				ZipUpPluginParams.CompressionLevel = 8;
 				
 				Params.EngineVersions.Add(TEXT("5.1"));
-				Params.BuildPluginParams.bRocket = true;
-				Params.BuildPluginParams.bCreateSubFolder = false;
-				Params.BuildPluginParams.bStrictIncludes = true;
-				Params.BuildPluginParams.bZipUp = true;
+				Params.BuildPluginParams = BuildPluginParams;
+				Params.ZipUpPluginParams = ZipUpPluginParams;
 				
 				PluginBuilder::IPluginBuilder::Get().StartPackagePluginTask(Params);
 			}
