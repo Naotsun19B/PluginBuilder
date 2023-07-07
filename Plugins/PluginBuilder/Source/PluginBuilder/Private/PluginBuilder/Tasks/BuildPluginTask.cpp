@@ -35,7 +35,7 @@ namespace PluginBuilder
 		{
 			Arguments.Add(
 				FString::Printf(
-						TEXT("-targetplatform=\"%s\""),
+						TEXT("-TargetPlatform=\"%s\""),
 						*FString::Join(BuildPluginParams.TargetPlatforms, TEXT("+")
 					)
 				)
@@ -51,7 +51,7 @@ namespace PluginBuilder
 		}
 		if (BuildPluginParams.bStrictIncludes)
 		{
-			Arguments.Add(TEXT("-strictincludes"));
+			Arguments.Add(TEXT("-StrictIncludes"));
 		}
 
 		return Arguments;

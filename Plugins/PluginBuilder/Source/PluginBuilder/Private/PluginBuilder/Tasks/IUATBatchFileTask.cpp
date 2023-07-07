@@ -9,13 +9,26 @@
 
 namespace PluginBuilder
 {
-	IUATBatchFileTask::IUATBatchFileTask(const FString& InEngineVersion, const FUATBatchFileParams& InUATBatchFileParams)
+	IUATBatchFileTask::IUATBatchFileTask(
+		const FString& InEngineVersion,
+		const FUATBatchFileParams& InUATBatchFileParams,
+		const TSharedPtr<IUATBatchFileTask>& DependentTask /* = nullptr */
+	)
 		: EngineVersion(InEngineVersion)
 		, UATBatchFileParams(InUATBatchFileParams)
 		, State(EState::PreInitialize)
 		, bHasAnyError(false)
 		, ReadPipe(nullptr)
 	{
+		if (DependentTask.IsValid())
+		{
+			DependentTask->OnDestroy.BindRaw(this, &IUATBatchFileTask::HandleOnDestroy);
+		}
+	}
+
+	IUATBatchFileTask::~IUATBatchFileTask()
+	{
+		OnDestroy.ExecuteIfBound(bHasAnyError);
 	}
 
 	IUATBatchFileTask::EState IUATBatchFileTask::GetState() const
@@ -158,5 +171,10 @@ namespace PluginBuilder
 	FString IUATBatchFileTask::GetPackagedPluginDestinationPath() const
 	{
 		return (UATBatchFileParams.OutputDirectoryPath.Get(FPaths::ProjectDir()) / TEXT("PackagedPlugins"));
+	}
+
+	void IUATBatchFileTask::HandleOnDestroy(const bool bHasDependentTaskError)
+	{
+		HasDependentTaskSucceeded = !bHasDependentTaskError;
 	}
 }

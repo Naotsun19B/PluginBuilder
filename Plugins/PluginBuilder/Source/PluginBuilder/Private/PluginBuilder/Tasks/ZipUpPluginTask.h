@@ -17,7 +17,8 @@ namespace PluginBuilder
 		FZipUpPluginTask(
 			const FString& InEngineVersion,
 			const FUATBatchFileParams& InUATBatchFileParams,
-			const FZipUpPluginParams& InZipUpPluginParams
+			const FZipUpPluginParams& InZipUpPluginParams,
+			const TSharedPtr<IUATBatchFileTask>& DependentTask
 		);
 		
 		// IUATBatchFileTask interface.

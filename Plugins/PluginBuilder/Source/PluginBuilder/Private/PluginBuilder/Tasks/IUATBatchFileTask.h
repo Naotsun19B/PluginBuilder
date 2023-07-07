@@ -25,10 +25,14 @@ namespace PluginBuilder
 
 	public:
 		// Constructor.
-		IUATBatchFileTask(const FString& InEngineVersion, const FUATBatchFileParams& InUATBatchFileParams);
+		IUATBatchFileTask(
+			const FString& InEngineVersion, 
+			const FUATBatchFileParams& InUATBatchFileParams,
+			const TSharedPtr<IUATBatchFileTask>& DependentTask = nullptr
+		);
 
 		// Destructor.
-		virtual ~IUATBatchFileTask() = default;
+		virtual ~IUATBatchFileTask();
 		
 		// Returns the types of task progress states.
 		virtual EState GetState() const;
@@ -59,6 +63,14 @@ namespace PluginBuilder
 		FString GetDestinationDirectoryName() const;
 		FString GetBuiltPluginDestinationPath() const;
 		FString GetPackagedPluginDestinationPath() const;
+
+	private:
+		// Called when a dependent task is destroyed.
+		void HandleOnDestroy(const bool bHasDependentTaskError);
+		
+		// An event that tells if there was an error when the task was destroyed.
+		DECLARE_DELEGATE_OneParam(FOnDestroy, const bool /* bHasDependentTaskError */);
+		FOnDestroy OnDestroy;
 		
 	protected:
 		// The engine version to build for this task
@@ -78,5 +90,8 @@ namespace PluginBuilder
 		
 		// The read pipe for outputting from the standard output of a batch file to the output log.
 		void* ReadPipe;
+
+		// Whether the dependent task completed successfully.
+		TOptional<bool> HasDependentTaskSucceeded;
 	};
 }

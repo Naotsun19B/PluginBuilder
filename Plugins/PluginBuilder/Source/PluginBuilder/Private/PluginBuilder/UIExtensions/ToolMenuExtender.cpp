@@ -189,6 +189,12 @@ namespace PluginBuilder
 				.MaxValue(9)
 				.MinSliderValue(0)
 				.MaxSliderValue(9)
+				.IsEnabled_Lambda(
+					[]() -> bool
+					{
+						return UPluginBuilderSettings::Get().bZipUp;
+					}
+				)
 				.Value_Lambda(
 					[]() -> uint8
 					{

@@ -11,15 +11,25 @@ namespace PluginBuilder
 	FZipUpPluginTask::FZipUpPluginTask(
 		const FString& InEngineVersion,
 		const FUATBatchFileParams& InUATBatchFileParams,
-		const FZipUpPluginParams& InZipUpPluginParams
+		const FZipUpPluginParams& InZipUpPluginParams,
+		const TSharedPtr<IUATBatchFileTask>& DependentTask
 	)
-		: IUATBatchFileTask(InEngineVersion, InUATBatchFileParams)
+		: IUATBatchFileTask(InEngineVersion, InUATBatchFileParams, DependentTask)
 		, ZipUpPluginParams(InZipUpPluginParams)
 	{
 	}
 	
 	void FZipUpPluginTask::Initialize()
 	{
+		if (HasDependentTaskSucceeded.IsSet())
+		{
+			if (!HasDependentTaskSucceeded.GetValue())
+			{
+				State = EState::Terminated;
+				return;
+			}
+		}
+		
 		IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
 		
 		if (ZipUpPluginParams.bKeepUPluginProperties)

@@ -145,15 +145,15 @@ namespace PluginBuilder
 	{
 		for (const auto& EngineVersion : Params.EngineVersions)
 		{
+			TSharedPtr<FBuildPluginTask> BuildPluginTask = nullptr;
 			if (Params.BuildPluginParams.IsSet())
 			{
-				Tasks.Add(
-					MakeShared<FBuildPluginTask>(
-						EngineVersion,
-						Params.UATBatchFileParams,
-						Params.BuildPluginParams.GetValue()
-					)
+				BuildPluginTask = MakeShared<FBuildPluginTask>(
+					EngineVersion,
+					Params.UATBatchFileParams,
+					Params.BuildPluginParams.GetValue()
 				);
+				Tasks.Add(BuildPluginTask.ToSharedRef());
 			}
 			
 			if (Params.ZipUpPluginParams.IsSet())
@@ -162,7 +162,8 @@ namespace PluginBuilder
 					MakeShared<FZipUpPluginTask>(
 						EngineVersion,
 						Params.UATBatchFileParams,
-						Params.ZipUpPluginParams.GetValue()
+						Params.ZipUpPluginParams.GetValue(),
+						BuildPluginTask
 					)
 				);
 			}
