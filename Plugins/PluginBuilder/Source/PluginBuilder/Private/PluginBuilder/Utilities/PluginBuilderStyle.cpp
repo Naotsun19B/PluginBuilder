@@ -31,7 +31,7 @@ namespace PluginBuilder
 			);
 
 			const TSharedPtr<IPlugin> PluginBrowser = IPluginManager::Get().FindPlugin(TEXT("PluginBrowser"));
-			if (!FPaths::FileExists(IconPath))
+			if (PluginBrowser.IsValid() && !FPaths::FileExists(IconPath))
 			{
 				IconPath = FPaths::ConvertRelativePathToFull(
 					PluginBrowser->GetBaseDir() / TEXT("Resources") / TEXT("DefaultIcon128.png")
