@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Version.h"
+#include "Misc/EngineVersionComparison.h"
 
 namespace PluginBuilder
 {
@@ -17,15 +17,8 @@ namespace PluginBuilder
 /**
  * Macros to support each engine version.
  */
-#ifndef ENGINE_VERSION_NUMBER
-#define ENGINE_VERSION_NUMBER(MajorVersion, MinorVersion) (MajorVersion * 100 + MinorVersion)
-#endif
-#ifndef COMPARE_ENGINE_VERSION
-#define COMPARE_ENGINE_VERSION(MajorVersion, MinorVersion) ENGINE_VERSION_NUMBER(ENGINE_MAJOR_VERSION, ENGINE_MINOR_VERSION) >= ENGINE_VERSION_NUMBER(MajorVersion, MinorVersion)
-#endif
-
 #ifndef UE_5_02_OR_LATER
-#if COMPARE_ENGINE_VERSION(5, 2)
+#if !UE_VERSION_OLDER_THAN(5, 2, 0)
 #define UE_5_02_OR_LATER 1
 #else
 #define UE_5_02_OR_LATER 0
@@ -33,7 +26,7 @@ namespace PluginBuilder
 #endif
 
 #ifndef UE_5_01_OR_LATER
-#if COMPARE_ENGINE_VERSION(5, 1)
+#if !UE_VERSION_OLDER_THAN(5, 1, 0)
 #define UE_5_01_OR_LATER 1
 #else
 #define UE_5_01_OR_LATER 0
@@ -41,7 +34,7 @@ namespace PluginBuilder
 #endif
 
 #ifndef UE_5_00_OR_LATER
-#if COMPARE_ENGINE_VERSION(5, 0)
+#if !UE_VERSION_OLDER_THAN(5, 0, 0)
 #define UE_5_00_OR_LATER 1
 #else
 #define UE_5_00_OR_LATER 0

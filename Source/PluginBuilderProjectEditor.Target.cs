@@ -5,10 +5,13 @@ using System.Collections.Generic;
 
 public class PluginBuilderProjectEditorTarget : TargetRules
 {
-	public PluginBuilderProjectEditorTarget( TargetInfo Target) : base(Target)
+	public PluginBuilderProjectEditorTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
+#if UE_5_2_OR_LATER
+		IncludeOrderVersion = EngineIncludeOrderVersion.Latest;
+#endif
 		ExtraModuleNames.AddRange( new string[] { "PluginBuilderProject" } );
 	}
 }
