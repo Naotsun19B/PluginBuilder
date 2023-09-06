@@ -8,7 +8,7 @@ public class PluginBuilderProjectEditorTarget : TargetRules
 	public PluginBuilderProjectEditorTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Editor;
-		DefaultBuildSettings = BuildSettingsVersion.V2;
+		DefaultBuildSettings = BuildSettingsVersion.Latest;
 #if UE_5_2_OR_LATER
 		IncludeOrderVersion = EngineIncludeOrderVersion.Latest;
 #endif
