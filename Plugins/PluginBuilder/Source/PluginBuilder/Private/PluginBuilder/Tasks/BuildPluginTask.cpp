@@ -51,7 +51,32 @@ namespace PluginBuilder
 		}
 		if (BuildPluginParams.bStrictIncludes)
 		{
-			Arguments.Add(TEXT("-StrictIncludes"));
+			auto IsUE5_3 = [&]() -> bool
+			{
+				FString EngineMajorVersionString;
+				FString EngineMinorVersionString;
+				if (!EngineVersion.Split(TEXT("."), &EngineMajorVersionString, &EngineMinorVersionString))
+				{
+					return false;
+				}
+
+				if (!FCString::IsNumeric(*EngineMajorVersionString) || !FCString::IsNumeric(*EngineMinorVersionString))
+				{
+					return false;
+				}
+
+				const int32 EngineMajorVersion = FCString::Atoi(*EngineMajorVersionString);
+				const int32 EngineMinorVersion = FCString::Atoi(*EngineMinorVersionString);
+				return ((EngineMajorVersion == 5) && (EngineMinorVersion == 3));
+			};
+			if (IsUE5_3())
+			{
+				UE_LOG(LogPluginBuilder, Warning, TEXT("In UE5.3, enabling strict includes causes an include error in the engine code, so exclude strict includes."));
+			}
+			else
+			{
+				Arguments.Add(TEXT("-StrictIncludes"));
+			}
 		}
 
 		return Arguments;
