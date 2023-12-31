@@ -46,11 +46,11 @@ namespace PluginBuilder
 	{
 	public:
 		// Whether to prevent editor platform compilation on the host.
-    	bool bNoHostPlatform;
+    		bool bNoHostPlatform;
     
-    	// The list of host platforms to build the plugin.
-    	// If nothing is specified, the current host platform is used.
-    	TArray<FString> HostPlatforms;
+    		// The list of host platforms to build the plugin.
+    		// If nothing is specified, the current host platform is used.
+    		TArray<FString> HostPlatforms;
     	
 		// The list of target platforms to build the plugin.
 		TArray<FString> TargetPlatforms;
