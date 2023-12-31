@@ -65,6 +65,14 @@ namespace PluginBuilder
 			EUserInterfaceActionType::ToggleButton,
 			FInputChord()
 		);
+		
+		UI_COMMAND(
+			Unversioned,
+			"Unversioned",
+			"Whether to embed the engine version to be built into the uplugin file.",
+			EUserInterfaceActionType::ToggleButton,
+			FInputChord()
+		);
 
 		UI_COMMAND(
 			ZipUp,
@@ -161,6 +169,13 @@ namespace PluginBuilder
 			FExecuteAction::CreateStatic(&FPluginBuilderCommandActions::ToggleStrictIncludes),
 			FCanExecuteAction(),
 			FIsActionChecked::CreateStatic(&FPluginBuilderCommandActions::GetStrictIncludesState)
+		);
+		
+		CommandBindings->MapAction(
+			Unversioned,
+			FExecuteAction::CreateStatic(&FPluginBuilderCommandActions::ToggleUnversioned),
+			FCanExecuteAction(),
+			FIsActionChecked::CreateStatic(&FPluginBuilderCommandActions::GetUnversionedState)
 		);
 
 		CommandBindings->MapAction(

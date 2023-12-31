@@ -41,6 +41,7 @@ namespace PluginBuilder
 		TSharedPtr<FUICommandInfo> Rocket;
 		TSharedPtr<FUICommandInfo> CreateSubFolder;
 		TSharedPtr<FUICommandInfo> StrictIncludes;
+		TSharedPtr<FUICommandInfo> Unversioned;
 		TSharedPtr<FUICommandInfo> ZipUp;
 		TSharedPtr<FUICommandInfo> KeepBinariesFolder;
 		TSharedPtr<FUICommandInfo> OutputAllZipFilesToSingleFolder;

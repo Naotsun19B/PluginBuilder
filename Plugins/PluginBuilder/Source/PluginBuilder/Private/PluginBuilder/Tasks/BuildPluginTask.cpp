@@ -51,6 +51,7 @@ namespace PluginBuilder
 		}
 		if (BuildPluginParams.bStrictIncludes)
 		{
+#if UE_5_03_OR_LATER
 			auto IsUE5_3 = [&]() -> bool
 			{
 				FString EngineMajorVersionString;
@@ -74,9 +75,14 @@ namespace PluginBuilder
 				UE_LOG(LogPluginBuilder, Warning, TEXT("In UE5.3, enabling strict includes causes an include error in the engine code, so exclude strict includes."));
 			}
 			else
+#endif
 			{
 				Arguments.Add(TEXT("-StrictIncludes"));
 			}
+		}
+		if (BuildPluginParams.bUnversioned)
+		{
+			Arguments.Add(TEXT("-Unversioned"));
 		}
 
 		return Arguments;

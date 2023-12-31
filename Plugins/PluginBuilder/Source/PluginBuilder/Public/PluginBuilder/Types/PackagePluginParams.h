@@ -54,8 +54,15 @@ namespace PluginBuilder
 		// Whether to create a subfolder in the output built plugins folder.
 		bool bCreateSubFolder = false;
 
-		// Whether to judge the header inclusion of the plug-in code strictly.
+		// Whether to judge the header inclusion of the plugin code strictly.
 		bool bStrictIncludes = false;
+
+		// Whether to embed the engine version to be built into the uplugin file.
+		bool bUnversioned = false;
+
+	public:
+		// Returns whether the format is acceptable for submission to the marketplace.
+		bool IsFormatExpectedByMarketplace() const;
 	};
 
 	/**
@@ -115,5 +122,8 @@ namespace PluginBuilder
 		// Returns whether the parameters is valid to start package plugin task.
 		// Returns true if the specified plugin exists and all engine versions are installed.
 		bool IsValid() const;
+
+		// Returns whether the format is acceptable for submission to the marketplace.
+		bool IsFormatExpectedByMarketplace() const;
 	};
 }

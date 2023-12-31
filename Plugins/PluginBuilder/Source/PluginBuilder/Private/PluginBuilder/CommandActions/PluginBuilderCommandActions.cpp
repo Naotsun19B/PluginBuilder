@@ -64,6 +64,21 @@ namespace PluginBuilder
 		return UPluginBuilderSettings::Get().bStrictIncludes;
 	}
 
+	void FPluginBuilderCommandActions::ToggleUnversioned()
+	{
+		UPluginBuilderSettings::ModifyProperties(
+			[](UPluginBuilderSettings& Settings)
+			{
+				Settings.bUnversioned = !Settings.bUnversioned;
+			}
+		);
+	}
+
+	bool FPluginBuilderCommandActions::GetUnversionedState()
+	{
+		return UPluginBuilderSettings::Get().bUnversioned;
+	}
+
 	void FPluginBuilderCommandActions::ToggleZipUp()
 	{
 		UPluginBuilderSettings::ModifyProperties(

@@ -205,6 +205,8 @@ namespace PluginBuilder
 
 	void FPluginPackager::Terminate()
 	{
+		UE_LOG(LogPluginBuilder, Log, TEXT("===================================================================================================="));
+		
 		if (PendingNotificationHandle.IsValid())
 		{
 			PendingNotificationHandle.Fadeout();
@@ -226,6 +228,13 @@ namespace PluginBuilder
 		{
 			NotificationText = LOCTEXT("PackageSucceeded", "Plugin packaging has completed successfully.");
 			CompletionState = FEditorNotificationUtils::CS_Success;
+
+			if (!Params.IsFormatExpectedByMarketplace())
+			{
+				UE_LOG(LogPluginBuilder, Warning, TEXT("The created package is not in a format that can be submitted to the marketplace."));
+				UE_LOG(LogPluginBuilder, Warning, TEXT("If you plan to submit to the marketplace, please review the build options and zip up options."));
+				UE_LOG(LogPluginBuilder, Log, TEXT("===================================================================================================="));
+			}
 		}
 
 		FEditorNotificationUtils::ShowNotification(

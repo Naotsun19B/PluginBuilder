@@ -27,6 +27,10 @@ namespace PluginBuilder
 		// Whether to judge the header inclusion of the plugin code strictly.
 		static void ToggleStrictIncludes();
 		static bool GetStrictIncludesState();
+		
+		// Whether to embed the engine version to be built into the uplugin file.
+		static void ToggleUnversioned();
+		static bool GetUnversionedState();
 
 		// Whether to create a zip file that contains only the files we need after the build.
 		static void ToggleZipUp();

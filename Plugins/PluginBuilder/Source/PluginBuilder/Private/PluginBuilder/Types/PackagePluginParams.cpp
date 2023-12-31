@@ -12,6 +12,11 @@ namespace PluginBuilder
 		return (bUseFriendlyName ? PluginFriendlyName : PluginName);
 	}
 
+	bool FBuildPluginParams::IsFormatExpectedByMarketplace() const
+	{
+		return !bUnversioned;
+	}
+
 	bool FZipUpPluginParams::IsFormatExpectedByMarketplace() const
 	{
 		return (!bKeepBinariesFolder && !bKeepUPluginProperties);
@@ -47,6 +52,7 @@ namespace PluginBuilder
 			BuildPluginParams.bRocket = Settings.bRocket;
 			BuildPluginParams.bCreateSubFolder = Settings.bCreateSubFolder;
 			BuildPluginParams.bStrictIncludes = Settings.bStrictIncludes;
+			BuildPluginParams.bUnversioned = Settings.bUnversioned;
 		}
 
 		FZipUpPluginParams ZipUpPluginParams;
@@ -131,5 +137,27 @@ namespace PluginBuilder
 		}
 
 		return true;
+	}
+
+	bool FPackagePluginParams::IsFormatExpectedByMarketplace() const
+	{
+		bool bIsFormatExpectedByMarketplace = true;
+
+		if (BuildPluginParams.IsSet())
+		{
+			if (!BuildPluginParams->IsFormatExpectedByMarketplace())
+			{
+				bIsFormatExpectedByMarketplace = false;
+			}
+		}
+		if (ZipUpPluginParams.IsSet())
+		{
+			if (!ZipUpPluginParams->IsFormatExpectedByMarketplace())
+			{
+				bIsFormatExpectedByMarketplace = false;
+			}
+		}
+
+		return bIsFormatExpectedByMarketplace;
 	}
 }

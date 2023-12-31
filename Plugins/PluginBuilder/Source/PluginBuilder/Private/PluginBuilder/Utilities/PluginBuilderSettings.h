@@ -82,9 +82,13 @@ public:
 	UPROPERTY(Config)
 	bool bCreateSubFolder;
 
-	// Whether to judge the header inclusion of the plug-in code strictly.
+	// Whether to judge the header inclusion of the plugin code strictly.
 	UPROPERTY(Config)
 	bool bStrictIncludes;
+	
+	// Whether to embed the engine version to be built into the uplugin file.
+	UPROPERTY(Config)
+	bool bUnversioned;
 	
 	// Whether to create a zip file that contains only the files we need after the build.
 	UPROPERTY(Config)

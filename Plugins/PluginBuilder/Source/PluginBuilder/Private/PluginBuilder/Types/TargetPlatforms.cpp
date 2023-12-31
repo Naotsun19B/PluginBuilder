@@ -30,7 +30,7 @@ namespace PluginBuilder
 		ITargetPlatformManagerModule& TargetPlatformManagerRef = GetTargetPlatformManagerRef();
 		const TArray<ITargetPlatform*>& TargetPlatforms = TargetPlatformManagerRef.GetTargetPlatforms();
 		PlatformNames.Reset(TargetPlatforms.Num());
-		for (const ITargetPlatform* TargetPlatform : TargetPlatforms)
+		for (const auto* TargetPlatform : TargetPlatforms)
 		{
 			if (TargetPlatform == nullptr)
 			{

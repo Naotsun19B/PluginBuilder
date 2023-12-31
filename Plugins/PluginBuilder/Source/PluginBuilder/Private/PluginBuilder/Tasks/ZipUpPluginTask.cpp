@@ -99,12 +99,6 @@ namespace PluginBuilder
 		IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
 		PlatformFile.DeleteDirectoryRecursively(*GetZipTempDirectoryPath());
 		
-		if (!ZipUpPluginParams.IsFormatExpectedByMarketplace())
-		{
-			UE_LOG(LogPluginBuilder, Warning, TEXT("The created package is not in a format that can be submitted to the marketplace."));
-			UE_LOG(LogPluginBuilder, Warning, TEXT("If you plan to submit to the marketplace, please review the build options and zip up options."));
-		}
-
 		IUATBatchFileTask::Terminate();
 	}
 
