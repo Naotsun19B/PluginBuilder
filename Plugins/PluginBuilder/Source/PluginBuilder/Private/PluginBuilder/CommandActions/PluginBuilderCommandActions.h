@@ -16,6 +16,10 @@ namespace PluginBuilder
 		static void BuildPlugin();
 		static bool CanBuildPlugin();
 
+		// Whether to prevent editor platform compilation on the host.
+		static void ToggleNoHostPlatform();
+		static bool GetNoHostPlatformState();
+		
 		// Whether to handle older versions that do not use the Rocket.txt file.
 		static void ToggleRocket();
 		static bool GetRocketState();

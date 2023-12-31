@@ -2,10 +2,10 @@
 
 #include "PluginBuilder/UIExtensions/ToolMenuExtender.h"
 #include "PluginBuilder/CommandActions/PluginBuilderCommands.h"
-#include "PluginBuilder/Utilities/PluginBuilderSettings.h"
 #include "PluginBuilder/Widgets/SCompressionLevel.h"
 #include "PluginBuilder/Types/BuildTargets.h"
 #include "PluginBuilder/Types/EngineVersions.h"
+#include "PluginBuilder/Types/HostPlatforms.h"
 #include "PluginBuilder/Types/TargetPlatforms.h"
 #include "PluginBuilder/PluginBuilderGlobals.h"
 #include "ToolMenus.h"
@@ -26,6 +26,7 @@ namespace PluginBuilder
 	const FName FToolMenuExtender::BuildTargetsSubMenuName			= TEXT("PluginBuilder.PackagePlugin.BuildTargets");
 	const FName FToolMenuExtender::VersionsAndPlatformsSectionName	= TEXT("VersionsAndPlatforms");
 	const FName FToolMenuExtender::EngineVersionsSubMenuName		= TEXT("PluginBuilder.PackagePlugin.BuildConfigurations.EngineVersions");
+	const FName FToolMenuExtender::HostPlatformsSubMenuName			= TEXT("PluginBuilder.PackagePlugin.BuildConfigurations.HostPlatforms");
 	const FName FToolMenuExtender::TargetPlatformsSubMenuName		= TEXT("PluginBuilder.PackagePlugin.BuildConfigurations.TargetPlatforms");
 	const FName FToolMenuExtender::BuildOptionsSectionName			= TEXT("BuildOptions");
 	const FName FToolMenuExtender::ZipUpOptionsSectionName			= TEXT("ZipUpOptions");
@@ -154,6 +155,18 @@ namespace PluginBuilder
 			false
 		);
 
+		VersionsAndPlatformsSection.AddMenuEntry(FPluginBuilderCommands::Get().NoHostPlatform);
+
+		VersionsAndPlatformsSection.AddSubMenu(
+			HostPlatformsSubMenuName,
+			LOCTEXT("HostPlatformsLabel", "Host Platforms"),
+			LOCTEXT("HostPlatformsTooltip", "Specifies the host platforms to build the plugin."),
+			FNewToolMenuChoice(FNewToolMenuDelegate::CreateStatic(&FToolMenuExtender::OnExtendHostPlatformsSubMenu)),
+			false,
+			{},
+			false
+		);
+
 		VersionsAndPlatformsSection.AddSubMenu(
 			TargetPlatformsSubMenuName,
 			LOCTEXT("TargetPlatformsLabel", "Target Platforms"),
@@ -267,6 +280,50 @@ namespace PluginBuilder
 		);
 	}
 
+	void FToolMenuExtender::OnExtendHostPlatformsSubMenu(UToolMenu* ToolMenu)
+	{
+		if (!IsValid(ToolMenu))
+		{
+			return;
+		}
+		
+		const TArray<FHostPlatforms::FPlatform>& HostPlatforms = FHostPlatforms::GetHostPlatformNames();
+		for (const auto& HostPlatform : HostPlatforms)
+		{
+			const FName& PlatformGroupName = HostPlatform.PlatformGroupName;
+			FToolMenuSection& Section = ToolMenu->FindOrAddSection(PlatformGroupName);
+			Section.Label = FText::FromName(PlatformGroupName);
+			
+			Section.AddMenuEntry(
+				*HostPlatform.UBTPlatformName,
+				FText::FromString(HostPlatform.UBTPlatformName),
+				FText::Format(
+					LOCTEXT("HostPlatformTooltipFormat", "Include {0} in the host platforms."),
+					FText::FromString(HostPlatform.UBTPlatformName)
+				),
+				FSlateIcon(
+#if UE_5_00_OR_LATER
+					FAppStyle::GetAppStyleSetName(),
+#else
+					FEditorStyle::GetStyleSetName(),
+#endif
+					*FString::Printf(TEXT("Launcher.Platform_%s"), *HostPlatform.IniPlatformName)
+				),
+				FUIAction(
+					FExecuteAction::CreateStatic(&FHostPlatforms::ToggleHostPlatform, HostPlatform),
+					FCanExecuteAction::CreateLambda(
+						[]() -> bool
+						{
+							return !FHostPlatforms::GetNoHostPlatformState();
+						}
+					),
+					FIsActionChecked::CreateStatic(&FHostPlatforms::GetHostPlatformState, HostPlatform)
+				),
+				EUserInterfaceActionType::ToggleButton
+			);
+		}
+	}
+
 	void FToolMenuExtender::OnExtendTargetPlatformsSubMenu(UToolMenu* ToolMenu)
 	{
 		if (!IsValid(ToolMenu))
@@ -274,19 +331,19 @@ namespace PluginBuilder
 			return;
 		}
 		
-		const TArray<FTargetPlatforms::FTargetPlatform>& PlatformNames = FTargetPlatforms::GetPlatformNames();
-		for (const auto& PlatformName : PlatformNames)
+		const TArray<FTargetPlatforms::FPlatform>& TargetPlatforms = FTargetPlatforms::GetTargetPlatformNames();
+		for (const auto& TargetPlatform : TargetPlatforms)
 		{
-			const FName& PlatformGroupName = PlatformName.PlatformGroupName;
+			const FName& PlatformGroupName = TargetPlatform.PlatformGroupName;
 			FToolMenuSection& Section = ToolMenu->FindOrAddSection(PlatformGroupName);
 			Section.Label = FText::FromName(PlatformGroupName);
 			
 			Section.AddMenuEntry(
-				*PlatformName.UBTPlatformName,
-				FText::FromString(PlatformName.UBTPlatformName),
+				*TargetPlatform.UBTPlatformName,
+				FText::FromString(TargetPlatform.UBTPlatformName),
 				FText::Format(
 					LOCTEXT("TargetPlatformTooltipFormat", "Include {0} in the target platforms."),
-					FText::FromString(PlatformName.UBTPlatformName)
+					FText::FromString(TargetPlatform.UBTPlatformName)
 				),
 				FSlateIcon(
 #if UE_5_00_OR_LATER
@@ -294,12 +351,12 @@ namespace PluginBuilder
 #else
                 	FEditorStyle::GetStyleSetName(),
 #endif
-                	*FString::Printf(TEXT("Launcher.Platform_%s"), *PlatformName.IniPlatformName)
+                	*FString::Printf(TEXT("Launcher.Platform_%s"), *TargetPlatform.IniPlatformName)
                 ),
                 FUIAction(
-				   FExecuteAction::CreateStatic(&FTargetPlatforms::ToggleTargetPlatform, PlatformName),
+				   FExecuteAction::CreateStatic(&FTargetPlatforms::ToggleTargetPlatform, TargetPlatform),
 				   FCanExecuteAction(),
-				   FIsActionChecked::CreateStatic(&FTargetPlatforms::GetTargetPlatformState, PlatformName)
+				   FIsActionChecked::CreateStatic(&FTargetPlatforms::GetTargetPlatformState, TargetPlatform)
 			   ),
 			   EUserInterfaceActionType::ToggleButton
 			);

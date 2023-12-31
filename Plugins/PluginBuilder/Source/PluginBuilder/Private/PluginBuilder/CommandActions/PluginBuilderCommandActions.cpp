@@ -19,6 +19,21 @@ namespace PluginBuilder
 		);
 	}
 	
+	void FPluginBuilderCommandActions::ToggleNoHostPlatform()
+	{
+		UPluginBuilderSettings::ModifyProperties(
+			[](UPluginBuilderSettings& Settings)
+			{
+				Settings.bNoHostPlatform = !Settings.bNoHostPlatform;
+			}
+		);
+	}
+
+	bool FPluginBuilderCommandActions::GetNoHostPlatformState()
+	{
+		return UPluginBuilderSettings::Get().bNoHostPlatform;
+	}
+	
 	void FPluginBuilderCommandActions::ToggleRocket()
 	{
 		UPluginBuilderSettings::ModifyProperties(

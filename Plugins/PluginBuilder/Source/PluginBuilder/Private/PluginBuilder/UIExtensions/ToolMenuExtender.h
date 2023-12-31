@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PluginBuilder/Types/PlatformsBase.h"
 
 class UToolMenu;
 
@@ -22,6 +23,7 @@ namespace PluginBuilder
 		static const FName BuildTargetsSubMenuName;
 		static const FName VersionsAndPlatformsSectionName;
 		static const FName EngineVersionsSubMenuName;
+		static const FName HostPlatformsSubMenuName;
 		static const FName TargetPlatformsSubMenuName;
 		static const FName BuildOptionsSectionName;
 		static const FName ZipUpOptionsSectionName;
@@ -40,6 +42,7 @@ namespace PluginBuilder
 		static void OnExtendPackagePluginSubMenu(UToolMenu* ToolMenu);
 		static void OnExtendBuildConfigurationsSubMenu(UToolMenu* ToolMenu);
 		static void OnExtendEngineVersionsSubMenu(UToolMenu* ToolMenu);
+		static void OnExtendHostPlatformsSubMenu(UToolMenu* ToolMenu);
 		static void OnExtendTargetPlatformsSubMenu(UToolMenu* ToolMenu);
 		static void OnExtendBuildTargetsSubMenu(UToolMenu* ToolMenu);
 	};

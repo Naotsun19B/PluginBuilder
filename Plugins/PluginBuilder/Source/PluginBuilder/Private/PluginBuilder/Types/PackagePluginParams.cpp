@@ -48,6 +48,8 @@ namespace PluginBuilder
 		
 		FBuildPluginParams BuildPluginParams;
 		{
+			BuildPluginParams.bNoHostPlatform = Settings.bNoHostPlatform;
+			BuildPluginParams.HostPlatforms = Settings.HostPlatforms;
 			BuildPluginParams.TargetPlatforms = Settings.TargetPlatforms;
 			BuildPluginParams.bRocket = Settings.bRocket;
 			BuildPluginParams.bCreateSubFolder = Settings.bCreateSubFolder;

@@ -38,6 +38,7 @@ namespace PluginBuilder
 		
 		// Instances of bound commands.
 		TSharedPtr<FUICommandInfo> BuildPlugin;
+		TSharedPtr<FUICommandInfo> NoHostPlatform;
 		TSharedPtr<FUICommandInfo> Rocket;
 		TSharedPtr<FUICommandInfo> CreateSubFolder;
 		TSharedPtr<FUICommandInfo> StrictIncludes;

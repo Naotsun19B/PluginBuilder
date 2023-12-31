@@ -3,44 +3,29 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PluginBuilder/Types/PlatformsBase.h"
 
 namespace PluginBuilder
 {
 	/**
-	 * A class that manages the name of the platform to be built.
+	 * A class that manages the name of the target platform to be built.
 	 */
-	class PLUGINBUILDER_API FTargetPlatforms
+	class PLUGINBUILDER_API FTargetPlatforms : public FPlatformsBase
 	{
 	public:
-		// A structure that summarizes platform names in UBT and ini formats respectively.
-		struct PLUGINBUILDER_API FTargetPlatform
-		{
-		public:
-			// The name of the platform covered by UBT.
-			FString UBTPlatformName;
+		// Constructor.
+		FTargetPlatforms();
+		
+		// Returns a list of available target platform names.
+		static TArray<FPlatform> GetTargetPlatformNames(const bool bWithRefresh = true);
 
-			// The name of the platform covered by ini.
-			FString IniPlatformName;
-
-			// The identifier to group similar platforms together, such as "Mobile" and "Console".
-			FName PlatformGroupName;
-		};
-
-	public:
-		// Returns a list of available platform names.
-		static TArray<FTargetPlatform> GetPlatformNames(bool bWithRefresh = true);
-
-		// Collects available platform names from ITargetPlatformManagerModule.
-		static void RefreshPlatformNames();
+		// Collects available target platform names from ITargetPlatformManagerModule.
+		static void RefreshTargetPlatformNames();
 		
 		// Toggles selection state the specified target platform.
-		static void ToggleTargetPlatform(const FTargetPlatform TargetPlatform);
+		static void ToggleTargetPlatform(const FPlatform TargetPlatform);
 
 		// Returns whether the specified target platform is selected.
-		static bool GetTargetPlatformState(const FTargetPlatform TargetPlatform);
-
-	private:
-		// The list of available platform names.
-		static TArray<FTargetPlatform> PlatformNames;
+		static bool GetTargetPlatformState(const FPlatform TargetPlatform);
 	};
 }

@@ -1,81 +1,45 @@
 // Copyright 2022-2023 Naotsun. All Rights Reserved.
 
 #include "PluginBuilder/Types/TargetPlatforms.h"
-#include "PluginBuilder/PluginBuilderGlobals.h"
 #include "PluginBuilder/Utilities/PluginBuilderSettings.h"
-#include "Interfaces/ITargetPlatformManagerModule.h"
-#include "Interfaces/ITargetPlatform.h"
-#if UE_5_00_OR_LATER
-#include "Styling/AppStyle.h"
-#include "Misc/DataDrivenPlatformInfoRegistry.h"
-#else
-#include "EditorStyleSet.h"
-#include "PlatformInfo.h"
-#endif
 
 namespace PluginBuilder
 {
-	TArray<FTargetPlatforms::FTargetPlatform> FTargetPlatforms::GetPlatformNames(bool bWithRefresh)
+	namespace TargetPlatforms
 	{
-		if (bWithRefresh)
+		static FTargetPlatforms& GetInstance()
 		{
-			RefreshPlatformNames();
+			static TUniquePtr<FTargetPlatforms> Instance;
+			if (!Instance.IsValid())
+			{
+				Instance = MakeUnique<FTargetPlatforms>();
+			}
+
+			return *Instance.Get();
 		}
 		
-		return PlatformNames;
-	}
-
-	void FTargetPlatforms::RefreshPlatformNames()
-	{
-		ITargetPlatformManagerModule& TargetPlatformManagerRef = GetTargetPlatformManagerRef();
-		const TArray<ITargetPlatform*>& TargetPlatforms = TargetPlatformManagerRef.GetTargetPlatforms();
-		PlatformNames.Reset(TargetPlatforms.Num());
-		for (const auto* TargetPlatform : TargetPlatforms)
+		static bool PassEverything(const ITargetPlatform& Platform)
 		{
-			if (TargetPlatform == nullptr)
-			{
-				continue;
-			}
-
-			FTargetPlatform PlatformName;
-			{
-#if UE_5_00_OR_LATER
-				const FDataDrivenPlatformInfo& PlatformInfo = TargetPlatform->GetPlatformInfo();
-				PlatformName.UBTPlatformName = PlatformInfo.UBTPlatformString;
-				PlatformName.IniPlatformName = PlatformInfo.IniPlatformName.ToString();
-				PlatformName.PlatformGroupName = PlatformInfo.PlatformGroupName;
-#else
-				const PlatformInfo::FPlatformInfo& PlatformInfo = TargetPlatform->GetPlatformInfo();
-				PlatformInfo.UBTTargetId.ToString(PlatformName.UBTPlatformName);
-				PlatformName.IniPlatformName = PlatformInfo.IniPlatformName;
-				PlatformName.PlatformGroupName = PlatformInfo.PlatformGroupName;
-#endif
-				if (PlatformInfo.PlatformSubMenu != NAME_None)
-				{
-					PlatformName.IniPlatformName = PlatformInfo.PlatformSubMenu.ToString();
-				}
-			}
-			
-			if (PlatformName.IniPlatformName.IsEmpty())
-			{
-				continue;
-			}
-
-			const FString& UBTPlatformName = PlatformName.UBTPlatformName;
-			const auto EqualsUBTPlatformName = [&UBTPlatformName](const FTargetPlatform& PlatformName) -> bool
-			{
-				return PlatformName.UBTPlatformName.Equals(UBTPlatformName);
-			};
-			if (PlatformNames.ContainsByPredicate(EqualsUBTPlatformName))
-			{
-				continue;
-			}
-			
-			PlatformNames.Add(PlatformName);
+			return true;
 		}
 	}
 
-	void FTargetPlatforms::ToggleTargetPlatform(const FTargetPlatform TargetPlatform)
+	FTargetPlatforms::FTargetPlatforms()
+		: FPlatformsBase(FFilterPlatform::CreateStatic(&TargetPlatforms::PassEverything))
+	{
+	}
+
+	TArray<FTargetPlatforms::FPlatform> FTargetPlatforms::GetTargetPlatformNames(const bool bWithRefresh /* = true */)
+	{
+		return TargetPlatforms::GetInstance().GetPlatformNames(bWithRefresh);
+	}
+
+	void FTargetPlatforms::RefreshTargetPlatformNames()
+	{
+		return TargetPlatforms::GetInstance().RefreshPlatformNames();
+	}
+
+	void FTargetPlatforms::ToggleTargetPlatform(const FPlatform TargetPlatform)
 	{
 		UPluginBuilderSettings::ModifyProperties(
 			[&TargetPlatform](UPluginBuilderSettings& Settings)
@@ -92,10 +56,8 @@ namespace PluginBuilder
 		);
 	}
 
-	bool FTargetPlatforms::GetTargetPlatformState(const FTargetPlatform TargetPlatform)
+	bool FTargetPlatforms::GetTargetPlatformState(const FPlatform TargetPlatform)
 	{
 		return UPluginBuilderSettings::Get().TargetPlatforms.Contains(TargetPlatform.UBTPlatformName);
 	}
-
-	TArray<FTargetPlatforms::FTargetPlatform> FTargetPlatforms::PlatformNames;
 }

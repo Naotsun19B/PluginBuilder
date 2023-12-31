@@ -41,6 +41,14 @@ namespace PluginBuilder
 			EUserInterfaceActionType::Button,
 			FInputChord()
 		);
+
+		UI_COMMAND(
+			NoHostPlatform,
+			"No Host Platform",
+			"Whether to prevent editor platform compilation on the host.",
+			EUserInterfaceActionType::ToggleButton,
+			FInputChord()
+		);
 		
 		UI_COMMAND(
 			Rocket,
@@ -148,6 +156,13 @@ namespace PluginBuilder
 			BuildPlugin,
 			FExecuteAction::CreateStatic(&FPluginBuilderCommandActions::BuildPlugin),
 			FCanExecuteAction::CreateStatic(&FPluginBuilderCommandActions::CanBuildPlugin)
+		);
+
+		CommandBindings->MapAction(
+			NoHostPlatform,
+			FExecuteAction::CreateStatic(&FPluginBuilderCommandActions::ToggleNoHostPlatform),
+			FCanExecuteAction(),
+			FIsActionChecked::CreateStatic(&FPluginBuilderCommandActions::GetNoHostPlatformState)
 		);
 
 		CommandBindings->MapAction(

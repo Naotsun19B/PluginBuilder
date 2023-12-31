@@ -69,8 +69,18 @@ public:
 	// The list of engine versions to build the plugin.
 	UPROPERTY(Config)
 	TArray<FString> EngineVersions;
+	
+	// Whether to prevent editor platform compilation on the host.
+	UPROPERTY(Config)
+	bool bNoHostPlatform;
 
+	// The list of host platforms to build the plugin.
+	// If nothing is specified, the current host platform is used.
+	UPROPERTY(Config)
+	TArray<FString> HostPlatforms;
+	
 	// The list of target platforms to build the plugin.
+	// If nothing is specified, all the Rocket target platforms is used.
 	UPROPERTY(Config)
 	TArray<FString> TargetPlatforms;
 

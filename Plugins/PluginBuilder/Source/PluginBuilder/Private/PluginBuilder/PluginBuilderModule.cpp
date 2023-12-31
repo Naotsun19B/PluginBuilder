@@ -57,7 +57,7 @@ namespace PluginBuilder
 		{
 			UE_LOG(LogPluginBuilder, Log, TEXT("==================== Available Target Platforms ==================="));
 
-			const TArray<FTargetPlatforms::FTargetPlatform>& AvailableTargetPlatforms = FTargetPlatforms::GetPlatformNames();
+			const TArray<FTargetPlatforms::FPlatform>& AvailableTargetPlatforms = FTargetPlatforms::GetTargetPlatformNames();
 			for (const auto& AvailableTargetPlatform : AvailableTargetPlatforms)
 			{
 				UE_LOG(LogPluginBuilder, Log, TEXT("%s (%s)"), *AvailableTargetPlatform.UBTPlatformName, *AvailableTargetPlatform.PlatformGroupName.ToString());

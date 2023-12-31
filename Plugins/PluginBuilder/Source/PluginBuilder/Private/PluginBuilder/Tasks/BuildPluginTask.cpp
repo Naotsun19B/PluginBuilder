@@ -31,6 +31,20 @@ namespace PluginBuilder
 			FString::Printf(TEXT("-Plugin=\"%s\""), *UATBatchFileParams.UPluginFile),
 			FString::Printf(TEXT("-Package=\"%s\""), *GetBuiltPluginDestinationPath())
 		};
+		if (BuildPluginParams.bNoHostPlatform)
+		{
+			Arguments.Add(TEXT("-NoHostPlatform"));
+		}
+		else if (BuildPluginParams.HostPlatforms.Num() > 0)
+		{
+			Arguments.Add(
+				FString::Printf(
+						TEXT("-HostPlatforms=\"%s\""),
+						*FString::Join(BuildPluginParams.HostPlatforms, TEXT("+")
+					)
+				)
+			);
+		}
 		if (BuildPluginParams.TargetPlatforms.Num() > 0)
 		{
 			Arguments.Add(
