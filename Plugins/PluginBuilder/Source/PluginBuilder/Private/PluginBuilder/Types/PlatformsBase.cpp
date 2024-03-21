@@ -4,6 +4,7 @@
 #include "PluginBuilder/PluginBuilderGlobals.h"
 #include "Interfaces/ITargetPlatformManagerModule.h"
 #include "Interfaces/ITargetPlatform.h"
+#include "Misc/CoreMisc.h"
 #if UE_5_00_OR_LATER
 #include "Misc/DataDrivenPlatformInfoRegistry.h"
 #else

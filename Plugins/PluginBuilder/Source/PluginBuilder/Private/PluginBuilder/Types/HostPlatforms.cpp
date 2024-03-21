@@ -3,6 +3,7 @@
 #include "PluginBuilder/Types/HostPlatforms.h"
 #include "PluginBuilder/Utilities/PluginBuilderSettings.h"
 #include "PluginBuilder/CommandActions/PluginBuilderCommandActions.h"
+#include "Interfaces/ITargetPlatform.h"
 
 namespace PluginBuilder
 {
