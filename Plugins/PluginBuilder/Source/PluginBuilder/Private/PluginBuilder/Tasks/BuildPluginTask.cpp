@@ -39,7 +39,7 @@ namespace PluginBuilder
 		{
 			Arguments.Add(
 				FString::Printf(
-						TEXT("-HostPlatforms=\"%s\""),
+						TEXT("-HostPlatforms=%s"),
 						*FString::Join(BuildPluginParams.HostPlatforms, TEXT("+")
 					)
 				)
@@ -49,7 +49,7 @@ namespace PluginBuilder
 		{
 			Arguments.Add(
 				FString::Printf(
-						TEXT("-TargetPlatform=\"%s\""),
+						TEXT("-TargetPlatform=%s"),
 						*FString::Join(BuildPluginParams.TargetPlatforms, TEXT("+")
 					)
 				)
