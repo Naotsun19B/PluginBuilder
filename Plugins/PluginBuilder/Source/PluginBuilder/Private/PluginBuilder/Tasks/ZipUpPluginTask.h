@@ -35,6 +35,8 @@ namespace PluginBuilder
 		// Copies the properties of the original uplugin file to the UAT output uplugin file.
 		bool CopyUPluginProperties() const;
 
+		// Copies the config folder from the original plugin to the UAT output.
+		bool CopyPluginFilter() const;
 	private:
 		// The dataset used to process plugin zip up.
 		FZipUpPluginParams ZipUpPluginParams;

@@ -39,6 +39,11 @@ namespace PluginBuilder
 				UE_LOG(LogPluginBuilder, Error, TEXT("Failed to copy uplugin file."));
 			}
 		}
+
+		if(!CopyPluginFilter())
+		{
+			UE_LOG(LogPluginBuilder, Warning, TEXT("Failed to copy Config folder."));
+		}
 		
 		const FString ZipTempDirectoryPath = GetZipTempDirectoryPath() / UATBatchFileParams.GetPluginNameInSpecifiedFormat();
 		
@@ -140,6 +145,20 @@ namespace PluginBuilder
 		return PlatformFile.CopyFile(
 			*OutputUPluginFile,
 			*OriginalUPluginFile
+		);
+	}
+
+	bool FZipUpPluginTask::CopyPluginFilter() const
+	{
+		const FString& OriginalConfigFolder = FPaths::GetPath(UATBatchFileParams.UPluginFile) / TEXT("Config");
+		const FString& OutputConfigFolder = (GetBuiltPluginDestinationPath() / TEXT("Config"));
+
+		IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+		
+		return PlatformFile.CopyDirectoryTree(
+			*OutputConfigFolder,
+			*OriginalConfigFolder,
+			true
 		);
 	}
 }
