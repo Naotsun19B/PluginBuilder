@@ -1,4 +1,4 @@
-// Copyright 2022-2024 Naotsun. All Rights Reserved.
+// Copyright 2022-2025 Naotsun. All Rights Reserved.
 
 #include "PluginBuilder/Utilities/PluginPackager.h"
 #include "PluginBuilder/Tasks/IUATBatchFileTask.h"

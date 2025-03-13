@@ -1,4 +1,4 @@
-// Copyright 2022-2024 Naotsun. All Rights Reserved.
+// Copyright 2022-2025 Naotsun. All Rights Reserved.
 
 #include "PluginBuilder/Types/PackagePluginParams.h"
 #include "PluginBuilder/Types/BuildTargets.h"
