@@ -312,6 +312,12 @@ namespace PluginBuilder
 		Settings.EngineVersions.Sort(FCompareEngineVersionString());
 	}
 
+	void FEngineVersions::DisableAllEngineVersions()
+	{
+		auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		Settings.EngineVersions.Reset(EngineVersions.Num());
+	}
+
 	void FEngineVersions::EnableByMajorVersion(const FString MajorVersionName)
 	{
 		auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();

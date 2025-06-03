@@ -125,12 +125,18 @@ namespace PluginBuilder
 
 	bool FPluginBuilderCommands::IsBound()
 	{
+#if UE_5_06_OR_LATER
+		const auto& Instance = GetInstance();
+#endif
 		check(Instance.IsValid());
 		return Instance.Pin()->bIsBound;
 	}
 
 	void FPluginBuilderCommands::Bind()
 	{
+#if UE_5_06_OR_LATER
+		const auto& Instance = GetInstance();
+#endif
 		check(Instance.Pin().IsValid());
 		Instance.Pin()->BindCommands();
 	}

@@ -278,6 +278,17 @@ namespace PluginBuilder
 			),
 			EUserInterfaceActionType::Button
 		);
+
+		EngineVersionPresetSection.AddMenuEntry(
+			GET_FUNCTION_NAME_CHECKED(FEngineVersions, DisableAllEngineVersions),
+			LOCTEXT("ClearPresetLabel", "Clear"),
+			LOCTEXT("ClearPresetTooltip", "Disables all installed engine versions."),
+			FSlateIcon(),
+			FUIAction(
+				FExecuteAction::CreateStatic(&FEngineVersions::DisableAllEngineVersions)
+			),
+			EUserInterfaceActionType::Button
+		);
 	}
 
 	void FToolMenuExtender::OnExtendHostPlatformsSubMenu(UToolMenu* ToolMenu)

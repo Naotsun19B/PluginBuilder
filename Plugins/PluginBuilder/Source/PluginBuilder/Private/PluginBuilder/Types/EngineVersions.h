@@ -53,6 +53,9 @@ namespace PluginBuilder
 
 		// Enables all installed engine versions.
 		static void EnableAllEngineVersions();
+
+		// Disables all installed engine versions.
+		static void DisableAllEngineVersions();
 		
 		// Enables all engine versions belonging to the specified major version category.
 		static void EnableByMajorVersion(const FString MajorVersionName);
