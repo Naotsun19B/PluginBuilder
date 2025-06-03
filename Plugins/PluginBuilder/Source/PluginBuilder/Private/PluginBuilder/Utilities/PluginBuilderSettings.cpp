@@ -1,10 +1,14 @@
 // Copyright 2022-2025 Naotsun. All Rights Reserved.
 
 #include "PluginBuilder/Utilities/PluginBuilderSettings.h"
+#include "PluginBuilder/PluginBuilderGlobals.h"
 #include "Modules/ModuleManager.h"
 #include "ISettingsModule.h"
-#include "Misc/Paths.h"
-#include "Misc/App.h"
+#include "ISettingsContainer.h"
+#include "ISettingsCategory.h"
+#include "ISettingsSection.h"
+#include "Misc/CoreDelegates.h"
+#include "UObject/UObjectIterator.h"
 
 #define LOCTEXT_NAMESPACE "PluginBuilderSettings"
 
@@ -14,189 +18,125 @@ namespace PluginBuilder
 	{
 		static const FName ContainerName	= TEXT("Editor");
 		static const FName CategoryName		= TEXT("Plugins");
-		static const FName SectionName		= TEXT("PluginBuilderSettings");
 
 		ISettingsModule* GetSettingsModule()
 		{
-			return FModuleManager::GetModulePtr<ISettingsModule>("Settings");
+			return FModuleManager::GetModulePtr<ISettingsModule>(TEXT("Settings"));
 		}
 	}
 }
 
-UPluginBuilderSettings::UPluginBuilderSettings()
-	: bSearchOnlyEnabled(true)
-	, bContainsProjectPlugins(true)
-	, bContainsEnginePlugins(false)
-	, bSelectOutputDirectoryManually(false)
-	, bOutputToBuildDirectoryOfEachProject(false)
-	, bUseFriendlyName(true)
-	, bShowOnlyLogsFromThisPluginWhenPackageProcessStarts(false)
-	, bStopPackagingProcessImmediately(false)
-	, bNoHostPlatform(false)
-	, bRocket(true)
-	, bCreateSubFolder(false)
-	, bStrictIncludes(false)
-	, bUnversioned(false)
-	, bZipUp(true)
-	, bOutputAllZipFilesToSingleFolder(false)
-	, bKeepBinariesFolder(false)
-	, bKeepUPluginProperties(false)
-	, CompressionLevel(5)
-{
-}
-
 void UPluginBuilderSettings::Register()
 {
-	if (ISettingsModule* SettingsModule = PluginBuilder::Settings::GetSettingsModule())
-	{
-		SettingsModule->RegisterSettings(
-			PluginBuilder::Settings::ContainerName,
-			PluginBuilder::Settings::CategoryName,
-			PluginBuilder::Settings::SectionName,
-			LOCTEXT("SettingName", "Plugin Builder"),
-			LOCTEXT("SettingDescription", "Editor settings for Plugin Builder"),
-			GetMutableDefault<UPluginBuilderSettings>()
-		);
-	}
+	// Since this plugin's LoadingPhase is PostEngineInit, it is called directly.
+	HandleOnPostEngineInit();
+	FCoreDelegates::OnEnginePreExit.AddStatic(&UPluginBuilderSettings::HandleOnEnginePreExit);
 }
 
-void UPluginBuilderSettings::Unregister()
+FName UPluginBuilderSettings::GetSectionName() const
 {
-	if (ISettingsModule* SettingsModule = PluginBuilder::Settings::GetSettingsModule())
-	{
-		SettingsModule->UnregisterSettings(
-			PluginBuilder::Settings::ContainerName,
-			PluginBuilder::Settings::CategoryName,
-			PluginBuilder::Settings::SectionName
-		);
-	}
+	return *(PluginBuilder::Global::PluginName.ToString() + GetSettingsName());
 }
 
-const UPluginBuilderSettings& UPluginBuilderSettings::Get()
+FText UPluginBuilderSettings::GetDisplayName() const
 {
-	const auto* Settings = GetDefault<UPluginBuilderSettings>();
-	check(IsValid(Settings));
-	return *Settings;
+	return FText::Format(
+		LOCTEXT("DisplayNameFormat", "{0} - {1}"),
+		FText::FromString(FName::NameToDisplayString(PluginBuilder::Global::PluginName.ToString(), false)),
+		FText::FromString(GetSettingsName())
+	);
 }
 
-void UPluginBuilderSettings::OpenSettings()
+FText UPluginBuilderSettings::GetTooltipText() const
+{
+	const UClass* SettingsClass = GetClass();
+	check(IsValid(SettingsClass));
+	return SettingsClass->GetToolTipText();
+}
+
+void UPluginBuilderSettings::OpenSettings(const FName& SectionName)
 {
 	if (ISettingsModule* SettingsModule = PluginBuilder::Settings::GetSettingsModule())
 	{
 		SettingsModule->ShowViewer(
 			PluginBuilder::Settings::ContainerName,
 			PluginBuilder::Settings::CategoryName,
-			PluginBuilder::Settings::SectionName
+			SectionName
 		);
 	}
 }
 
-void UPluginBuilderSettings::ModifyProperties(
-	const TFunction<void(UPluginBuilderSettings& Settings)>& Predicate,
-	const EPostModifiedProcessing PostModifiedProcessing /* = EPostModifiedProcessing::None */
-)
+void UPluginBuilderSettings::HandleOnPostEngineInit()
 {
-	auto* Settings = GetMutableDefault<UPluginBuilderSettings>();
-	check(IsValid(Settings));
-	
-	Predicate(*Settings);
-
-	if (PostModifiedProcessing == EPostModifiedProcessing::SortEngineVersion)
+	ISettingsModule* SettingsModule = PluginBuilder::Settings::GetSettingsModule();
+	if (SettingsModule == nullptr)
 	{
-		Settings->EngineVersions.Sort(
-			[](const FString& Lhs, const FString& Rhs) -> bool
-			{
-				const float LhsValue = FCString::Atof(*Lhs);
-				const float RhsValue = FCString::Atof(*Rhs);
-				return (LhsValue < RhsValue);
-			}
-		);
+		return;
 	}
-
-	Settings->SaveConfig();
-}
-
-void UPluginBuilderSettings::PostInitProperties()
-{
-	UObject::PostInitProperties();
-
-	ModifyProperties(
-		[](UPluginBuilderSettings& Settings)
+	
+	for (auto* Settings : TObjectRange<UPluginBuilderSettings>(RF_NoFlags))
+	{
+		if (!IsValid(Settings))
 		{
-			Settings.ResetOutputDirectoryPath();
-			Settings.SelectedBuildTarget = PluginBuilder::FBuildTargets::GetDefaultBuildTarget();
+			continue;
 		}
-	);
+
+		const UClass* SettingsClass = Settings->GetClass();
+		if (!IsValid(SettingsClass))
+		{
+			continue;
+		}
+		if (SettingsClass->HasAnyClassFlags(CLASS_Abstract))
+		{
+			continue;
+		}
+		if (!Settings->IsTemplate())
+		{
+			continue;
+		}
+		
+		SettingsModule->RegisterSettings(
+			PluginBuilder::Settings::ContainerName,
+			PluginBuilder::Settings::CategoryName,
+			Settings->GetSectionName(),
+			Settings->GetDisplayName(),
+			Settings->GetTooltipText(),
+			Settings
+		);
+
+		Settings->AddToRoot();
+		AllSettings.Add(Settings);
+	}
 }
 
-void UPluginBuilderSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+void UPluginBuilderSettings::HandleOnEnginePreExit()
 {
-	UObject::PostEditChangeProperty(PropertyChangedEvent);
-
-	if (PropertyChangedEvent.MemberProperty == nullptr)
+	ISettingsModule* SettingsModule = PluginBuilder::Settings::GetSettingsModule();
+	if (SettingsModule == nullptr)
 	{
 		return;
 	}
 
-	if (PropertyChangedEvent.MemberProperty->GetFName() == GET_MEMBER_NAME_CHECKED(UPluginBuilderSettings, OutputDirectoryPath) ||
-		PropertyChangedEvent.MemberProperty->GetFName() == GET_MEMBER_NAME_CHECKED(UPluginBuilderSettings, bOutputToBuildDirectoryOfEachProject))
+	for (auto* Settings : AllSettings)
 	{
-		ModifyProperties(
-			[](UPluginBuilderSettings& Settings)
-			{
-				Settings.ResetOutputDirectoryPath();
-			}
+		const TSharedPtr<ISettingsContainer> Container = SettingsModule->GetContainer(PluginBuilder::Settings::ContainerName);
+		check(Container.IsValid());
+		const TSharedPtr<ISettingsCategory> Category = Container->GetCategory(PluginBuilder::Settings::CategoryName);
+		check(Category.IsValid());
+		const TSharedPtr<ISettingsSection> Section = Category->GetSection(Settings->GetSectionName());
+		check(Section.IsValid());
+		Section->Save();
+		
+		SettingsModule->UnregisterSettings(
+			PluginBuilder::Settings::ContainerName,
+			PluginBuilder::Settings::CategoryName,
+			Settings->GetSectionName()
 		);
+
+		Settings->RemoveFromRoot();
 	}
 }
 
-bool UPluginBuilderSettings::CanEditChange(const FProperty* InProperty) const
-{
-	if (!UObject::CanEditChange(InProperty) || (InProperty == nullptr))
-	{
-		return false;
-	}
-
-#if !UE_5_01_OR_LATER
-	if (InProperty->GetFName() == GET_MEMBER_NAME_CHECKED(UPluginBuilderSettings, bShowOnlyLogsFromThisPluginWhenPackageProcessStarts))
-	{
-		return false;
-	}
-#endif
-
-	return true;
-}
-
-void UPluginBuilderSettings::ResetOutputDirectoryPath()
-{
-	if (OutputDirectoryPath.Path.IsEmpty() || bOutputToBuildDirectoryOfEachProject)
-	{
-		OutputDirectoryPath.Path = FPaths::ConvertRelativePathToFull(FPaths::ProjectDir() / TEXT("Build"));
-	}
-}
-
-bool UPluginBuilderSettings::GetSelectedBuildTargetName(FName& SelectedBuildTargetName) const
-{
-	const FName ProjectName(FApp::GetProjectName());
-	if (const FName* FoundSelectedBuildTargetName = SelectedBuildTargetNamePerProject.Find(ProjectName))
-	{
-		SelectedBuildTargetName = *FoundSelectedBuildTargetName;
-
-		return true;
-	}
-
-	return false;
-}
-
-void UPluginBuilderSettings::SetSelectedBuildTargetName(const FName& SelectedBuildTargetName)
-{
-	const FName ProjectName(FApp::GetProjectName());
-	SelectedBuildTargetNamePerProject.FindOrAdd(ProjectName) = SelectedBuildTargetName;
-}
-
-bool UPluginBuilderSettings::IsReadyToStartPackagePluginTask() const
-{
-	return (SelectedBuildTarget.IsSet() && (EngineVersions.Num() > 0));
-}
+TArray<UPluginBuilderSettings*> UPluginBuilderSettings::AllSettings;
 
 #undef LOCTEXT_NAMESPACE

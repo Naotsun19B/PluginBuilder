@@ -71,9 +71,6 @@ namespace PluginBuilder
 	{
 		// Unregister menu extension.
 		FToolMenuExtender::Unregister();
-		
-		// Unregister settings.
-		UPluginBuilderSettings::Unregister();
 
 		// Unregister style set.
 		FPluginBuilderStyle::Unregister();

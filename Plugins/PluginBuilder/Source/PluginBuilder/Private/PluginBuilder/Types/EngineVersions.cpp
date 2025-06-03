@@ -1,7 +1,7 @@
 // Copyright 2022-2025 Naotsun. All Rights Reserved.
 
 #include "PluginBuilder/Types/EngineVersions.h"
-#include "PluginBuilder/Utilities/PluginBuilderSettings.h"
+#include "PluginBuilder/Utilities/PluginBuilderBuildConfigurationSettings.h"
 #include "Misc/Paths.h"
 
 #include "Windows/AllowWindowsPlatformTypes.h"
@@ -131,6 +131,16 @@ namespace PluginBuilder
 			bool bIsValid;
 		};
 	}
+
+	struct FCompareEngineVersionString
+	{
+		FORCEINLINE bool operator()(const FString& Lhs, const FString& Rhs) const
+		{
+			const float LhsValue = FCString::Atof(*Lhs);
+			const float RhsValue = FCString::Atof(*Rhs);
+			return (LhsValue < RhsValue);
+		}
+	};
 	
 	TArray<FEngineVersions::FEngineVersion> FEngineVersions::GetEngineVersions(const bool bWithRefresh /* = true */)
 	{
@@ -271,76 +281,65 @@ namespace PluginBuilder
 
 	void FEngineVersions::ToggleEngineVersion(const FEngineVersion EngineVersion)
 	{
-		UPluginBuilderSettings::ModifyProperties(
-			[&EngineVersion](UPluginBuilderSettings& Settings)
-			{
-				if (Settings.EngineVersions.Contains(EngineVersion.VersionName))
-				{
-					Settings.EngineVersions.Remove(EngineVersion.VersionName);
-				}
-				else
-				{
-					Settings.EngineVersions.Add(EngineVersion.VersionName);
-				}
-			},
-			UPluginBuilderSettings::EPostModifiedProcessing::SortEngineVersion
-		);
+		auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		if (Settings.EngineVersions.Contains(EngineVersion.VersionName))
+		{
+			Settings.EngineVersions.Remove(EngineVersion.VersionName);
+		}
+		else
+		{
+			Settings.EngineVersions.Add(EngineVersion.VersionName);
+		}
+
+		Settings.EngineVersions.Sort(FCompareEngineVersionString());
 	}
 
 	bool FEngineVersions::GetEngineVersionState(const FEngineVersion EngineVersion)
 	{
-		return UPluginBuilderSettings::Get().EngineVersions.Contains(EngineVersion.VersionName);
+		const auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		return Settings.EngineVersions.Contains(EngineVersion.VersionName);
 	}
 
 	void FEngineVersions::EnableAllEngineVersions()
 	{
-		UPluginBuilderSettings::ModifyProperties(
-			[](UPluginBuilderSettings& Settings)
-			{
-				Settings.EngineVersions.Reset(EngineVersions.Num());
-				for (const auto& EngineVersion : EngineVersions)
-				{
-					Settings.EngineVersions.Add(EngineVersion.VersionName);
-				}
-			},
-			UPluginBuilderSettings::EPostModifiedProcessing::SortEngineVersion
-		);
+		auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		Settings.EngineVersions.Reset(EngineVersions.Num());
+		for (const auto& EngineVersion : EngineVersions)
+		{
+			Settings.EngineVersions.Add(EngineVersion.VersionName);
+		}
+
+		Settings.EngineVersions.Sort(FCompareEngineVersionString());
 	}
 
 	void FEngineVersions::EnableByMajorVersion(const FString MajorVersionName)
 	{
-		UPluginBuilderSettings::ModifyProperties(
-			[&MajorVersionName](UPluginBuilderSettings& Settings)
+		auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		Settings.EngineVersions.Empty();
+		for (const auto& EngineVersion : EngineVersions)
+		{
+			if (!MajorVersionName.Equals(EngineVersion.MajorVersionName))
 			{
-				Settings.EngineVersions.Empty();
-				for (const auto& EngineVersion : EngineVersions)
-				{
-					if (!MajorVersionName.Equals(EngineVersion.MajorVersionName))
-					{
-						continue;
-					}
+				continue;
+			}
 
-					Settings.EngineVersions.Add(EngineVersion.VersionName);
-				}
-			},
-			UPluginBuilderSettings::EPostModifiedProcessing::SortEngineVersion
-		);
+			Settings.EngineVersions.Add(EngineVersion.VersionName);
+		}
+
+		Settings.EngineVersions.Sort(FCompareEngineVersionString());
 	}
 
 	void FEngineVersions::EnableLatest3EngineVersions()
 	{
-		UPluginBuilderSettings::ModifyProperties(
-			[](UPluginBuilderSettings& Settings)
-			{
-				Settings.EngineVersions.Empty();
-				const int32 NumOfEngineVersions = EngineVersions.Num();
-				for (int32 Index = NumOfEngineVersions - 3; Index < NumOfEngineVersions; Index++)
-				{
-					Settings.EngineVersions.Add(EngineVersions[Index].VersionName);
-				}
-			},
-			UPluginBuilderSettings::EPostModifiedProcessing::SortEngineVersion
-		);
+		auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		Settings.EngineVersions.Empty();
+		const int32 NumOfEngineVersions = EngineVersions.Num();
+		for (int32 Index = NumOfEngineVersions - 3; Index < NumOfEngineVersions; Index++)
+		{
+			Settings.EngineVersions.Add(EngineVersions[Index].VersionName);
+		}
+
+		Settings.EngineVersions.Sort(FCompareEngineVersionString());
 	}
 
 	TArray<FEngineVersions::FEngineVersion> FEngineVersions::EngineVersions;

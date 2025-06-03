@@ -3,7 +3,8 @@
 #include "PluginBuilder/Types/PackagePluginParams.h"
 #include "PluginBuilder/Types/BuildTargets.h"
 #include "PluginBuilder/Types/EngineVersions.h"
-#include "PluginBuilder/Utilities/PluginBuilderSettings.h"
+#include "PluginBuilder/Utilities/PluginBuilderEditorSettings.h"
+#include "PluginBuilder/Utilities/PluginBuilderBuildConfigurationSettings.h"
 
 namespace PluginBuilder
 {
@@ -24,57 +25,58 @@ namespace PluginBuilder
 
 	bool FPackagePluginParams::MakeDefault(FPackagePluginParams& Default)
 	{
-		const auto& Settings = UPluginBuilderSettings::Get();
-		if (!Settings.IsReadyToStartPackagePluginTask())
+		const auto& EditorSettings = GetSettings<UPluginBuilderEditorSettings>();
+		const auto& BuildConfigurationSettings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		if (!BuildConfigurationSettings.IsReadyToStartPackagePluginTask())
 		{
 			return false;
 		}
 
-		const FBuildTargets::FBuildTarget& BuildTarget = Settings.SelectedBuildTarget.GetValue();
+		const FBuildTargets::FBuildTarget& BuildTarget = BuildConfigurationSettings.SelectedBuildTarget.GetValue();
 		
 		FUATBatchFileParams UATBatchFileParams;
 		{
 			UATBatchFileParams.PluginName = BuildTarget.GetPluginName();
 			UATBatchFileParams.PluginFriendlyName = BuildTarget.GetPluginFriendlyName();
-			UATBatchFileParams.bUseFriendlyName = Settings.bUseFriendlyName;
+			UATBatchFileParams.bUseFriendlyName = EditorSettings.bUseFriendlyName;
 			UATBatchFileParams.PluginVersionName = BuildTarget.GetPluginVersionName();
 			UATBatchFileParams.UPluginFile = BuildTarget.GetUPluginFile();
-			if (!Settings.bSelectOutputDirectoryManually)
+			if (!EditorSettings.bSelectOutputDirectoryManually)
 			{
-				UATBatchFileParams.OutputDirectoryPath = Settings.OutputDirectoryPath.Path;
+				UATBatchFileParams.OutputDirectoryPath = EditorSettings.OutputDirectoryPath.Path;
 			}
-			UATBatchFileParams.bStopPackagingProcessImmediately = Settings.bStopPackagingProcessImmediately;
+			UATBatchFileParams.bStopPackagingProcessImmediately = EditorSettings.bStopPackagingProcessImmediately;
 		}
 		
 		FBuildPluginParams BuildPluginParams;
 		{
-			BuildPluginParams.bNoHostPlatform = Settings.bNoHostPlatform;
-			BuildPluginParams.HostPlatforms = Settings.HostPlatforms;
-			BuildPluginParams.TargetPlatforms = Settings.TargetPlatforms;
-			BuildPluginParams.bRocket = Settings.bRocket;
-			BuildPluginParams.bCreateSubFolder = Settings.bCreateSubFolder;
-			BuildPluginParams.bStrictIncludes = Settings.bStrictIncludes;
-			BuildPluginParams.bUnversioned = Settings.bUnversioned;
+			BuildPluginParams.bNoHostPlatform = BuildConfigurationSettings.bNoHostPlatform;
+			BuildPluginParams.HostPlatforms = BuildConfigurationSettings.HostPlatforms;
+			BuildPluginParams.TargetPlatforms = BuildConfigurationSettings.TargetPlatforms;
+			BuildPluginParams.bRocket = BuildConfigurationSettings.bRocket;
+			BuildPluginParams.bCreateSubFolder = BuildConfigurationSettings.bCreateSubFolder;
+			BuildPluginParams.bStrictIncludes = BuildConfigurationSettings.bStrictIncludes;
+			BuildPluginParams.bUnversioned = BuildConfigurationSettings.bUnversioned;
 		}
 
 		FZipUpPluginParams ZipUpPluginParams;
 		{
 			ZipUpPluginParams.bCanPluginContainContent = BuildTarget.CanPluginContainContent();
-			ZipUpPluginParams.bOutputAllZipFilesToSingleFolder = Settings.bOutputAllZipFilesToSingleFolder;
-			ZipUpPluginParams.bKeepBinariesFolder = Settings.bKeepBinariesFolder;
-			ZipUpPluginParams.bKeepUPluginProperties = Settings.bKeepUPluginProperties;
-			ZipUpPluginParams.CompressionLevel = Settings.CompressionLevel;
+			ZipUpPluginParams.bOutputAllZipFilesToSingleFolder = BuildConfigurationSettings.bOutputAllZipFilesToSingleFolder;
+			ZipUpPluginParams.bKeepBinariesFolder = BuildConfigurationSettings.bKeepBinariesFolder;
+			ZipUpPluginParams.bKeepUPluginProperties = BuildConfigurationSettings.bKeepUPluginProperties;
+			ZipUpPluginParams.CompressionLevel = BuildConfigurationSettings.CompressionLevel;
 		}
 
-		Default.EngineVersions = Settings.EngineVersions;
+		Default.EngineVersions = BuildConfigurationSettings.EngineVersions;
 		Default.UATBatchFileParams = UATBatchFileParams;
 		Default.BuildPluginParams = BuildPluginParams;
-		if (Settings.bZipUp)
+		if (BuildConfigurationSettings.bZipUp)
 		{
 			Default.ZipUpPluginParams = ZipUpPluginParams;
 		}
 #if UE_5_00_OR_LATER
-		Default.bShowOnlyLogsFromThisPluginWhenPackageProcessStarts = Settings.bShowOnlyLogsFromThisPluginWhenPackageProcessStarts;
+		Default.bShowOnlyLogsFromThisPluginWhenPackageProcessStarts = EditorSettings.bShowOnlyLogsFromThisPluginWhenPackageProcessStarts;
 #endif
 
 		return true;

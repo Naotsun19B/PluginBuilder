@@ -1,7 +1,8 @@
 // Copyright 2022-2025 Naotsun. All Rights Reserved.
 
 #include "PluginBuilder/Types/BuildTargets.h"
-#include "PluginBuilder/Utilities/PluginBuilderSettings.h"
+#include "PluginBuilder/Utilities/PluginBuilderEditorSettings.h"
+#include "PluginBuilder/Utilities/PluginBuilderBuildConfigurationSettings.h"
 #include "PluginBuilder/Utilities/PluginBuilderStyle.h"
 #include "Interfaces/IPluginManager.h"
 #include "Misc/App.h"
@@ -32,8 +33,9 @@ namespace PluginBuilder
 
 	FString FBuildTargets::FBuildTarget::GetPluginNameInSpecifiedFormat() const
 	{
+		const auto& Settings = GetSettings<UPluginBuilderEditorSettings>();
 		return (
-			UPluginBuilderSettings::Get().bUseFriendlyName ?
+			Settings.bUseFriendlyName ?
 			GetPluginFriendlyName() :
 			GetPluginName()
 		);
@@ -74,7 +76,7 @@ namespace PluginBuilder
 	
 	TArray<FBuildTargets::FBuildTarget> FBuildTargets::GetFilteredBuildTargets()
 	{
-		const auto& Settings = UPluginBuilderSettings::Get();
+		const auto& Settings = GetSettings<UPluginBuilderEditorSettings>();
 		
 		TArray<FBuildTarget> FilteredPlugins;
 	
@@ -117,13 +119,8 @@ namespace PluginBuilder
 		const FBuildTarget* SavedBuildTarget = BuildTargets.FindByPredicate(
 			[](const FBuildTarget& BuildTarget) -> bool
 			{
-				FName SelectedBuildTargetName;
-				if (UPluginBuilderSettings::Get().GetSelectedBuildTargetName(SelectedBuildTargetName))
-				{
-					return SelectedBuildTargetName.IsEqual(*BuildTarget.GetPluginFriendlyName());
-				}
-				
-				return false;
+				const auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+				return (Settings.SelectedBuildTargetName == BuildTarget.GetPluginFriendlyName());
 			}
 		);
 		if (SavedBuildTarget != nullptr)
@@ -148,18 +145,15 @@ namespace PluginBuilder
 
 	void FBuildTargets::ToggleBuildTarget(const FBuildTarget BuildTarget)
 	{
-		UPluginBuilderSettings::ModifyProperties(
-			[&BuildTarget](UPluginBuilderSettings& Settings)
-			{
-				Settings.SetSelectedBuildTargetName(*BuildTarget.GetPluginName());
-				Settings.SelectedBuildTarget = BuildTarget;
-			}
-		);
+		auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		Settings.SelectedBuildTargetName = *BuildTarget.GetPluginName();
+		Settings.SelectedBuildTarget = BuildTarget;
 	}
 
 	bool FBuildTargets::GetBuildTargetState(const FBuildTarget BuildTarget)
 	{
-		const TOptional<FBuildTarget>& SelectedBuildTarget = UPluginBuilderSettings::Get().SelectedBuildTarget;
+		const auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		const TOptional<FBuildTarget>& SelectedBuildTarget = Settings.SelectedBuildTarget;
 		if (SelectedBuildTarget.IsSet())
 		{
 			return BuildTarget.GetPluginFriendlyName().Equals(SelectedBuildTarget.GetValue().GetPluginFriendlyName());

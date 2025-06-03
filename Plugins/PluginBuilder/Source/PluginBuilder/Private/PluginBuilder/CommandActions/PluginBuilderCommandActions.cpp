@@ -2,7 +2,8 @@
 
 #include "PluginBuilder/CommandActions/PluginBuilderCommandActions.h"
 #include "PluginBuilder/Utilities/PluginPackager.h"
-#include "PluginBuilder/Utilities/PluginBuilderSettings.h"
+#include "PluginBuilder/Utilities/PluginBuilderEditorSettings.h"
+#include "PluginBuilder/Utilities/PluginBuilderBuildConfigurationSettings.h"
 
 namespace PluginBuilder
 {
@@ -13,149 +14,123 @@ namespace PluginBuilder
 
 	bool FPluginBuilderCommandActions::CanBuildPlugin()
 	{
+		const auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
 		return (
 			!FPluginPackager::IsPackagePluginTaskRunning() &&
-			UPluginBuilderSettings::Get().IsReadyToStartPackagePluginTask()
+			Settings.IsReadyToStartPackagePluginTask()
 		);
 	}
 	
 	void FPluginBuilderCommandActions::ToggleNoHostPlatform()
 	{
-		UPluginBuilderSettings::ModifyProperties(
-			[](UPluginBuilderSettings& Settings)
-			{
-				Settings.bNoHostPlatform = !Settings.bNoHostPlatform;
-			}
-		);
+		auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		Settings.bNoHostPlatform = !Settings.bNoHostPlatform;
 	}
 
 	bool FPluginBuilderCommandActions::GetNoHostPlatformState()
 	{
-		return UPluginBuilderSettings::Get().bNoHostPlatform;
+		const auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		return Settings.bNoHostPlatform;
 	}
 	
 	void FPluginBuilderCommandActions::ToggleRocket()
 	{
-		UPluginBuilderSettings::ModifyProperties(
-			[](UPluginBuilderSettings& Settings)
-			{
-				Settings.bRocket = !Settings.bRocket;
-			}
-		);
+		auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		Settings.bRocket = !Settings.bRocket;
 	}
 
 	bool FPluginBuilderCommandActions::GetRocketState()
 	{
-		return UPluginBuilderSettings::Get().bRocket;
+		const auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		return Settings.bRocket;
 	}
 
 	void FPluginBuilderCommandActions::ToggleCreateSubFolder()
 	{
-		UPluginBuilderSettings::ModifyProperties(
-			[](UPluginBuilderSettings& Settings)
-			{
-				Settings.bCreateSubFolder = !Settings.bCreateSubFolder;
-			}
-		);
+		auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		Settings.bCreateSubFolder = !Settings.bCreateSubFolder;
 	}
 
 	bool FPluginBuilderCommandActions::GetCreateSubFolderState()
 	{
-		return UPluginBuilderSettings::Get().bCreateSubFolder;
+		const auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		return Settings.bCreateSubFolder;
 	}
 
 	void FPluginBuilderCommandActions::ToggleStrictIncludes()
 	{
-		UPluginBuilderSettings::ModifyProperties(
-			[](UPluginBuilderSettings& Settings)
-			{
-				Settings.bStrictIncludes = !Settings.bStrictIncludes;
-			}
-		);
+		auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		Settings.bStrictIncludes = !Settings.bStrictIncludes;
 	}
 
 	bool FPluginBuilderCommandActions::GetStrictIncludesState()
 	{
-		return UPluginBuilderSettings::Get().bStrictIncludes;
+		const auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		return Settings.bStrictIncludes;
 	}
 
 	void FPluginBuilderCommandActions::ToggleUnversioned()
 	{
-		UPluginBuilderSettings::ModifyProperties(
-			[](UPluginBuilderSettings& Settings)
-			{
-				Settings.bUnversioned = !Settings.bUnversioned;
-			}
-		);
+		auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		Settings.bUnversioned = !Settings.bUnversioned;
 	}
 
 	bool FPluginBuilderCommandActions::GetUnversionedState()
 	{
-		return UPluginBuilderSettings::Get().bUnversioned;
+		const auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		return Settings.bUnversioned;
 	}
 
 	void FPluginBuilderCommandActions::ToggleZipUp()
 	{
-		UPluginBuilderSettings::ModifyProperties(
-			[](UPluginBuilderSettings& Settings)
-			{
-				Settings.bZipUp = !Settings.bZipUp;
-			}
-		);
+		auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		Settings.bZipUp = !Settings.bZipUp;
 	}
 
 	bool FPluginBuilderCommandActions::GetZipUpState()
 	{
-		return UPluginBuilderSettings::Get().bZipUp;
+		const auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		return Settings.bZipUp;
 	}
 
 	void FPluginBuilderCommandActions::ToggleOutputAllZipFilesToSingleFolder()
 	{
-		UPluginBuilderSettings::ModifyProperties(
-			[](UPluginBuilderSettings& Settings)
-			{
-				Settings.bOutputAllZipFilesToSingleFolder = !Settings.bOutputAllZipFilesToSingleFolder;
-			}
-		);
+		auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		Settings.bOutputAllZipFilesToSingleFolder = !Settings.bOutputAllZipFilesToSingleFolder;
 	}
 
 	bool FPluginBuilderCommandActions::GetOutputAllZipFilesToSingleFolderState()
 	{
-		return UPluginBuilderSettings::Get().bOutputAllZipFilesToSingleFolder;
+		const auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		return Settings.bOutputAllZipFilesToSingleFolder;
 	}
 
 	void FPluginBuilderCommandActions::ToggleKeepBinariesFolder()
 	{
-		UPluginBuilderSettings::ModifyProperties(
-			[](UPluginBuilderSettings& Settings)
-			{
-				Settings.bKeepBinariesFolder = !Settings.bKeepBinariesFolder;
-			}
-		);
+		auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		Settings.bKeepBinariesFolder = !Settings.bKeepBinariesFolder;
 	}
 
 	bool FPluginBuilderCommandActions::GetKeepBinariesFolderState()
 	{
-		return UPluginBuilderSettings::Get().bKeepBinariesFolder;
+		const auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		return Settings.bKeepBinariesFolder;
 	}
 
 	void FPluginBuilderCommandActions::ToggleKeepUPluginProperties()
 	{
-		UPluginBuilderSettings::ModifyProperties(
-			[](UPluginBuilderSettings& Settings)
-			{
-				Settings.bKeepUPluginProperties = !Settings.bKeepUPluginProperties;
-			}
-		);
+		auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		Settings.bKeepUPluginProperties = !Settings.bKeepUPluginProperties;
 	}
 
 	bool FPluginBuilderCommandActions::GetKeepUPluginPropertiesState()
 	{
-		return UPluginBuilderSettings::Get().bKeepUPluginProperties;
+		const auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		return Settings.bKeepUPluginProperties;
 	}
 
 	void FPluginBuilderCommandActions::OpenBuildSettings()
 	{
-		UPluginBuilderSettings::OpenSettings();
+		OpenSettings<UPluginBuilderEditorSettings>();
 	}
 }
