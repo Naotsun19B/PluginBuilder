@@ -119,6 +119,8 @@ void UPluginBuilderSettings::HandleOnEnginePreExit()
 
 	for (auto* Settings : AllSettings)
 	{
+		Settings->PreSaveConfig();
+		
 		const TSharedPtr<ISettingsContainer> Container = SettingsModule->GetContainer(PluginBuilder::Settings::ContainerName);
 		check(Container.IsValid());
 		const TSharedPtr<ISettingsCategory> Category = Container->GetCategory(PluginBuilder::Settings::CategoryName);

@@ -19,17 +19,35 @@ UPluginBuilderBuildConfigurationSettings::UPluginBuilderBuildConfigurationSettin
 void UPluginBuilderBuildConfigurationSettings::PostInitProperties()
 {
 	UObject::PostInitProperties();
-	
-	SelectedBuildTarget = PluginBuilder::FBuildTargets::GetDefaultBuildTarget();
-	if (SelectedBuildTargetName.IsEmpty() && SelectedBuildTarget.IsSet())
+
+	if (SelectedBuildTargetName.IsEmpty())
 	{
+		SelectedBuildTarget = PluginBuilder::FBuildTargets::GetDefaultBuildTarget();
 		SelectedBuildTargetName = SelectedBuildTarget->GetPluginName();
 	}
+
+	EngineVersionsString.ParseIntoArray(EngineVersions, TEXT(","));
+	HostPlatformsString.ParseIntoArray(HostPlatforms, TEXT(","));
+	TargetPlatformsString.ParseIntoArray(TargetPlatforms, TEXT(","));
 }
 
 FString UPluginBuilderBuildConfigurationSettings::GetSettingsName() const
 {
 	return TEXT("BuildConfiguration");
+}
+
+void UPluginBuilderBuildConfigurationSettings::PreSaveConfig()
+{
+	Super::PreSaveConfig();
+
+	if (SelectedBuildTarget.IsSet())
+	{
+		SelectedBuildTargetName = SelectedBuildTarget->GetPluginFriendlyName();
+	}
+	
+	EngineVersionsString = FString::Join(EngineVersions, TEXT(","));
+	HostPlatformsString = FString::Join(HostPlatforms, TEXT(","));
+	TargetPlatformsString = FString::Join(TargetPlatforms, TEXT(","));
 }
 
 bool UPluginBuilderBuildConfigurationSettings::IsReadyToStartPackagePluginTask() const

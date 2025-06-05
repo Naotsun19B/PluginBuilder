@@ -33,6 +33,9 @@ public:
 protected:
 	// Returns the unique name of this setting.
 	virtual FString GetSettingsName() const PURE_VIRTUAL(UPluginBuilderSettings::GetSettingsName, return {};)
+
+	// Called before saving to the config file.
+	virtual void PreSaveConfig() {}
 	
 private:
 	// Called when the end of UEngine::Init, right before loading PostEngineInit modules for both normal execution and commandlets.

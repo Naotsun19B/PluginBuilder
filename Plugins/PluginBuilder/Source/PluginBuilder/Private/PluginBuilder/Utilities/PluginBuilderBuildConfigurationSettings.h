@@ -27,8 +27,10 @@ public:
 	TOptional<PluginBuilder::FBuildTargets::FBuildTarget> SelectedBuildTarget;
 	
 	// The list of engine versions to build the plugin.
-	UPROPERTY(VisibleAnywhere, Config, Category = "Engine")
+	UPROPERTY(VisibleAnywhere, Category = "Engine")
 	TArray<FString> EngineVersions;
+	UPROPERTY(Config)
+	FString EngineVersionsString;
 	
 	// Whether to prevent editor platform compilation on the host.
 	UPROPERTY(VisibleAnywhere, Config, Category = "Platform")
@@ -36,13 +38,17 @@ public:
 
 	// The list of host platforms to build the plugin.
 	// If nothing is specified, the current host platform is used.
-	UPROPERTY(VisibleAnywhere, Config, Category = "Platform")
+	UPROPERTY(VisibleAnywhere, Category = "Platform")
 	TArray<FString> HostPlatforms;
+	UPROPERTY(Config)
+	FString HostPlatformsString;
 	
 	// The list of target platforms to build the plugin.
 	// If nothing is specified, all the Rocket target platforms is used.
-	UPROPERTY(VisibleAnywhere, Config, Category = "Platform")
+	UPROPERTY(VisibleAnywhere, Category = "Platform")
 	TArray<FString> TargetPlatforms;
+	UPROPERTY(Config)
+	FString TargetPlatformsString;
 
 	// Whether to handle older versions that do not use the Rocket.txt file.
 	UPROPERTY(VisibleAnywhere, Config, Category = "Build")
@@ -94,6 +100,7 @@ public:
 
 	// UPluginBuilderSettings interface.
 	virtual FString GetSettingsName() const override;
+	virtual void PreSaveConfig() override;
 	// End of UPluginBuilderSettings interface.
 	
 	// Returns whether the parameters is ready to start package plugin task.

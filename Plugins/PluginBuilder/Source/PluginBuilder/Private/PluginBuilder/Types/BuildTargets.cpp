@@ -115,18 +115,6 @@ namespace PluginBuilder
 		{
 			return {};
 		}
-
-		const FBuildTarget* SavedBuildTarget = BuildTargets.FindByPredicate(
-			[](const FBuildTarget& BuildTarget) -> bool
-			{
-				const auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
-				return (Settings.SelectedBuildTargetName == BuildTarget.GetPluginFriendlyName());
-			}
-		);
-		if (SavedBuildTarget != nullptr)
-		{
-			return *SavedBuildTarget;
-		}
 		
 		const FBuildTarget* DefaultBuildTarget = BuildTargets.FindByPredicate(
 			[](const FBuildTarget& BuildTarget) -> bool
@@ -146,7 +134,6 @@ namespace PluginBuilder
 	void FBuildTargets::ToggleBuildTarget(const FBuildTarget BuildTarget)
 	{
 		auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
-		Settings.SelectedBuildTargetName = *BuildTarget.GetPluginName();
 		Settings.SelectedBuildTarget = BuildTarget;
 	}
 
