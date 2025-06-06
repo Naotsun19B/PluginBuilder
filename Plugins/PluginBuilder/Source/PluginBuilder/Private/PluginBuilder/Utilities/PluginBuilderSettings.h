@@ -45,7 +45,7 @@ private:
 	static void HandleOnEnginePreExit();
 
 private:
-	// The list of all registered editor settings classes about GraphPrinter.
+	// The list of all registered editor settings classes about this plugin.
 	static TArray<UPluginBuilderSettings*> AllSettings;
 };
 
