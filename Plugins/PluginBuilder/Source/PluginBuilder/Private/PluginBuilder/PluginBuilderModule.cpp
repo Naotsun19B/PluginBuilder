@@ -8,6 +8,7 @@
 #include "PluginBuilder/UIExtensions/ToolMenuExtender.h"
 #include "PluginBuilder/Utilities/PluginPackager.h"
 #include "PluginBuilder/Types/EngineVersions.h"
+#include "PluginBuilder/Types/HostPlatforms.h"
 #include "PluginBuilder/Types/TargetPlatforms.h"
 
 DEFINE_LOG_CATEGORY(LogPluginBuilder);
@@ -32,50 +33,34 @@ namespace PluginBuilder
 	
 	void FPluginBuilderModule::StartupModule()
 	{
-		// Register command actions.
+		// Registers command actions.
 		FPluginBuilderCommands::Register();
 		FPluginBuilderCommands::Bind();
 
-		// Register style set.
+		// Registers style set.
 		FPluginBuilderStyle::Register();
 		
-		// Register settings.
+		// Registers settings.
 		UPluginBuilderSettings::Register();
 
-		// Register menu extension.
+		// Registers menu extension.
 		FToolMenuExtender::Register();
 		
-		{
-			UE_LOG(LogPluginBuilder, Log, TEXT("==================== Installed Engine Versions ===================="));
-			
-			const TArray<FEngineVersions::FEngineVersion>& InstalledEngineVersions = FEngineVersions::GetEngineVersions();
-			for (const auto& InstalledEngineVersion : InstalledEngineVersions)
-			{
-				UE_LOG(LogPluginBuilder, Log, TEXT("%s (%s)"), *InstalledEngineVersion.VersionName, *InstalledEngineVersion.InstalledDirectory);
-			}
-		}
-		{
-			UE_LOG(LogPluginBuilder, Log, TEXT("==================== Available Target Platforms ==================="));
-
-			const TArray<FTargetPlatforms::FPlatform>& AvailableTargetPlatforms = FTargetPlatforms::GetTargetPlatformNames();
-			for (const auto& AvailableTargetPlatform : AvailableTargetPlatforms)
-			{
-				UE_LOG(LogPluginBuilder, Log, TEXT("%s (%s)"), *AvailableTargetPlatform.UBTPlatformName, *AvailableTargetPlatform.PlatformGroupName.ToString());
-			}
-		}
-
-		UE_LOG(LogPluginBuilder, Log, TEXT("==================================================================="));
+		// Logs installed engine versions and available platforms.
+		FEngineVersions::LogInstalledEngineVersions();
+		FHostPlatforms::LogAvailableHostPlatformNames();
+		FTargetPlatforms::LogAvailableTargetPlatformNames();
 	}
 
 	void FPluginBuilderModule::ShutdownModule()
 	{
-		// Unregister menu extension.
+		// Unregisters menu extension.
 		FToolMenuExtender::Unregister();
 
-		// Unregister style set.
+		// Unregisters style set.
 		FPluginBuilderStyle::Unregister();
 		
-		// Unregister command actions.
+		// Unregisters command actions.
 		if (FPluginBuilderCommands::IsBound())
 		{
 			FPluginBuilderCommands::Unregister();

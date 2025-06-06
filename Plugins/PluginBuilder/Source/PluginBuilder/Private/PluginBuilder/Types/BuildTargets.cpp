@@ -131,6 +131,28 @@ namespace PluginBuilder
 		return BuildTargets[0];
 	}
 
+	TOptional<FBuildTargets::FBuildTarget> FBuildTargets::LoadBuildTarget(const FString& SelectedBuildTargetName)
+	{
+		const TArray<FBuildTarget>& BuildTargets = GetFilteredBuildTargets();
+		if (BuildTargets.Num() == 0)
+		{
+			return {};
+		}
+
+		const FBuildTarget* SelectedBuildTarget = BuildTargets.FindByPredicate(
+			[&](const FBuildTarget& BuildTarget) -> bool
+			{
+				return (BuildTarget.GetPluginFriendlyName() == SelectedBuildTargetName);
+			}
+		);
+		if (SelectedBuildTarget == nullptr)
+		{
+			return {};
+		}
+
+		return *SelectedBuildTarget;
+	}
+
 	void FBuildTargets::ToggleBuildTarget(const FBuildTarget BuildTarget)
 	{
 		auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();

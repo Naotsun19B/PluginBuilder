@@ -34,7 +34,7 @@ namespace PluginBuilder
 			// Returns the description of the plugin to build.
 			FString GetPluginDescription() const;
 
-			// Returns the name of the category of the plugin to build.
+			// Returns the category name of the plugin to build.
 			FString GetPluginCategory() const;
 
 			// Returns the icon of the plugin to build.
@@ -59,7 +59,7 @@ namespace PluginBuilder
 			// The description of the plugin to build.
 			FString PluginDescription;
 
-			// The name of the category of the plugin to build.
+			// The name category of the plugin to build.
 			FString PluginCategory;
 		
 			// The version name of the plugin to build.
@@ -78,6 +78,9 @@ namespace PluginBuilder
 		
 		// Returns the default build target inferred from the project name.
 		static TOptional<FBuildTarget> GetDefaultBuildTarget();
+
+		// Loads and returns a build target from the name of the saved selected build target.
+		static TOptional<FBuildTarget> LoadBuildTarget(const FString& SelectedBuildTargetName);
 
 		// Selects the specified build target.
 		static void ToggleBuildTarget(const FBuildTarget BuildTarget);

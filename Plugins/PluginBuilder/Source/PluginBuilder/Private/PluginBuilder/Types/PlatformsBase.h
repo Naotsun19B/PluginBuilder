@@ -24,6 +24,13 @@ namespace PluginBuilder
 
 			// The identifier to group similar platforms together, such as "Mobile" and "Console".
 			FName PlatformGroupName;
+
+			// The style name of the icon linked to the platform.
+			// If there is not enough SDK or something and is not available, an error icon.
+			FName IconStyleName;
+
+			// Whether the required SDK is installed and builds for this platform is possible.
+			bool bIsAvailable = false;
 		};
 
 	protected:
@@ -40,9 +47,12 @@ namespace PluginBuilder
 		// Collects available platform names from ITargetPlatformManagerModule.
 		void RefreshPlatformNames();
 
+		// Returns whether an SDK that requires a platform with the specified name is installed and can be built for this platform.
+		bool IsAvailablePlatform(const FString& PlatformName) const;
+
 	private:
-		// The list of available platform names.
-		TArray<FPlatform> PlatformNames;
+		// The list of available platforms.
+		TArray<FPlatform> Platforms;
 		
 		// The filter used when collecting available platforms.
 		FFilterPlatform FilterPlatform;

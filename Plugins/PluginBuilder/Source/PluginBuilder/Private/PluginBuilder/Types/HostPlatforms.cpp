@@ -3,6 +3,7 @@
 #include "PluginBuilder/Types/HostPlatforms.h"
 #include "PluginBuilder/Utilities/PluginBuilderBuildConfigurationSettings.h"
 #include "PluginBuilder/CommandActions/PluginBuilderCommandActions.h"
+#include "PluginBuilder/PluginBuilderGlobals.h"
 #include "Interfaces/ITargetPlatform.h"
 
 namespace PluginBuilder
@@ -41,6 +42,27 @@ namespace PluginBuilder
 		return HostPlatforms::GetInstance().RefreshPlatformNames();
 	}
 
+	bool FHostPlatforms::IsAvailableHostPlatform(const FString& HostPlatformName)
+	{
+		return HostPlatforms::GetInstance().IsAvailablePlatform(HostPlatformName);
+	}
+
+	void FHostPlatforms::LogAvailableHostPlatformNames()
+	{
+		UE_LOG(LogPluginBuilder, Log, TEXT("==================== Available Host Platforms ==================="));
+
+		const TArray<FPlatform>& HostPlatforms = GetHostPlatformNames();
+		for (const auto& HostPlatform : HostPlatforms)
+		{
+			if (!HostPlatform.bIsAvailable)
+			{
+				continue;
+			}
+			
+			UE_LOG(LogPluginBuilder, Log, TEXT("%s (%s)"), *HostPlatform.UBTPlatformName, *HostPlatform.PlatformGroupName.ToString());
+		}
+	}
+
 	void FHostPlatforms::ToggleHostPlatform(const FPlatform HostPlatform)
 	{
 		auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
@@ -56,6 +78,11 @@ namespace PluginBuilder
 
 	bool FHostPlatforms::GetHostPlatformState(const FPlatform HostPlatform)
 	{
+		if (!HostPlatform.bIsAvailable)
+		{
+			return false;
+		}
+		
 		const auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
 		return Settings.HostPlatforms.Contains(HostPlatform.UBTPlatformName);
 	}

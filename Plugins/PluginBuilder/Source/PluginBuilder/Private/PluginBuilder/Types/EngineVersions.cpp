@@ -2,10 +2,12 @@
 
 #include "PluginBuilder/Types/EngineVersions.h"
 #include "PluginBuilder/Utilities/PluginBuilderBuildConfigurationSettings.h"
+#include "PluginBuilder/PluginBuilderGlobals.h"
 #include "Misc/Paths.h"
 
 #include "Windows/AllowWindowsPlatformTypes.h"
 #include <winreg.h>
+
 
 namespace PluginBuilder
 {
@@ -256,6 +258,17 @@ namespace PluginBuilder
 		}
 
 		return false;
+	}
+
+	void FEngineVersions::LogInstalledEngineVersions()
+	{
+		UE_LOG(LogPluginBuilder, Log, TEXT("==================== Installed Engine Versions ===================="));
+			
+		const TArray<FEngineVersions::FEngineVersion>& InstalledEngineVersions = FEngineVersions::GetEngineVersions();
+		for (const auto& InstalledEngineVersion : InstalledEngineVersions)
+		{
+			UE_LOG(LogPluginBuilder, Log, TEXT("%s (%s)"), *InstalledEngineVersion.VersionName, *InstalledEngineVersion.InstalledDirectory);
+		}
 	}
 
 	TArray<FString> FEngineVersions::GetMajorVersionNames(const bool bWithRefresh /* = true */)

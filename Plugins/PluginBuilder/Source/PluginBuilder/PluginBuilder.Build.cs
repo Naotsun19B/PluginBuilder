@@ -40,7 +40,13 @@ public class PluginBuilder : ModuleRules
 
 		if (Target.Version.MajorVersion >= 5)
 		{
-			PrivateDependencyModuleNames.Add("OutputLog");
+			PrivateDependencyModuleNames.AddRange(
+				new string[]
+				{
+					"TurnkeySupport",
+					"OutputLog"
+				}
+			);
 		}
 	}
 }

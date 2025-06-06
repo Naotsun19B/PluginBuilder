@@ -21,6 +21,12 @@ namespace PluginBuilder
 
 		// Collects available target platform names from ITargetPlatformManagerModule.
 		static void RefreshTargetPlatformNames();
+
+		// Returns whether an SDK that requires a platform with the specified name is installed and can be built for this platform.
+		static bool IsAvailableTargetPlatform(const FString& TargetPlatformName);
+
+		// Logs the available host platforms.
+		static void LogAvailableTargetPlatformNames();
 		
 		// Toggles selection state the specified target platform.
 		static void ToggleTargetPlatform(const FPlatform TargetPlatform);

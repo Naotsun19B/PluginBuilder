@@ -42,6 +42,9 @@ namespace PluginBuilder
 		// Searches for the RunUAT.bat file path from the version name.
 		static bool FindUATBatchFileByVersionName(const FString& VersionName, FString& UATBatchFile, const bool bWithRefresh = true);
 
+		// Logs the installed engine versions.
+		static void LogInstalledEngineVersions();
+
 		// Returns a list of major version category names from engine version information.
 		static TArray<FString> GetMajorVersionNames(const bool bWithRefresh = true);
 		

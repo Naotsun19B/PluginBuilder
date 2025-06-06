@@ -318,7 +318,7 @@ namespace PluginBuilder
 #else
 					FEditorStyle::GetStyleSetName(),
 #endif
-					*FString::Printf(TEXT("Launcher.Platform_%s"), *HostPlatform.IniPlatformName)
+					HostPlatform.IconStyleName
 				),
 				FUIAction(
 					FExecuteAction::CreateStatic(&FHostPlatforms::ToggleHostPlatform, HostPlatform),
@@ -330,7 +330,7 @@ namespace PluginBuilder
 					),
 					FIsActionChecked::CreateStatic(&FHostPlatforms::GetHostPlatformState, HostPlatform)
 				),
-				EUserInterfaceActionType::ToggleButton
+				(HostPlatform.bIsAvailable ? EUserInterfaceActionType::ToggleButton : EUserInterfaceActionType::Button)
 			);
 		}
 	}
@@ -362,14 +362,14 @@ namespace PluginBuilder
 #else
                 	FEditorStyle::GetStyleSetName(),
 #endif
-                	*FString::Printf(TEXT("Launcher.Platform_%s"), *TargetPlatform.IniPlatformName)
+                	TargetPlatform.IconStyleName
                 ),
                 FUIAction(
 				   FExecuteAction::CreateStatic(&FTargetPlatforms::ToggleTargetPlatform, TargetPlatform),
 				   FCanExecuteAction(),
 				   FIsActionChecked::CreateStatic(&FTargetPlatforms::GetTargetPlatformState, TargetPlatform)
 			   ),
-			   EUserInterfaceActionType::ToggleButton
+			   (TargetPlatform.bIsAvailable ? EUserInterfaceActionType::ToggleButton : EUserInterfaceActionType::Button)
 			);
 		}
 	}

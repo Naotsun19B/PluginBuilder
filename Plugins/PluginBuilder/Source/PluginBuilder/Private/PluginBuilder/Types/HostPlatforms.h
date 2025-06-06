@@ -21,6 +21,12 @@ namespace PluginBuilder
 
 		// Collects available host platform names from ITargetPlatformManagerModule.
 		static void RefreshHostPlatformNames();
+
+		// Returns whether an SDK that requires a platform with the specified name is installed and can be built for this platform.
+		static bool IsAvailableHostPlatform(const FString& HostPlatformName);
+
+		// Logs the available host platforms.
+		static void LogAvailableHostPlatformNames();
 		
 		// Toggles selection state the specified host platform.
 		static void ToggleHostPlatform(const FPlatform HostPlatform);
