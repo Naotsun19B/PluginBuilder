@@ -25,7 +25,10 @@ void UPluginBuilderBuildConfigurationSettings::PostInitProperties()
 	if (SelectedBuildTargetName.IsEmpty())
 	{
 		SelectedBuildTarget = PluginBuilder::FBuildTargets::GetDefaultBuildTarget();
-		SelectedBuildTargetName = SelectedBuildTarget->GetPluginName();
+		if (SelectedBuildTarget.IsSet())
+		{
+			SelectedBuildTargetName = SelectedBuildTarget->GetPluginName();
+		}
 	}
 	else
 	{
