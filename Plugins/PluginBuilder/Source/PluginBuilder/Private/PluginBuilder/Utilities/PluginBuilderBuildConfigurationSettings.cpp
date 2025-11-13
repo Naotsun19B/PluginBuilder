@@ -40,9 +40,9 @@ void UPluginBuilderBuildConfigurationSettings::PostInitProperties()
 	TargetPlatformsString.ParseIntoArray(TargetPlatforms, TEXT(","));
 }
 
-FString UPluginBuilderBuildConfigurationSettings::GetSettingsName() const
+bool UPluginBuilderBuildConfigurationSettings::ShouldRegisterToSettingsPanel() const
 {
-	return TEXT("BuildConfiguration");
+	return false;
 }
 
 void UPluginBuilderBuildConfigurationSettings::PreSaveConfig()

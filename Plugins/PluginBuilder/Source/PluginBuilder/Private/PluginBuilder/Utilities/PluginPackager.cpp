@@ -169,22 +169,21 @@ namespace PluginBuilder
 			}
 		}
 		
-		PendingNotificationHandle = FEditorNotificationUtils::ShowNotification(
+		PendingNotificationHandle = FEditorNotification::Pending(
 			FText::Format(
 				LOCTEXT("NotificationTextFormat", "Packaging {0} ({1})..."),
 				FText::FromString(Params.UATBatchFileParams.PluginFriendlyName),
 				FText::FromString(Params.UATBatchFileParams.PluginVersionName)
 			),
-			FEditorNotificationUtils::CS_Pending,
 			0.f,
-			TArray<FNotificationInteraction>{
+			TArray<FEditorNotificationInteraction>{
 				// Show Output Log Hyperlink.
-				FNotificationInteraction(
+				FEditorNotificationInteraction(
 					LOCTEXT("ShowOutputLogLinkText", "Show Output Log"),
 					FSimpleDelegate::CreateStatic(&FPluginPackager::OpenOutputLog)
 				),
 				// Cancel Button.
-				FNotificationInteraction(
+				FEditorNotificationInteraction(
 					LOCTEXT("CancelButtonLabel", "Cancel"),
 					LOCTEXT("CancelButtonTooltip", "Cancels the plugin packaging process."),
 					FSimpleDelegate::CreateRaw(this, &FPluginPackager::OnCancelButtonPressed)
@@ -211,23 +210,18 @@ namespace PluginBuilder
 		{
 			PendingNotificationHandle.Fadeout();
 		}
-
-		FText NotificationText;
-		FEditorNotificationUtils::ECompletionState CompletionState;
+		
 		if (bWasCanceled)
 		{
-			NotificationText = LOCTEXT("PackageCanceled", "Plugin packaging has been cancelled.");
-			CompletionState = FEditorNotificationUtils::CS_Success;
+			FEditorNotification::Success(LOCTEXT("PackageCanceled", "Plugin packaging has been cancelled."));
 		}
 		else if (bHasAnyError)
 		{
-			NotificationText = LOCTEXT("PackageFailed", "Failed to package the plugin.");
-			CompletionState = FEditorNotificationUtils::CS_Fail;
+			FEditorNotification::Fail(LOCTEXT("PackageFailed", "Failed to package the plugin."));
 		}
 		else
 		{
-			NotificationText = LOCTEXT("PackageSucceeded", "Plugin packaging has completed successfully.");
-			CompletionState = FEditorNotificationUtils::CS_Success;
+			FEditorNotification::Success(LOCTEXT("PackageSucceeded", "Plugin packaging has completed successfully."));
 
 			if (!Params.IsFormatExpectedByMarketplace())
 			{
@@ -236,11 +230,6 @@ namespace PluginBuilder
 				UE_LOG(LogPluginBuilder, Log, TEXT("===================================================================================================="));
 			}
 		}
-
-		FEditorNotificationUtils::ShowNotification(
-			NotificationText,
-			CompletionState
-		);
 		
 		check(IsValid(GEditor));
 		if (!bHasAnyError && !bWasCanceled)
@@ -280,7 +269,7 @@ namespace PluginBuilder
 	}
 
 	TUniquePtr<FPluginPackager> FPluginPackager::Instance;
-	FNotificationHandle FPluginPackager::PendingNotificationHandle;
+	FEditorNotificationHandle FPluginPackager::PendingNotificationHandle;
 }
 
 #undef LOCTEXT_NAMESPACE

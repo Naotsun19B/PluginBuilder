@@ -18,6 +18,9 @@ public:
 	// Registers in the editor setting item.
 	static void Register();
 
+	// Returns whether to register it to the editor's settings panel and display it on the editor.
+	virtual bool ShouldRegisterToSettingsPanel() const;
+
 	// Returns the name of the section registered in ISettingsModule.
 	virtual FName GetSectionName() const;
 
@@ -32,7 +35,7 @@ public:
 
 protected:
 	// Returns the unique name of this setting.
-	virtual FString GetSettingsName() const PURE_VIRTUAL(UPluginBuilderSettings::GetSettingsName, return {};)
+	virtual FString GetSettingsName() const;
 
 	// Called before saving to the config file.
 	virtual void PreSaveConfig() {}

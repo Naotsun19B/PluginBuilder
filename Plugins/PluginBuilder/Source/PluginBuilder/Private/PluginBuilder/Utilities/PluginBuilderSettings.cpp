@@ -4,9 +4,6 @@
 #include "PluginBuilder/PluginBuilderGlobals.h"
 #include "Modules/ModuleManager.h"
 #include "ISettingsModule.h"
-#include "ISettingsContainer.h"
-#include "ISettingsCategory.h"
-#include "ISettingsSection.h"
 #include "Misc/CoreDelegates.h"
 #include "UObject/UObjectIterator.h"
 
@@ -33,16 +30,35 @@ void UPluginBuilderSettings::Register()
 	FCoreDelegates::OnEnginePreExit.AddStatic(&UPluginBuilderSettings::HandleOnEnginePreExit);
 }
 
+bool UPluginBuilderSettings::ShouldRegisterToSettingsPanel() const
+{
+	return true;
+}
+
 FName UPluginBuilderSettings::GetSectionName() const
 {
-	return *(PluginBuilder::Global::PluginName.ToString() + GetSettingsName());
+	const FString& SettingsName = GetSettingsName();
+	if (SettingsName.IsEmpty())
+	{
+		return PluginBuilder::Global::PluginName;
+	}
+	
+	return *(PluginBuilder::Global::PluginName.ToString() + SettingsName);
 }
 
 FText UPluginBuilderSettings::GetDisplayName() const
 {
+	const FText& PluginDisplayName = FText::FromString(FName::NameToDisplayString(PluginBuilder::Global::PluginName.ToString(), false));
+	
+	const FString& SettingsName = GetSettingsName();
+	if (SettingsName.IsEmpty())
+	{
+		return PluginDisplayName;
+	}
+	
 	return FText::Format(
 		LOCTEXT("DisplayNameFormat", "{0} - {1}"),
-		FText::FromString(FName::NameToDisplayString(PluginBuilder::Global::PluginName.ToString(), false)),
+		PluginDisplayName,
 		FText::FromString(GetSettingsName())
 	);
 }
@@ -64,6 +80,11 @@ void UPluginBuilderSettings::OpenSettings(const FName& SectionName)
 			SectionName
 		);
 	}
+}
+
+FString UPluginBuilderSettings::GetSettingsName() const
+{
+	return {};
 }
 
 void UPluginBuilderSettings::HandleOnPostEngineInit()
@@ -94,16 +115,19 @@ void UPluginBuilderSettings::HandleOnPostEngineInit()
 		{
 			continue;
 		}
-		
-		SettingsModule->RegisterSettings(
-			PluginBuilder::Settings::ContainerName,
-			PluginBuilder::Settings::CategoryName,
-			Settings->GetSectionName(),
-			Settings->GetDisplayName(),
-			Settings->GetTooltipText(),
-			Settings
-		);
 
+		if (Settings->ShouldRegisterToSettingsPanel())
+		{
+			SettingsModule->RegisterSettings(
+				PluginBuilder::Settings::ContainerName,
+				PluginBuilder::Settings::CategoryName,
+				Settings->GetSectionName(),
+				Settings->GetDisplayName(),
+				Settings->GetTooltipText(),
+				Settings
+			);
+		}
+		
 		Settings->AddToRoot();
 		AllSettings.Add(Settings);
 	}
@@ -119,21 +143,44 @@ void UPluginBuilderSettings::HandleOnEnginePreExit()
 
 	for (auto* Settings : AllSettings)
 	{
+		if (Settings->ShouldRegisterToSettingsPanel())
+		{
+			SettingsModule->UnregisterSettings(
+				PluginBuilder::Settings::ContainerName,
+				PluginBuilder::Settings::CategoryName,
+				Settings->GetSectionName()
+			);
+		}
+
 		Settings->PreSaveConfig();
 		
-		const TSharedPtr<ISettingsContainer> Container = SettingsModule->GetContainer(PluginBuilder::Settings::ContainerName);
-		check(Container.IsValid());
-		const TSharedPtr<ISettingsCategory> Category = Container->GetCategory(PluginBuilder::Settings::CategoryName);
-		check(Category.IsValid());
-		const TSharedPtr<ISettingsSection> Section = Category->GetSection(Settings->GetSectionName());
-		check(Section.IsValid());
-		Section->Save();
-		
-		SettingsModule->UnregisterSettings(
-			PluginBuilder::Settings::ContainerName,
-			PluginBuilder::Settings::CategoryName,
-			Settings->GetSectionName()
-		);
+		const UClass* SettingsClass = Settings->GetClass();
+		check(IsValid(SettingsClass));
+		if (SettingsClass->HasAnyClassFlags(CLASS_DefaultConfig))
+		{
+#if UE_5_00_OR_LATER
+			Settings->TryUpdateDefaultConfigFile();
+#else
+			Settings->UpdateDefaultConfigFile();
+#endif
+		}
+		else if (SettingsClass->HasAnyClassFlags(CLASS_GlobalUserConfig))
+		{
+			Settings->UpdateGlobalUserConfigFile();
+		}
+		else if (SettingsClass->HasAnyClassFlags(CLASS_ProjectUserConfig))
+		{
+			Settings->UpdateProjectUserConfigFile();
+		}
+		else
+		{
+			const FString& ConfigFilename = GetConfigFilename(Settings);
+#if UE_5_00_OR_LATER
+			Settings->TryUpdateDefaultConfigFile(ConfigFilename);
+#else
+			Settings->UpdateDefaultConfigFile(ConfigFilename);
+#endif
+		}
 
 		Settings->RemoveFromRoot();
 	}

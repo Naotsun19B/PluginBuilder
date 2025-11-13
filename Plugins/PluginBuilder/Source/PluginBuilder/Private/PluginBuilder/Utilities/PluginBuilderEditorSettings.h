@@ -72,10 +72,6 @@ public:
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 	virtual bool CanEditChange(const FProperty* InProperty) const override;
 	// End of UObject interface.
-
-	// UPluginBuilderSettings interface.
-	virtual FString GetSettingsName() const override;
-	// End of UPluginBuilderSettings interface.
 	
 	// Resets the output directory path to its default value (Build folder directly under the project folder).
 	void ResetOutputDirectoryPath();

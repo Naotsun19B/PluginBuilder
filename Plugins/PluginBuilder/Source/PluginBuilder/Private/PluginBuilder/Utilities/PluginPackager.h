@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Tickable.h"
 #include "PluginBuilder/Types/PackagePluginParams.h"
-#include "PluginBuilder/Utilities/EditorNotificationUtils.h"
+#include "PluginBuilder/Utilities/EditorNotification.h"
 
 namespace PluginBuilder
 {
@@ -51,7 +51,7 @@ namespace PluginBuilder
 		static TUniquePtr<FPluginPackager> Instance;
 
 		// The editor notification item that package a plugin.
-		static FNotificationHandle PendingNotificationHandle;
+		static FEditorNotificationHandle PendingNotificationHandle;
 
 		// The dataset used to process plugin packages.
 		FPackagePluginParams Params;

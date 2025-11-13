@@ -55,11 +55,6 @@ bool UPluginBuilderEditorSettings::CanEditChange(const FProperty* InProperty) co
 	return true;
 }
 
-FString UPluginBuilderEditorSettings::GetSettingsName() const
-{
-	return TEXT("Editor");
-}
-
 void UPluginBuilderEditorSettings::ResetOutputDirectoryPath()
 {
 	if (OutputDirectoryPath.Path.IsEmpty() || bOutputToBuildDirectoryOfEachProject)
