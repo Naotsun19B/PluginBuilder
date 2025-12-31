@@ -1,4 +1,4 @@
-// Copyright 2022-2025 Naotsun. All Rights Reserved.
+// Copyright 2022-2026 Naotsun. All Rights Reserved.
 
 #include "PluginBuilder/IPluginBuilder.h"
 #include "PluginBuilder/PluginBuilderGlobals.h"
