@@ -104,7 +104,7 @@ namespace PluginBuilder
 			{
 				bHasAnyError = true;
 			}
-			
+
 			if (bWasCanceled)
 			{
 				Tasks.Empty();
@@ -112,6 +112,23 @@ namespace PluginBuilder
 			else
 			{
 				Tasks.RemoveAt(0);
+
+				if ((Tasks.Num() > 0) && PendingNotificationHandle.IsValid())
+				{
+					const int32 CompletedTaskCount = (TotalTaskCount - Tasks.Num());
+					const int32 ProgressPercent = FMath::RoundToInt(
+						static_cast<float>(CompletedTaskCount) / static_cast<float>(TotalTaskCount) * 100.f
+					);
+					PendingNotificationHandle.SetText(
+						FText::Format(
+							LOCTEXT("NotificationProgressTextFormat", "Packaging... {0}%\r\n{1} ({2})\r\nUnrealEngine ({3})"),
+							FText::AsNumber(ProgressPercent),
+							FText::FromString(Params.UATBatchFileParams.PluginFriendlyName),
+							FText::FromString(Params.UATBatchFileParams.PluginVersionName),
+							FText::FromString(Tasks[0]->GetEngineVersion())
+						)
+					);
+				}
 			}
 		}
 
@@ -169,11 +186,15 @@ namespace PluginBuilder
 			}
 		}
 		
+		TotalTaskCount = Tasks.Num();
+
+		const FString& FirstEngineVersion = ((Tasks.Num() > 0) ? Tasks[0]->GetEngineVersion() : FString());
 		PendingNotificationHandle = FEditorNotification::Pending(
 			FText::Format(
-				LOCTEXT("NotificationTextFormat", "Packaging {0} ({1})..."),
+				LOCTEXT("NotificationTextFormat", "Packaging... 0%\r\n{0} ({1})\r\nUnrealEngine ({2})"),
 				FText::FromString(Params.UATBatchFileParams.PluginFriendlyName),
-				FText::FromString(Params.UATBatchFileParams.PluginVersionName)
+				FText::FromString(Params.UATBatchFileParams.PluginVersionName),
+				FText::FromString(FirstEngineVersion)
 			),
 			0.f,
 			TArray<FEditorNotificationInteraction>{

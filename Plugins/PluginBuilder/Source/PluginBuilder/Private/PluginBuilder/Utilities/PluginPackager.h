@@ -59,6 +59,9 @@ namespace PluginBuilder
 		// The list of tasks scheduled to process.
 		TArray<TSharedRef<IUATBatchFileTask>> Tasks;
 		
+		// The total number of tasks scheduled when packaging begins.
+		int32 TotalTaskCount = 0;
+
 		// Whether the task was canceled.
 		bool bWasCanceled = false;
 

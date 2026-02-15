@@ -41,6 +41,11 @@ namespace PluginBuilder
 		return bHasAnyError;
 	}
 
+	const FString& IUATBatchFileTask::GetEngineVersion() const
+	{
+		return EngineVersion;
+	}
+
 	void IUATBatchFileTask::Initialize()
 	{
 		FString UATBatchFile;

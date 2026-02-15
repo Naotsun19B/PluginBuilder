@@ -39,6 +39,9 @@ namespace PluginBuilder
 
 		// Returns whether any error occurred during the packaging process.
 		virtual bool HasAnyError() const;
+
+		// Returns the engine version for this task.
+		const FString& GetEngineVersion() const;
 		
 		// Called only once when task processing starts.
 		virtual void Initialize();
