@@ -65,28 +65,35 @@ namespace PluginBuilder
 			PlatformFile.DeleteDirectoryRecursively(*DirectoryPathToDelete);
 		}
 		
-		if (ZipUpPluginParams.bOutputAllZipFilesToSingleFolder)
-		{
-			const FString ZipFileName = FString::Printf(
-				TEXT("%s_%s.zip"),
-				*GetDestinationDirectoryName(),
-				*UATBatchFileParams.PluginVersionName
-			);
-			ZipFilePath = (
-				GetPackagedPluginDestinationPath() / ZipFileName
-			);
-		}
-		else
-		{
-			const FString ZipFileName = FString::Printf(
-				TEXT("%s%s.zip"),
-				*UATBatchFileParams.GetPluginNameInSpecifiedFormat(),
-				*UATBatchFileParams.PluginVersionName
-			);
-			ZipFilePath = (
-				GetPackagedPluginDestinationPath() /  GetDestinationDirectoryName() / ZipFileName
-			);
-		}
+		const FString PluginDisplayName = (
+			ZipUpPluginParams.bOutputAllZipFilesToSingleFolder ?
+			GetDestinationDirectoryName() :
+			UATBatchFileParams.GetPluginNameInSpecifiedFormat()
+		);
+
+		const FString Separator = (ZipUpPluginParams.bOutputAllZipFilesToSingleFolder ? TEXT("_") : TEXT(""));
+
+		const FString EngineVersionSuffix = (
+			ZipUpPluginParams.bAppendEngineVersionToZipFileName ?
+			FString::Printf(TEXT("-UE%s"), *EngineVersion) : 
+			TEXT("")
+		);
+
+		const FString ZipFileName = FString::Printf(
+			TEXT("%s%s%s%s.zip"),
+			*PluginDisplayName,
+			*Separator,
+			*UATBatchFileParams.PluginVersionName,
+			*EngineVersionSuffix
+		);
+
+		const FString ZipDirectoryPath = (
+			ZipUpPluginParams.bOutputAllZipFilesToSingleFolder ? 
+			GetPackagedPluginDestinationPath() : 
+			(GetPackagedPluginDestinationPath() / GetDestinationDirectoryName())
+		);
+
+		ZipFilePath = (ZipDirectoryPath / ZipFileName);
 		
 		if (PlatformFile.FileExists(*ZipFilePath))
 		{
@@ -95,6 +102,11 @@ namespace PluginBuilder
 
 		UE_LOG(LogPluginBuilder, Log, TEXT("----------------------------------------------------------------------------------------------------"));
 		UE_LOG(LogPluginBuilder, Log, TEXT("[Zip File] %s"), *ZipFilePath);
+		
+		if (!ZipUpPluginParams.bAppendEngineVersionToZipFileName)
+		{
+			UE_LOG(LogPluginBuilder, Warning, TEXT("When submitting to Fab, if the zip files for each engine version have the same name, the person in charge may ask you to resubmit it, saying, ``Please make sure that the engine version can be determined from the file name.''"));
+		}
 		
 		IUATBatchFileTask::Initialize();
 	}

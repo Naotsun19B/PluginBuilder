@@ -47,6 +47,7 @@ namespace PluginBuilder
 		TSharedPtr<FUICommandInfo> KeepBinariesFolder;
 		TSharedPtr<FUICommandInfo> OutputAllZipFilesToSingleFolder;
 		TSharedPtr<FUICommandInfo> KeepUPluginProperties;
+		TSharedPtr<FUICommandInfo> AppendEngineVersionToZipFileName;
 		TSharedPtr<FUICommandInfo> OpenBuildSettings;
 
 	private:

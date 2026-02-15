@@ -56,6 +56,10 @@ namespace PluginBuilder
 		static void ToggleKeepUPluginProperties();
 		static bool GetKeepUPluginPropertiesState();
 		
+		// Whether to append the engine version to the zip file name.
+		static void ToggleAppendEngineVersionToZipFileName();
+		static bool GetAppendEngineVersionToZipFileNameState();
+
 		// Opens the settings for Plugin Builder.
 		static void OpenBuildSettings();
 	};

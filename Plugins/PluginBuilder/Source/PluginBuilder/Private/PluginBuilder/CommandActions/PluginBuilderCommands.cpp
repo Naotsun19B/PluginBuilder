@@ -115,6 +115,14 @@ namespace PluginBuilder
 		);
 		
 		UI_COMMAND(
+			AppendEngineVersionToZipFileName,
+			"Append Engine Version To Zip File Name",
+			"Whether to append the engine version to the zip file name.\ne.g. PluginName1.0-UE5.7.zip instead of PluginName1.0.zip.",
+			EUserInterfaceActionType::ToggleButton,
+			FInputChord()
+		);
+
+		UI_COMMAND(
 			OpenBuildSettings,
 			"Build Settings...",
 			"Opens the settings for Plugin Builder.",
@@ -225,6 +233,13 @@ namespace PluginBuilder
 			FExecuteAction::CreateStatic(&FPluginBuilderCommandActions::ToggleKeepUPluginProperties),
 			FCanExecuteAction::CreateStatic(&FPluginBuilderCommandActions::GetZipUpState),
 			FIsActionChecked::CreateStatic(&FPluginBuilderCommandActions::GetKeepUPluginPropertiesState)
+		);
+
+		CommandBindings->MapAction(
+			AppendEngineVersionToZipFileName,
+			FExecuteAction::CreateStatic(&FPluginBuilderCommandActions::ToggleAppendEngineVersionToZipFileName),
+			FCanExecuteAction::CreateStatic(&FPluginBuilderCommandActions::GetZipUpState),
+			FIsActionChecked::CreateStatic(&FPluginBuilderCommandActions::GetAppendEngineVersionToZipFileNameState)
 		);
 
 		CommandBindings->MapAction(

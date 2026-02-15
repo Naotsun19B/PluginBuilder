@@ -129,6 +129,18 @@ namespace PluginBuilder
 		return Settings.bKeepUPluginProperties;
 	}
 
+	void FPluginBuilderCommandActions::ToggleAppendEngineVersionToZipFileName()
+	{
+		auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		Settings.bAppendEngineVersionToZipFileName = !Settings.bAppendEngineVersionToZipFileName;
+	}
+
+	bool FPluginBuilderCommandActions::GetAppendEngineVersionToZipFileNameState()
+	{
+		const auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		return Settings.bAppendEngineVersionToZipFileName;
+	}
+
 	void FPluginBuilderCommandActions::OpenBuildSettings()
 	{
 		OpenSettings<UPluginBuilderEditorSettings>();

@@ -14,6 +14,7 @@ UPluginBuilderBuildConfigurationSettings::UPluginBuilderBuildConfigurationSettin
 	, bOutputAllZipFilesToSingleFolder(false)
 	, bKeepBinariesFolder(false)
 	, bKeepUPluginProperties(false)
+	, bAppendEngineVersionToZipFileName(false)
 	, CompressionLevel(5)
 {
 }

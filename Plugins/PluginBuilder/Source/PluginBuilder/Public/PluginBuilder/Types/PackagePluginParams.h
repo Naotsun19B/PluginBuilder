@@ -90,6 +90,9 @@ namespace PluginBuilder
 		// Whether to keep the properties of uplugin that are deleted when outputting from UAT even after outputting.
 		bool bKeepUPluginProperties = false;
 
+		// Whether to append the engine version to the zip file name.
+		bool bAppendEngineVersionToZipFileName = false;
+
 		// The compressibility strength. Specify from 0 to 9.
 		uint8 CompressionLevel = 0;
 

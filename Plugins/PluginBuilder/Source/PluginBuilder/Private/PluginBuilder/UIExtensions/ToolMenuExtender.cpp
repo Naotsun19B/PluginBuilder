@@ -196,6 +196,7 @@ namespace PluginBuilder
 		ZipUpOptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().OutputAllZipFilesToSingleFolder);
 		ZipUpOptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().KeepBinariesFolder);
 		ZipUpOptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().KeepUPluginProperties);
+		ZipUpOptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().AppendEngineVersionToZipFileName);
 		ZipUpOptionsSection.AddEntry(SCompressionLevel::MakeToolMenuWidget());
 	}
 

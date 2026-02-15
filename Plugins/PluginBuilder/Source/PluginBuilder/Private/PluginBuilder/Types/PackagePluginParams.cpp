@@ -65,6 +65,7 @@ namespace PluginBuilder
 			ZipUpPluginParams.bOutputAllZipFilesToSingleFolder = BuildConfigurationSettings.bOutputAllZipFilesToSingleFolder;
 			ZipUpPluginParams.bKeepBinariesFolder = BuildConfigurationSettings.bKeepBinariesFolder;
 			ZipUpPluginParams.bKeepUPluginProperties = BuildConfigurationSettings.bKeepUPluginProperties;
+			ZipUpPluginParams.bAppendEngineVersionToZipFileName = BuildConfigurationSettings.bAppendEngineVersionToZipFileName;
 			ZipUpPluginParams.CompressionLevel = BuildConfigurationSettings.CompressionLevel;
 		}
 

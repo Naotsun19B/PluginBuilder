@@ -86,6 +86,11 @@ public:
 	UPROPERTY(Config)
 	bool bKeepUPluginProperties;
 
+	// Whether to append the engine version to the zip file name.
+	// e.g. PluginName1.0-UE5.7.zip instead of PluginName1.0.zip.
+	UPROPERTY(Config)
+	bool bAppendEngineVersionToZipFileName;
+
 	// The compressibility strength. Specify from 0 to 9.
 	UPROPERTY(Config)
 	uint8 CompressionLevel;
