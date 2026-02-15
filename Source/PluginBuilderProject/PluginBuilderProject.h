@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "PluginBuilder/IPluginBuilder.h"
-#include "PluginBuilder/PluginBuilderGlobals.h"
 
 namespace PluginBuilderTest
 {
@@ -26,7 +25,7 @@ namespace PluginBuilderTest
 			[]()
 			{
 				PluginBuilder::FPackagePluginParams Params;
-				if (!PluginBuilder::FPackagePluginParams::MakeFromPluginFriendlyName(PluginBuilder::Global::PluginName, Params))
+				if (!PluginBuilder::FPackagePluginParams::MakeFromPluginFriendlyName(PluginBuilder::IPluginBuilder::ModuleName, Params))
 				{
 					return;
 				}
@@ -35,12 +34,14 @@ namespace PluginBuilderTest
 				BuildPluginParams.bRocket = true;
 				BuildPluginParams.bCreateSubFolder = false;
 				BuildPluginParams.bStrictIncludes = true;
+				BuildPluginParams.bNoHostPlatform = false;
 
 				PluginBuilder::FZipUpPluginParams ZipUpPluginParams;
 				ZipUpPluginParams.bKeepBinariesFolder = true;
 				ZipUpPluginParams.CompressionLevel = 8;
 				
-				Params.EngineVersions.Add(TEXT("5.1"));
+				Params.EngineVersions.Add(TEXT("5.5"));
+				Params.EngineVersions.Add(TEXT("5.7"));
 				Params.BuildPluginParams = BuildPluginParams;
 				Params.ZipUpPluginParams = ZipUpPluginParams;
 				

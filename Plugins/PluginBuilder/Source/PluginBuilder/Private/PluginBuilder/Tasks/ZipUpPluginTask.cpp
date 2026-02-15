@@ -126,7 +126,7 @@ namespace PluginBuilder
 	{
 		return (
 			FString(FPlatformProcess::UserTempDir()) /
-			Global::PluginName.ToString() /
+			TEXT(UE_PLUGIN_NAME) /
 			GetDestinationDirectoryName()
 		);
 	}

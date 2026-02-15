@@ -5,15 +5,6 @@
 #include "CoreMinimal.h"
 #include "Misc/EngineVersionComparison.h"
 
-namespace PluginBuilder
-{
-	namespace Global
-	{
-		// The name of this plugin.
-		static const FName PluginName = TEXT("PluginBuilder");
-	}
-}
-
 /**
  * Macros to support each engine version.
  */

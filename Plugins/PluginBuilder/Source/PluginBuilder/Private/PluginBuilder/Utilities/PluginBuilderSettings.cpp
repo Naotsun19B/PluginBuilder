@@ -40,15 +40,15 @@ FName UPluginBuilderSettings::GetSectionName() const
 	const FString& SettingsName = GetSettingsName();
 	if (SettingsName.IsEmpty())
 	{
-		return PluginBuilder::Global::PluginName;
+		return TEXT(UE_PLUGIN_NAME);
 	}
 	
-	return *(PluginBuilder::Global::PluginName.ToString() + SettingsName);
+	return *(TEXT(UE_PLUGIN_NAME) + SettingsName);
 }
 
 FText UPluginBuilderSettings::GetDisplayName() const
 {
-	const FText& PluginDisplayName = FText::FromString(FName::NameToDisplayString(PluginBuilder::Global::PluginName.ToString(), false));
+	const FText& PluginDisplayName = FText::FromString(FName::NameToDisplayString(TEXT(UE_PLUGIN_NAME), false));
 	
 	const FString& SettingsName = GetSettingsName();
 	if (SettingsName.IsEmpty())
