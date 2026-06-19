@@ -12,6 +12,7 @@ UPluginBuilderEditorSettings::UPluginBuilderEditorSettings()
 	, bUseFriendlyName(true)
 	, bShowOnlyLogsFromThisPluginWhenPackageProcessStarts(false)
 	, bStopPackagingProcessImmediately(false)
+	, CloudStorageProvider(ECloudStorageProvider::OneDrive)
 {
 }
 

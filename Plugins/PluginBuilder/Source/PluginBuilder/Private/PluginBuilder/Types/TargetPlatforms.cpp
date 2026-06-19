@@ -1,7 +1,7 @@
 // Copyright 2022-2026 Naotsun. All Rights Reserved.
 
 #include "PluginBuilder/Types/TargetPlatforms.h"
-#include "PluginBuilder/Utilities/PluginBuilderBuildConfigurationSettings.h"
+#include "PluginBuilder/Utilities/PluginBuilderPackagingSettings.h"
 #include "PluginBuilder/PluginBuilderGlobals.h"
 
 namespace PluginBuilder
@@ -63,7 +63,7 @@ namespace PluginBuilder
 
 	void FTargetPlatforms::ToggleTargetPlatform(const FPlatform TargetPlatform)
 	{
-		auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		auto& Settings = GetSettings<UPluginBuilderPackagingSettings>();
 		if (Settings.TargetPlatforms.Contains(TargetPlatform.UBTPlatformName))
 		{
 			Settings.TargetPlatforms.Remove(TargetPlatform.UBTPlatformName);
@@ -81,7 +81,7 @@ namespace PluginBuilder
 			return false;
 		}
 		
-		const auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		const auto& Settings = GetSettings<UPluginBuilderPackagingSettings>();
 		return Settings.TargetPlatforms.Contains(TargetPlatform.UBTPlatformName);
 	}
 }

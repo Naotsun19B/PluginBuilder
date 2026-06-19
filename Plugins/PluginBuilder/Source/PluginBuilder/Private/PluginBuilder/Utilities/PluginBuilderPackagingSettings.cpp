@@ -1,10 +1,20 @@
 // Copyright 2022-2026 Naotsun. All Rights Reserved.
 
-#include "PluginBuilder/Utilities/PluginBuilderBuildConfigurationSettings.h"
+#include "PluginBuilder/Utilities/PluginBuilderPackagingSettings.h"
 #include "PluginBuilder/Types/HostPlatforms.h"
 #include "PluginBuilder/Types/TargetPlatforms.h"
 
-UPluginBuilderBuildConfigurationSettings::UPluginBuilderBuildConfigurationSettings()
+const TCHAR* LexToString(EOneDriveConflictBehavior Value)
+{
+	switch (Value)
+	{
+	case EOneDriveConflictBehavior::Rename: return TEXT("rename");
+	case EOneDriveConflictBehavior::Fail:   return TEXT("fail");
+	default:                                return TEXT("replace");
+	}
+}
+
+UPluginBuilderPackagingSettings::UPluginBuilderPackagingSettings()
 	: bNoHostPlatform(false)
 	, bRocket(true)
 	, bCreateSubFolder(false)
@@ -16,10 +26,13 @@ UPluginBuilderBuildConfigurationSettings::UPluginBuilderBuildConfigurationSettin
 	, bKeepUPluginProperties(false)
 	, bAppendEngineVersionToZipFileName(false)
 	, CompressionLevel(5)
+	, bAutoUploadAfterZip(false)
+	, bGetShareUrls(true)
+	, ConflictBehavior(EOneDriveConflictBehavior::Replace)
 {
 }
 
-void UPluginBuilderBuildConfigurationSettings::PostInitProperties()
+void UPluginBuilderPackagingSettings::PostInitProperties()
 {
 	UObject::PostInitProperties();
 
@@ -41,12 +54,12 @@ void UPluginBuilderBuildConfigurationSettings::PostInitProperties()
 	TargetPlatformsString.ParseIntoArray(TargetPlatforms, TEXT(","));
 }
 
-bool UPluginBuilderBuildConfigurationSettings::ShouldRegisterToSettingsPanel() const
+bool UPluginBuilderPackagingSettings::ShouldRegisterToSettingsPanel() const
 {
 	return false;
 }
 
-void UPluginBuilderBuildConfigurationSettings::PreSaveConfig()
+void UPluginBuilderPackagingSettings::PreSaveConfig()
 {
 	Super::PreSaveConfig();
 
@@ -67,13 +80,13 @@ void UPluginBuilderBuildConfigurationSettings::PreSaveConfig()
 			return !PluginBuilder::FTargetPlatforms::IsAvailableTargetPlatform(TargetPlatformName);
 		}
 	);
-	
+
 	EngineVersionsString = FString::Join(EngineVersions, TEXT(","));
 	HostPlatformsString = FString::Join(HostPlatforms, TEXT(","));
 	TargetPlatformsString = FString::Join(TargetPlatforms, TEXT(","));
 }
 
-bool UPluginBuilderBuildConfigurationSettings::IsReadyToStartPackagePluginTask() const
+bool UPluginBuilderPackagingSettings::IsReadyToStartPackagePluginTask() const
 {
 	return (SelectedBuildTarget.IsSet() && (EngineVersions.Num() > 0));
 }

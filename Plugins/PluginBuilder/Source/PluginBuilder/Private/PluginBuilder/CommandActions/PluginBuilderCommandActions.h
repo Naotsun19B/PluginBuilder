@@ -62,5 +62,35 @@ namespace PluginBuilder
 
 		// Opens the settings for Plugin Builder.
 		static void OpenBuildSettings();
+
+		// Whether to automatically upload packaged zip files to cloud storage after the zip step.
+		static void ToggleAutoUploadZipFiles();
+		static bool GetAutoUploadZipFilesState();
+
+		// Whether to retrieve a share URL for each uploaded file.
+		static void ToggleGetShareUrls();
+		static bool GetGetShareUrlsState();
+
+		// Opens the cloud storage provider settings page.
+		static void OpenCloudStorageSettings();
+
+		// Returns whether the current cloud storage provider is authenticated.
+		static bool IsCloudStorageAuthenticated();
+
+		// Returns whether the Get Share URLs toggle can be activated
+		// (requires both authentication and Auto Upload to be enabled).
+		static bool CanToggleGetShareUrls();
+
+		// Sets conflict behavior to Replace: overwrite the existing file.
+		static void SetConflictBehaviorReplace();
+		static bool GetConflictBehaviorReplaceState();
+
+		// Sets conflict behavior to Rename: keep both files by renaming the upload.
+		static void SetConflictBehaviorRename();
+		static bool GetConflictBehaviorRenameState();
+
+		// Sets conflict behavior to Fail: abort if the file already exists.
+		static void SetConflictBehaviorFail();
+		static bool GetConflictBehaviorFailState();
 	};
 }

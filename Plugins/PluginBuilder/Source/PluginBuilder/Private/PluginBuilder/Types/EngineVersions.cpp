@@ -1,7 +1,7 @@
 // Copyright 2022-2026 Naotsun. All Rights Reserved.
 
 #include "PluginBuilder/Types/EngineVersions.h"
-#include "PluginBuilder/Utilities/PluginBuilderBuildConfigurationSettings.h"
+#include "PluginBuilder/Utilities/PluginBuilderPackagingSettings.h"
 #include "PluginBuilder/PluginBuilderGlobals.h"
 #include "Misc/Paths.h"
 
@@ -294,7 +294,7 @@ namespace PluginBuilder
 
 	void FEngineVersions::ToggleEngineVersion(const FEngineVersion EngineVersion)
 	{
-		auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		auto& Settings = GetSettings<UPluginBuilderPackagingSettings>();
 		if (Settings.EngineVersions.Contains(EngineVersion.VersionName))
 		{
 			Settings.EngineVersions.Remove(EngineVersion.VersionName);
@@ -309,13 +309,13 @@ namespace PluginBuilder
 
 	bool FEngineVersions::GetEngineVersionState(const FEngineVersion EngineVersion)
 	{
-		const auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		const auto& Settings = GetSettings<UPluginBuilderPackagingSettings>();
 		return Settings.EngineVersions.Contains(EngineVersion.VersionName);
 	}
 
 	void FEngineVersions::EnableAllEngineVersions()
 	{
-		auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		auto& Settings = GetSettings<UPluginBuilderPackagingSettings>();
 		Settings.EngineVersions.Reset(EngineVersions.Num());
 		for (const auto& EngineVersion : EngineVersions)
 		{
@@ -327,13 +327,13 @@ namespace PluginBuilder
 
 	void FEngineVersions::DisableAllEngineVersions()
 	{
-		auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		auto& Settings = GetSettings<UPluginBuilderPackagingSettings>();
 		Settings.EngineVersions.Reset(EngineVersions.Num());
 	}
 
 	void FEngineVersions::EnableByMajorVersion(const FString MajorVersionName)
 	{
-		auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		auto& Settings = GetSettings<UPluginBuilderPackagingSettings>();
 		Settings.EngineVersions.Empty();
 		for (const auto& EngineVersion : EngineVersions)
 		{
@@ -350,7 +350,7 @@ namespace PluginBuilder
 
 	void FEngineVersions::EnableLatest3EngineVersions()
 	{
-		auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		auto& Settings = GetSettings<UPluginBuilderPackagingSettings>();
 		Settings.EngineVersions.Empty();
 		const int32 NumOfEngineVersions = EngineVersions.Num();
 		for (int32 Index = NumOfEngineVersions - 3; Index < NumOfEngineVersions; Index++)

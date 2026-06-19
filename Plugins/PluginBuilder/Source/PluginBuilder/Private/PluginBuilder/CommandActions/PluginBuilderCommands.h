@@ -50,6 +50,19 @@ namespace PluginBuilder
 		TSharedPtr<FUICommandInfo> AppendEngineVersionToZipFileName;
 		TSharedPtr<FUICommandInfo> OpenBuildSettings;
 
+		// Whether to automatically upload zip files to cloud storage after packaging.
+		TSharedPtr<FUICommandInfo> AutoUploadZipFiles;
+		// Whether to retrieve a share URL for each uploaded file.
+		TSharedPtr<FUICommandInfo> GetShareUrls;
+		// Conflict behavior: overwrite the existing file.
+		TSharedPtr<FUICommandInfo> ConflictBehaviorReplace;
+		// Conflict behavior: rename the uploaded file to avoid collision.
+		TSharedPtr<FUICommandInfo> ConflictBehaviorRename;
+		// Conflict behavior: abort the upload if a collision is detected.
+		TSharedPtr<FUICommandInfo> ConflictBehaviorFail;
+		// Opens the cloud storage provider settings page.
+		TSharedPtr<FUICommandInfo> OpenCloudStorageSettings;
+
 	private:
 		// Whether the commands registered here are bound.
 		bool bIsBound;

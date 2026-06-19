@@ -2,7 +2,7 @@
 
 #include "PluginBuilder/Types/BuildTargets.h"
 #include "PluginBuilder/Utilities/PluginBuilderEditorSettings.h"
-#include "PluginBuilder/Utilities/PluginBuilderBuildConfigurationSettings.h"
+#include "PluginBuilder/Utilities/PluginBuilderPackagingSettings.h"
 #include "PluginBuilder/Utilities/PluginBuilderStyle.h"
 #include "Interfaces/IPluginManager.h"
 #include "Misc/App.h"
@@ -155,13 +155,13 @@ namespace PluginBuilder
 
 	void FBuildTargets::ToggleBuildTarget(const FBuildTarget BuildTarget)
 	{
-		auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		auto& Settings = GetSettings<UPluginBuilderPackagingSettings>();
 		Settings.SelectedBuildTarget = BuildTarget;
 	}
 
 	bool FBuildTargets::GetBuildTargetState(const FBuildTarget BuildTarget)
 	{
-		const auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		const auto& Settings = GetSettings<UPluginBuilderPackagingSettings>();
 		const TOptional<FBuildTarget>& SelectedBuildTarget = Settings.SelectedBuildTarget;
 		if (SelectedBuildTarget.IsSet())
 		{

@@ -1,9 +1,15 @@
 // Copyright 2022-2026 Naotsun. All Rights Reserved.
 
 #include "PluginBuilder/Utilities/PluginPackager.h"
+#include "PluginBuilder/Tasks/IPluginBuilderTask.h"
 #include "PluginBuilder/Tasks/IUATBatchFileTask.h"
 #include "PluginBuilder/Tasks/BuildPluginTask.h"
 #include "PluginBuilder/Tasks/ZipUpPluginTask.h"
+#include "PluginBuilder/Tasks/UploadToCloudTask.h"
+#include "PluginBuilder/Utilities/PluginBuilderPackagingSettings.h"
+#include "PluginBuilder/CloudStorages/CloudStorageManager.h"
+#include "PluginBuilder/CloudStorages/ICloudStorageProvider.h"
+#include "PluginBuilder/Utilities/PluginBuilderSettings.h"
 #include "PluginBuilder/PluginBuilderGlobals.h"
 #include "DesktopPlatformModule.h"
 #include "HAL/PlatformFileManager.h"
@@ -76,6 +82,58 @@ namespace PluginBuilder
 		return true;
 	}
 
+	bool FPluginPackager::StartUploadOnlyTask(
+		const TArray<FString>& InZipFilePaths,
+		const FString& InPackagedPluginsPath,
+		const FString& InPluginName,
+		bool bInGetShareUrls
+	)
+	{
+		if (IsPackagePluginTaskRunning())
+		{
+			UE_LOG(LogPluginBuilder, Warning, TEXT("A package plugin task is currently running. Cannot start upload."));
+			return false;
+		}
+
+		if (InZipFilePaths.IsEmpty())
+		{
+			UE_LOG(LogPluginBuilder, Warning, TEXT("Cloud Storage upload: No zip files found in the specified directory."));
+			return false;
+		}
+
+		Instance = MakeUnique<FPluginPackager>();
+		Instance->Params.UATBatchFileParams.PluginFriendlyName = InPluginName;
+		Instance->Tasks.Add(
+			MakeShared<FUploadToCloudTask>(InZipFilePaths, InPackagedPluginsPath, InPluginName, bInGetShareUrls)
+		);
+		Instance->TotalTaskCount = 1;
+
+		PendingNotificationHandle = FEditorNotification::Pending(
+			FText::Format(
+				LOCTEXT("UploadNotificationTextFormat", "Uploading to Cloud Storage...\r\n{0}\r\n{1}"),
+				FText::FromString(InPluginName),
+				FText::FromString(Instance->Tasks[0]->GetTaskLabel())
+			),
+			0.f,
+			TArray<FEditorNotificationInteraction>{
+				FEditorNotificationInteraction(
+					LOCTEXT("ShowOutputLogLinkText", "Show Output Log"),
+					FSimpleDelegate::CreateStatic(&FPluginPackager::OpenOutputLog)
+				),
+				FEditorNotificationInteraction(
+					LOCTEXT("CancelButtonLabel", "Cancel"),
+					LOCTEXT("CancelUploadButtonTooltip", "Cancels the OneDrive upload process."),
+					FSimpleDelegate::CreateRaw(Instance.Get(), &FPluginPackager::OnCancelButtonPressed)
+				)
+			}
+		);
+
+		check(IsValid(GEditor));
+		GEditor->PlayEditorSound(TEXT("/Engine/EditorSounds/Notifications/CompileStart_Cue.CompileStart_Cue"));
+
+		return true;
+	}
+
 	bool FPluginPackager::IsPackagePluginTaskRunning()
 	{
 		return Instance.IsValid();
@@ -84,21 +142,21 @@ namespace PluginBuilder
 	void FPluginPackager::Tick(float DeltaTime)
 	{
 		check(Tasks.IsValidIndex(0));
-		const TSharedRef<IUATBatchFileTask>& Task = Tasks[0];
+		const TSharedRef<IPluginBuilderTask>& Task = Tasks[0];
 
-		if (Task->GetState() == IUATBatchFileTask::EState::PreInitialize)
+		if (Task->GetState() == IPluginBuilderTask::EState::PreInitialize)
 		{
 			Task->Initialize();
 		}
-		if (Task->GetState() == IUATBatchFileTask::EState::Processing)
+		if (Task->GetState() == IPluginBuilderTask::EState::Processing)
 		{
 			Task->Tick(DeltaTime);
 		}
-		if (Task->GetState() == IUATBatchFileTask::EState::PreTerminate)
+		if (Task->GetState() == IPluginBuilderTask::EState::PreTerminate)
 		{
 			Task->Terminate();
 		}
-		if (Task->GetState() == IUATBatchFileTask::EState::Terminated)
+		if (Task->GetState() == IPluginBuilderTask::EState::Terminated)
 		{
 			if (Task->HasAnyError())
 			{
@@ -121,11 +179,11 @@ namespace PluginBuilder
 					);
 					PendingNotificationHandle.SetText(
 						FText::Format(
-							LOCTEXT("NotificationProgressTextFormat", "Packaging... {0}%\r\n{1} ({2})\r\nUnrealEngine ({3})"),
+							LOCTEXT("NotificationProgressTextFormat", "Packaging... {0}%\r\n{1} ({2})\r\n{3}"),
 							FText::AsNumber(ProgressPercent),
 							FText::FromString(Params.UATBatchFileParams.PluginFriendlyName),
 							FText::FromString(Params.UATBatchFileParams.PluginVersionName),
-							FText::FromString(Tasks[0]->GetEngineVersion())
+							FText::FromString(Tasks[0]->GetTaskLabel())
 						)
 					);
 				}
@@ -172,29 +230,49 @@ namespace PluginBuilder
 				);
 				Tasks.Add(BuildPluginTask.ToSharedRef());
 			}
-			
+
 			if (Params.ZipUpPluginParams.IsSet())
 			{
-				Tasks.Add(
-					MakeShared<FZipUpPluginTask>(
-						EngineVersion,
-						Params.UATBatchFileParams,
-						Params.ZipUpPluginParams.GetValue(),
-						BuildPluginTask
-					)
+				TSharedPtr<FZipUpPluginTask> ZipTask = MakeShared<FZipUpPluginTask>(
+					EngineVersion,
+					Params.UATBatchFileParams,
+					Params.ZipUpPluginParams.GetValue(),
+					BuildPluginTask
 				);
+				Tasks.Add(ZipTask.ToSharedRef());
+				ZipTaskRefs.Add(ZipTask);
 			}
 		}
-		
+
+		// Add cloud upload task when params request it and zip files will be produced.
+		if (Params.CloudStorageParams.IsSet() && !ZipTaskRefs.IsEmpty())
+		{
+			TSharedPtr<ICloudStorageProvider> Provider = FCloudStorageManager::GetCurrentProvider();
+			if (Provider.IsValid() && Provider->IsAuthenticated())
+			{
+				const FString PackagedPluginsPath = Params.UATBatchFileParams.OutputDirectoryPath.Get(FPaths::ProjectDir()) / TEXT("PackagedPlugins");
+				Tasks.Add(MakeShared<FUploadToCloudTask>(
+					ZipTaskRefs,
+					PackagedPluginsPath,
+					Params.UATBatchFileParams.GetPluginNameInSpecifiedFormat(),
+					Params.CloudStorageParams.GetValue().bGetShareUrls
+				));
+			}
+			else
+			{
+				UE_LOG(LogPluginBuilder, Warning, TEXT("Cloud storage upload skipped: not authenticated."));
+			}
+		}
+
 		TotalTaskCount = Tasks.Num();
 
-		const FString& FirstEngineVersion = ((Tasks.Num() > 0) ? Tasks[0]->GetEngineVersion() : FString());
+		const FString FirstTaskLabel = ((Tasks.Num() > 0) ? Tasks[0]->GetTaskLabel() : FString());
 		PendingNotificationHandle = FEditorNotification::Pending(
 			FText::Format(
-				LOCTEXT("NotificationTextFormat", "Packaging... 0%\r\n{0} ({1})\r\nUnrealEngine ({2})"),
+				LOCTEXT("NotificationTextFormat", "Packaging... 0%\r\n{0} ({1})\r\n{2}"),
 				FText::FromString(Params.UATBatchFileParams.PluginFriendlyName),
 				FText::FromString(Params.UATBatchFileParams.PluginVersionName),
-				FText::FromString(FirstEngineVersion)
+				FText::FromString(FirstTaskLabel)
 			),
 			0.f,
 			TArray<FEditorNotificationInteraction>{

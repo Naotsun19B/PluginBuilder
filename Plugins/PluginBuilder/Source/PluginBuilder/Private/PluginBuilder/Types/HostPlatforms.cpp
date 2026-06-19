@@ -1,7 +1,7 @@
 // Copyright 2022-2026 Naotsun. All Rights Reserved.
 
 #include "PluginBuilder/Types/HostPlatforms.h"
-#include "PluginBuilder/Utilities/PluginBuilderBuildConfigurationSettings.h"
+#include "PluginBuilder/Utilities/PluginBuilderPackagingSettings.h"
 #include "PluginBuilder/CommandActions/PluginBuilderCommandActions.h"
 #include "PluginBuilder/PluginBuilderGlobals.h"
 #include "Interfaces/ITargetPlatform.h"
@@ -65,7 +65,7 @@ namespace PluginBuilder
 
 	void FHostPlatforms::ToggleHostPlatform(const FPlatform HostPlatform)
 	{
-		auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		auto& Settings = GetSettings<UPluginBuilderPackagingSettings>();
 		if (Settings.HostPlatforms.Contains(HostPlatform.UBTPlatformName))
 		{
 			Settings.HostPlatforms.Remove(HostPlatform.UBTPlatformName);
@@ -83,7 +83,7 @@ namespace PluginBuilder
 			return false;
 		}
 		
-		const auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		const auto& Settings = GetSettings<UPluginBuilderPackagingSettings>();
 		return Settings.HostPlatforms.Contains(HostPlatform.UBTPlatformName);
 	}
 

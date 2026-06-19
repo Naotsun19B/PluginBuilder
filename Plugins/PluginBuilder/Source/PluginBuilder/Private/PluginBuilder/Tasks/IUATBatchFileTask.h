@@ -4,56 +4,39 @@
 
 #include "CoreMinimal.h"
 #include "HAL/PlatformProcess.h"
+#include "PluginBuilder/Tasks/IPluginBuilderTask.h"
 #include "PluginBuilder/Types/PackagePluginParams.h"
 
 namespace PluginBuilder
 {
     /**
-	 * An interface class for tasks used in the processing of this plugin.
+	 * A base class for tasks that execute UAT batch files.
 	 */
-	class PLUGINBUILDER_API IUATBatchFileTask
+	class PLUGINBUILDER_API IUATBatchFileTask : public IPluginBuilderTask
 	{
-	public:
-		// An enum class that defines state of task progress.
-		enum class EState : uint8
-		{
-			PreInitialize,
-			Processing,
-			PreTerminate,
-			Terminated,
-		};
-
 	public:
 		// Constructor.
 		IUATBatchFileTask(
-			const FString& InEngineVersion, 
+			const FString& InEngineVersion,
 			const FUATBatchFileParams& InUATBatchFileParams,
 			const TSharedPtr<IUATBatchFileTask>& DependentTask = nullptr
 		);
 
 		// Destructor.
-		virtual ~IUATBatchFileTask();
-		
-		// Returns the types of task progress states.
-		virtual EState GetState() const;
+		virtual ~IUATBatchFileTask() override;
 
-		// Returns whether any error occurred during the packaging process.
-		virtual bool HasAnyError() const;
+		// IPluginBuilderTask interface.
+		virtual EState GetState() const override;
+		virtual bool HasAnyError() const override;
+		virtual FString GetTaskLabel() const override;
+		virtual void Initialize() override;
+		virtual void Tick(float DeltaTime) override;
+		virtual void Terminate() override;
+		virtual void RequestCancel() override;
+		// End of IPluginBuilderTask interface.
 
 		// Returns the engine version for this task.
-		const FString& GetEngineVersion() const;
-		
-		// Called only once when task processing starts.
-		virtual void Initialize();
-		
-		// Called every frame while the task is being processed.
-		virtual void Tick(float DeltaTime);
-
-		// Called only once when task processing ends.
-		virtual void Terminate();
-
-		// Requests cancellation of the task.
-		virtual void RequestCancel();
+		FString GetEngineVersion() const;
 
 	protected:
 		// Returns a list of arguments to pass to the UAT batch file.

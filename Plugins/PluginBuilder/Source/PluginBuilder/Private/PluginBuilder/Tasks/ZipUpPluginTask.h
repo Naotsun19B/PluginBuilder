@@ -27,7 +27,10 @@ namespace PluginBuilder
 		virtual TArray<FString> GetUATArguments() const override;
 		virtual FString GetDestinationDirectoryPath() const override;
 		// End of IUATBatchFileTask interface.
-		
+
+		// Returns the path of the output zip file (valid after Initialize has been called).
+		const FString& GetZipFilePath() const;
+
 	private:
 		// Returns the path of the working directory where files are removed for compression.
 		FString GetZipTempDirectoryPath() const;

@@ -35,6 +35,12 @@ public class PluginBuilder : ModuleRules
 				"ToolMenus",
 				"TargetPlatform",
 				"DesktopPlatform",
+				"PropertyEditor",
+				"HTTP",
+				"Json",
+				"JsonUtilities",
+				"Sockets",
+				"Networking",
 			}
 		);
 

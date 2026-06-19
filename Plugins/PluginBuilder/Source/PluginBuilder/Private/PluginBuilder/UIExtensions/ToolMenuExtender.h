@@ -19,15 +19,20 @@ namespace PluginBuilder
 		static const FName FilePluginSectionName;
 		static const FName PackagePluginSubMenuName;
 		static const FName PackagePluginSectionName;
-		static const FName BuildConfigurationsSubMenuName;
-		static const FName BuildTargetsSubMenuName;
+		static const FName BuildConfigurationSubMenuName;
+		static const FName BuildTargetSubMenuName;
+		static const FName ZipUpConfigurationSubMenuName;
+		static const FName CloudStorageConfigurationSubMenuName;
 		static const FName VersionsAndPlatformsSectionName;
 		static const FName EngineVersionsSubMenuName;
 		static const FName HostPlatformsSubMenuName;
 		static const FName TargetPlatformsSubMenuName;
 		static const FName BuildOptionsSectionName;
 		static const FName ZipUpOptionsSectionName;
+		static const FName CloudStorageOptionsSectionName;
+		static const FName ConflictBehaviorSubMenuName;
 		static const FName EngineVersionPresetSectionName;
+		static const FName CloudStorageSectionName;
 		
 	public:
 		// Registers-Unregisters the menu extension.
@@ -40,10 +45,13 @@ namespace PluginBuilder
 		
 		// Functions called when sub menus are generated.
 		static void OnExtendPackagePluginSubMenu(UToolMenu* ToolMenu);
-		static void OnExtendBuildConfigurationsSubMenu(UToolMenu* ToolMenu);
+		static void OnExtendBuildConfigurationSubMenu(UToolMenu* ToolMenu);
+		static void OnExtendBuildTargetSubMenu(UToolMenu* ToolMenu);
+		static void OnExtendZipUpConfigurationSubMenu(UToolMenu* ToolMenu);
+		static void OnExtendCloudStorageConfigurationSubMenu(UToolMenu* ToolMenu);
+		static void OnExtendConflictBehaviorSubMenu(UToolMenu* ToolMenu);
 		static void OnExtendEngineVersionsSubMenu(UToolMenu* ToolMenu);
 		static void OnExtendHostPlatformsSubMenu(UToolMenu* ToolMenu);
 		static void OnExtendTargetPlatformsSubMenu(UToolMenu* ToolMenu);
-		static void OnExtendBuildTargetsSubMenu(UToolMenu* ToolMenu);
 	};
 }

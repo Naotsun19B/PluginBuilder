@@ -10,13 +10,14 @@
 #include "PluginBuilder/Types/EngineVersions.h"
 #include "PluginBuilder/Types/HostPlatforms.h"
 #include "PluginBuilder/Types/TargetPlatforms.h"
+#include "PluginBuilder/DetailCustomizations/OneDriveAuthenticationActionsCustomization.h"
 
 DEFINE_LOG_CATEGORY(LogPluginBuilder);
 
 namespace PluginBuilder
 {
 	const FName IPluginBuilder::ModuleName = TEXT("PluginBuilder");
-	
+
 	class FPluginBuilderModule : public IPluginBuilder
 	{
 	public:
@@ -30,7 +31,7 @@ namespace PluginBuilder
 		virtual bool IsPackagePluginTaskRunning() override;
 		// End of IPluginBuilder interface.
 	};
-	
+
 	void FPluginBuilderModule::StartupModule()
 	{
 		// Registers command actions.
@@ -39,13 +40,16 @@ namespace PluginBuilder
 
 		// Registers style set.
 		FPluginBuilderStyle::Register();
-		
+
 		// Registers settings.
 		UPluginBuilderSettings::Register();
 
 		// Registers menu extension.
 		FToolMenuExtender::Register();
-		
+
+		// Registers property type customizations.
+		FOneDriveAuthenticationActionsCustomization::Register();
+
 		// Logs installed engine versions and available platforms.
 		FEngineVersions::LogInstalledEngineVersions();
 		FHostPlatforms::LogAvailableHostPlatformNames();
@@ -54,19 +58,22 @@ namespace PluginBuilder
 
 	void FPluginBuilderModule::ShutdownModule()
 	{
+		// Unregisters property type customizations.
+		FOneDriveAuthenticationActionsCustomization::Unregister();
+
 		// Unregisters menu extension.
 		FToolMenuExtender::Unregister();
 
 		// Unregisters style set.
 		FPluginBuilderStyle::Unregister();
-		
+
 		// Unregisters command actions.
 		if (FPluginBuilderCommands::IsBound())
 		{
 			FPluginBuilderCommands::Unregister();
 		}
 	}
-	
+
 	bool FPluginBuilderModule::StartPackagePluginTask(const TOptional<FPackagePluginParams>& InParams)
 	{
 		return FPluginPackager::StartPackagePluginTask(InParams);

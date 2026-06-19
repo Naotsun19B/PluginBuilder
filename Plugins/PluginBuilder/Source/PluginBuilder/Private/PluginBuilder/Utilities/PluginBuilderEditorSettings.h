@@ -13,6 +13,15 @@
 #include "PluginBuilderEditorSettings.generated.h"
 
 /**
+ * The cloud storage provider to use for plugin uploads.
+ */
+UENUM()
+enum class ECloudStorageProvider : uint8
+{
+	OneDrive	UMETA(DisplayName = "OneDrive"),
+};
+
+/**
  * An editor preferences class for features in the editor.
  */
 UCLASS(GlobalUserConfig)
@@ -62,6 +71,10 @@ public:
 	// !!CAUTION!! You may get an error from UBT as it kills the process.
 	UPROPERTY(EditAnywhere, Config, Category = "Misc")
 	bool bStopPackagingProcessImmediately;
+
+	// The cloud storage provider to use when uploading packaged plugins.
+	UPROPERTY(EditAnywhere, Config, Category = "Cloud Storage")
+	ECloudStorageProvider CloudStorageProvider;
 
 public:
 	// Constructor.

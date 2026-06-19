@@ -5,33 +5,36 @@
 #include "CoreMinimal.h"
 #include "PluginBuilder/Utilities/PluginBuilderSettings.h"
 #include "PluginBuilder/Types/BuildTargets.h"
-#include "PluginBuilderBuildConfigurationSettings.generated.h"
+#include "PluginBuilder/Types/OneDriveConflictBehavior.h"
+#include "PluginBuilderPackagingSettings.generated.h"
 
 /**
  * An editor preferences class for features in the editor.
  */
 UCLASS(ProjectUserConfig)
-class PLUGINBUILDER_API UPluginBuilderBuildConfigurationSettings : public UPluginBuilderSettings
+class PLUGINBUILDER_API UPluginBuilderPackagingSettings : public UPluginBuilderSettings
 {
 	GENERATED_BODY()
 
 public:
 	// This class can also be written.
-	using UReference = UPluginBuilderBuildConfigurationSettings&;
+	using UReference = UPluginBuilderPackagingSettings&;
 
 public:
 	// The name of the currently selected plugin to build.
 	// This item saves a value for each project.
 	UPROPERTY(Config)
 	FString SelectedBuildTargetName;
-	TOptional<PluginBuilder::FBuildTargets::FBuildTarget> SelectedBuildTarget;
 	
+	// The resolved build target corresponding to SelectedBuildTargetName.
+	TOptional<PluginBuilder::FBuildTargets::FBuildTarget> SelectedBuildTarget;
+
 	// The list of engine versions to build the plugin.
 	UPROPERTY()
 	TArray<FString> EngineVersions;
 	UPROPERTY(Config)
 	FString EngineVersionsString;
-	
+
 	// Whether to prevent editor platform compilation on the host.
 	UPROPERTY(Config)
 	bool bNoHostPlatform;
@@ -42,7 +45,7 @@ public:
 	TArray<FString> HostPlatforms;
 	UPROPERTY(Config)
 	FString HostPlatformsString;
-	
+
 	// The list of target platforms to build the plugin.
 	// If nothing is specified, all the Rocket target platforms is used.
 	UPROPERTY()
@@ -61,11 +64,11 @@ public:
 	// Whether to judge the header inclusion of the plugin code strictly.
 	UPROPERTY(Config)
 	bool bStrictIncludes;
-	
+
 	// Whether to embed the engine version to be built into the uplugin file.
 	UPROPERTY(Config)
 	bool bUnversioned;
-	
+
 	// Whether to create a zip file that contains only the files we need after the build.
 	UPROPERTY(Config)
 	bool bZipUp;
@@ -74,7 +77,7 @@ public:
 	// If false will use a per engine folder for each zip file.
 	UPROPERTY(Config)
 	bool bOutputAllZipFilesToSingleFolder;
-	
+
 	// Whether the zip folder should keep the binaries folder.
 	// Marketplace submissions expect the binaries folder to be deleted.
 	UPROPERTY(Config)
@@ -94,11 +97,23 @@ public:
 	// The compressibility strength. Specify from 0 to 9.
 	UPROPERTY(Config)
 	uint8 CompressionLevel;
-	
+
+	// Whether to upload zip files to cloud storage after the zip step completes.
+	UPROPERTY(Config)
+	bool bAutoUploadAfterZip;
+
+	// Whether to retrieve a share URL for each uploaded file.
+	UPROPERTY(Config)
+	bool bGetShareUrls;
+
+	// How to handle a filename conflict when uploading to OneDrive.
+	UPROPERTY(Config)
+	EOneDriveConflictBehavior ConflictBehavior;
+
 public:
 	// Constructor.
-	UPluginBuilderBuildConfigurationSettings();
-	
+	UPluginBuilderPackagingSettings();
+
 	// UObject interface.
 	virtual void PostInitProperties() override;
 	// End of UObject interface.
@@ -107,7 +122,7 @@ public:
 	virtual bool ShouldRegisterToSettingsPanel() const override;
 	virtual void PreSaveConfig() override;
 	// End of UPluginBuilderSettings interface.
-	
+
 	// Returns whether the parameters is ready to start package plugin task.
 	bool IsReadyToStartPackagePluginTask() const;
 };

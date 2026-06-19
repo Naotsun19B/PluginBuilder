@@ -1,7 +1,7 @@
 // Copyright 2022-2026 Naotsun. All Rights Reserved.
 
 #include "PluginBuilder/Widgets/SCompressionLevel.h"
-#include "PluginBuilder/Utilities/PluginBuilderBuildConfigurationSettings.h"
+#include "PluginBuilder/Utilities/PluginBuilderPackagingSettings.h"
 #include "PluginBuilder/PluginBuilderGlobals.h"
 
 namespace PluginBuilder
@@ -18,21 +18,21 @@ namespace PluginBuilder
 			.IsEnabled_Lambda(
 				[]() -> bool
 				{
-					const auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+					const auto& Settings = GetSettings<UPluginBuilderPackagingSettings>();
 					return Settings.bZipUp;
 				}
 			)
 			.Value_Lambda(
 				[]() -> uint8
 				{
-					const auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+					const auto& Settings = GetSettings<UPluginBuilderPackagingSettings>();
 					return Settings.CompressionLevel;
 				}
 			)
 			.OnValueChanged_Lambda(
 				[](const uint8 Value)
 				{
-					auto& Settings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+					auto& Settings = GetSettings<UPluginBuilderPackagingSettings>();
 					Settings.CompressionLevel = Value;
 				}
 			)
@@ -41,7 +41,7 @@ namespace PluginBuilder
 
 	FToolMenuEntry SCompressionLevel::MakeToolMenuWidget()
 	{
-		const FName VariableName = GET_MEMBER_NAME_CHECKED(UPluginBuilderBuildConfigurationSettings, CompressionLevel);
+		const FName VariableName = GET_MEMBER_NAME_CHECKED(UPluginBuilderPackagingSettings, CompressionLevel);
 
 #if UE_5_02_OR_LATER
 		FText VariableTooltip;

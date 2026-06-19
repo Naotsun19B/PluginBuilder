@@ -134,6 +134,11 @@ namespace PluginBuilder
 		return GetPackagedPluginDestinationPath();
 	}
 
+	const FString& FZipUpPluginTask::GetZipFilePath() const
+	{
+		return ZipFilePath;
+	}
+
 	FString FZipUpPluginTask::GetZipTempDirectoryPath() const
 	{
 		return (

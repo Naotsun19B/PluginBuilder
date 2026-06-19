@@ -102,6 +102,16 @@ namespace PluginBuilder
 	};
 	
 	/**
+	 * A dataset used to process cloud storage upload.
+	 */
+	struct PLUGINBUILDER_API FCloudStorageParams
+	{
+	public:
+		// Whether to retrieve a share URL for each uploaded file.
+		bool bGetShareUrls = true;
+	};
+
+	/**
 	 * A dataset used to process plugin packages.
 	 */
 	struct PLUGINBUILDER_API FPackagePluginParams
@@ -118,6 +128,10 @@ namespace PluginBuilder
 
 		// The dataset used to process plugin zip up.
 		TOptional<FZipUpPluginParams> ZipUpPluginParams;
+
+		// The dataset used to process cloud storage upload.
+		// If not set, the upload step is skipped.
+		TOptional<FCloudStorageParams> CloudStorageParams;
 
 #if UE_5_00_OR_LATER
 		// Whether to change the output log filter to show only log categories for this plugin when starting the package process.

@@ -19,19 +19,24 @@
 
 namespace PluginBuilder
 {
-	const FName FToolMenuExtender::FilePluginSectionName			= TEXT("PluginBuilder.FilePlugin");
-	const FName FToolMenuExtender::PackagePluginSubMenuName			= TEXT("PluginBuilder.PackagePlugin");
-	const FName FToolMenuExtender::PackagePluginSectionName			= TEXT("PackagePlugin");
-	const FName FToolMenuExtender::BuildConfigurationsSubMenuName	= TEXT("PluginBuilder.PackagePlugin.BuildConfigurations");
-	const FName FToolMenuExtender::BuildTargetsSubMenuName			= TEXT("PluginBuilder.PackagePlugin.BuildTargets");
-	const FName FToolMenuExtender::VersionsAndPlatformsSectionName	= TEXT("VersionsAndPlatforms");
-	const FName FToolMenuExtender::EngineVersionsSubMenuName		= TEXT("PluginBuilder.PackagePlugin.BuildConfigurations.EngineVersions");
-	const FName FToolMenuExtender::HostPlatformsSubMenuName			= TEXT("PluginBuilder.PackagePlugin.BuildConfigurations.HostPlatforms");
-	const FName FToolMenuExtender::TargetPlatformsSubMenuName		= TEXT("PluginBuilder.PackagePlugin.BuildConfigurations.TargetPlatforms");
-	const FName FToolMenuExtender::BuildOptionsSectionName			= TEXT("BuildOptions");
-	const FName FToolMenuExtender::ZipUpOptionsSectionName			= TEXT("ZipUpOptions");
-	const FName FToolMenuExtender::EngineVersionPresetSectionName	= TEXT("EngineVersionPreset");
-	
+	const FName FToolMenuExtender::FilePluginSectionName					= TEXT("PluginBuilder.FilePlugin");
+	const FName FToolMenuExtender::PackagePluginSubMenuName				= TEXT("PluginBuilder.PackagePlugin");
+	const FName FToolMenuExtender::PackagePluginSectionName				= TEXT("PackagePlugin");
+	const FName FToolMenuExtender::BuildConfigurationSubMenuName		= TEXT("PluginBuilder.PackagePlugin.BuildConfiguration");
+	const FName FToolMenuExtender::BuildTargetSubMenuName				= TEXT("PluginBuilder.PackagePlugin.BuildTarget");
+	const FName FToolMenuExtender::ZipUpConfigurationSubMenuName		= TEXT("PluginBuilder.PackagePlugin.ZipUpConfiguration");
+	const FName FToolMenuExtender::CloudStorageConfigurationSubMenuName	= TEXT("PluginBuilder.PackagePlugin.CloudStorageConfiguration");
+	const FName FToolMenuExtender::VersionsAndPlatformsSectionName		= TEXT("VersionsAndPlatforms");
+	const FName FToolMenuExtender::EngineVersionsSubMenuName			= TEXT("PluginBuilder.PackagePlugin.BuildConfiguration.EngineVersions");
+	const FName FToolMenuExtender::HostPlatformsSubMenuName				= TEXT("PluginBuilder.PackagePlugin.BuildConfiguration.HostPlatforms");
+	const FName FToolMenuExtender::TargetPlatformsSubMenuName			= TEXT("PluginBuilder.PackagePlugin.BuildConfiguration.TargetPlatforms");
+	const FName FToolMenuExtender::BuildOptionsSectionName				= TEXT("BuildOptions");
+	const FName FToolMenuExtender::ZipUpOptionsSectionName				= TEXT("ZipUpOptions");
+	const FName FToolMenuExtender::CloudStorageOptionsSectionName		= TEXT("CloudStorageOptions");
+	const FName FToolMenuExtender::ConflictBehaviorSubMenuName			= TEXT("PluginBuilder.PackagePlugin.CloudStorageConfiguration.ConflictBehavior");
+	const FName FToolMenuExtender::EngineVersionPresetSectionName		= TEXT("EngineVersionPreset");
+	const FName FToolMenuExtender::CloudStorageSectionName				= TEXT("CloudStorage");
+
 	void FToolMenuExtender::Register()
 	{
 		UToolMenu* MenuExtensionPoint = GetMenuExtensionPoint();
@@ -39,7 +44,7 @@ namespace PluginBuilder
 		{
 			return;
 		}
-		
+
 		FToolMenuSection& FilePluginSection = MenuExtensionPoint->AddSection(
 			FilePluginSectionName,
 			LOCTEXT("SectionLabel", "Plugin"),
@@ -103,37 +108,63 @@ namespace PluginBuilder
 		}
 
 		FToolMenuSection& Section = ToolMenu->AddSection(PackagePluginSectionName);
-		
+
 		Section.AddMenuEntry(FPluginBuilderCommands::Get().BuildPlugin);
-		
+
 		Section.AddSeparator(TEXT("BeginChildSubMenus"));
-		
+
 		Section.AddSubMenu(
-			BuildConfigurationsSubMenuName,
-			LOCTEXT("BuildConfigurationLabel", "Build Configurations"),
-			LOCTEXT("BuildConfigurationTooltip", "Select the version and platform of the engine to build, whether to zip file, etc."),
-			FNewToolMenuChoice(FNewToolMenuDelegate::CreateStatic(&FToolMenuExtender::OnExtendBuildConfigurationsSubMenu)),
+			BuildConfigurationSubMenuName,
+			LOCTEXT("BuildConfigurationLabel", "Build Configuration"),
+			LOCTEXT("BuildConfigurationTooltip", "Select the version and platform of the engine to build."),
+			FNewToolMenuChoice(FNewToolMenuDelegate::CreateStatic(&FToolMenuExtender::OnExtendBuildConfigurationSubMenu)),
 			false,
 			{},
 			false
 		);
 
 		Section.AddSubMenu(
-			BuildTargetsSubMenuName,
-			LOCTEXT("BuildTargetLabel", "Build Targets"),
+			BuildTargetSubMenuName,
+			LOCTEXT("BuildTargetLabel", "Build Target"),
 			LOCTEXT("BuildTargetTooltip", "Select the plugin to build."),
-			FNewToolMenuChoice(FNewToolMenuDelegate::CreateStatic(&FToolMenuExtender::OnExtendBuildTargetsSubMenu)),
+			FNewToolMenuChoice(FNewToolMenuDelegate::CreateStatic(&FToolMenuExtender::OnExtendBuildTargetSubMenu)),
 			false,
 			{},
 			false
 		);
-		
+
+		Section.AddSubMenu(
+			ZipUpConfigurationSubMenuName,
+			LOCTEXT("ZipUpConfigurationLabel", "Zip Up Configuration"),
+			LOCTEXT("ZipUpConfigurationTooltip", "Configure options for creating a zip file from the built plugin."),
+			FNewToolMenuChoice(FNewToolMenuDelegate::CreateStatic(&FToolMenuExtender::OnExtendZipUpConfigurationSubMenu)),
+			false,
+			{},
+			false
+		);
+
+		Section.AddSubMenu(
+			CloudStorageConfigurationSubMenuName,
+			LOCTEXT("CloudStorageConfigurationLabel", "Cloud Storage Configuration"),
+			LOCTEXT("CloudStorageConfigurationTooltip", "Configure options for uploading packaged plugins to cloud storage."),
+			FNewToolMenuChoice(FNewToolMenuDelegate::CreateStatic(&FToolMenuExtender::OnExtendCloudStorageConfigurationSubMenu)),
+			false,
+			{},
+			false
+		);
+
 		Section.AddSeparator(TEXT("EndChildSubMenus"));
-		
+
 		Section.AddMenuEntry(FPluginBuilderCommands::Get().OpenBuildSettings);
+
+		FToolMenuSection& CloudStorageSection = ToolMenu->AddSection(
+			CloudStorageSectionName,
+			LOCTEXT("CloudStorageSectionLabel", "Cloud Storage")
+		);
+		CloudStorageSection.AddMenuEntry(FPluginBuilderCommands::Get().OpenCloudStorageSettings);
 	}
 
-	void FToolMenuExtender::OnExtendBuildConfigurationsSubMenu(UToolMenu* ToolMenu)
+	void FToolMenuExtender::OnExtendBuildConfigurationSubMenu(UToolMenu* ToolMenu)
 	{
 		if (!IsValid(ToolMenu))
 		{
@@ -144,7 +175,7 @@ namespace PluginBuilder
 			VersionsAndPlatformsSectionName,
 			LOCTEXT("VersionsAndPlatformsLabel", "Versions And Platforms")
 		);
-		
+
 		VersionsAndPlatformsSection.AddSubMenu(
 			EngineVersionsSubMenuName,
 			LOCTEXT("EngineVersionsLabel", "Engine Versions"),
@@ -181,17 +212,58 @@ namespace PluginBuilder
 			BuildOptionsSectionName,
 			LOCTEXT("BuildOptionsLabel", "Build Options")
 		);
-		
+
 		BuildOptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().Rocket);
 		BuildOptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().CreateSubFolder);
 		BuildOptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().StrictIncludes);
 		BuildOptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().Unversioned);
+	}
+
+	void FToolMenuExtender::OnExtendBuildTargetSubMenu(UToolMenu* ToolMenu)
+	{
+		if (!IsValid(ToolMenu))
+		{
+			return;
+		}
+
+		const TArray<FBuildTargets::FBuildTarget>& BuildTargets = FBuildTargets::GetFilteredBuildTargets();
+		for (const auto& BuildTarget : BuildTargets)
+		{
+			const FString PluginCategory = BuildTarget.GetPluginCategory();
+			FToolMenuSection& Section = ToolMenu->FindOrAddSection(*PluginCategory);
+			Section.Label = FText::FromString(PluginCategory);
+
+			Section.AddMenuEntry(
+				*BuildTarget.GetPluginName(),
+				FText::Format(
+					LOCTEXT("BuildTargetLabelFormat", "{0} ({1})"),
+					FText::FromString(BuildTarget.GetPluginNameInSpecifiedFormat()),
+					FText::FromString(BuildTarget.GetPluginVersionName())
+				),
+				FText::FromString(BuildTarget.GetPluginDescription()),
+				BuildTarget.GetPluginIcon(),
+				FUIAction(
+					FExecuteAction::CreateStatic(&FBuildTargets::ToggleBuildTarget, BuildTarget),
+					FCanExecuteAction(),
+					FIsActionChecked::CreateStatic(&FBuildTargets::GetBuildTargetState, BuildTarget)
+				),
+				EUserInterfaceActionType::ToggleButton
+			);
+		}
+	}
+
+	void FToolMenuExtender::OnExtendZipUpConfigurationSubMenu(UToolMenu* ToolMenu)
+	{
+		if (!IsValid(ToolMenu))
+		{
+			return;
+		}
 
 		FToolMenuSection& ZipUpOptionsSection = ToolMenu->AddSection(
 			ZipUpOptionsSectionName,
 			LOCTEXT("ZipUpOptionsLabel", "Zip Up Options")
 		);
-		
+
 		ZipUpOptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().ZipUp);
 		ZipUpOptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().OutputAllZipFilesToSingleFolder);
 		ZipUpOptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().KeepBinariesFolder);
@@ -200,20 +272,59 @@ namespace PluginBuilder
 		ZipUpOptionsSection.AddEntry(SCompressionLevel::MakeToolMenuWidget());
 	}
 
+	void FToolMenuExtender::OnExtendCloudStorageConfigurationSubMenu(UToolMenu* ToolMenu)
+	{
+		if (!IsValid(ToolMenu))
+		{
+			return;
+		}
+
+		FToolMenuSection& CloudStorageOptionsSection = ToolMenu->AddSection(
+			CloudStorageOptionsSectionName,
+			LOCTEXT("CloudStorageOptionsLabel", "Cloud Storage Options")
+		);
+
+		CloudStorageOptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().AutoUploadZipFiles);
+		CloudStorageOptionsSection.AddMenuEntry(FPluginBuilderCommands::Get().GetShareUrls);
+
+		CloudStorageOptionsSection.AddSubMenu(
+			ConflictBehaviorSubMenuName,
+			LOCTEXT("ConflictBehaviorLabel", "Conflict Behavior"),
+			LOCTEXT("ConflictBehaviorTooltip", "Determines what happens when a file with the same name already exists on cloud storage."),
+			FNewToolMenuChoice(FNewToolMenuDelegate::CreateStatic(&FToolMenuExtender::OnExtendConflictBehaviorSubMenu)),
+			false,
+			{},
+			false
+		);
+	}
+
+	void FToolMenuExtender::OnExtendConflictBehaviorSubMenu(UToolMenu* ToolMenu)
+	{
+		if (!IsValid(ToolMenu))
+		{
+			return;
+		}
+
+		FToolMenuSection& Section = ToolMenu->AddSection(NAME_None);
+		Section.AddMenuEntry(FPluginBuilderCommands::Get().ConflictBehaviorReplace);
+		Section.AddMenuEntry(FPluginBuilderCommands::Get().ConflictBehaviorRename);
+		Section.AddMenuEntry(FPluginBuilderCommands::Get().ConflictBehaviorFail);
+	}
+
 	void FToolMenuExtender::OnExtendEngineVersionsSubMenu(UToolMenu* ToolMenu)
 	{
 		if (!IsValid(ToolMenu))
 		{
 			return;
 		}
-		
+
 		const TArray<FEngineVersions::FEngineVersion>& EngineVersions = FEngineVersions::GetEngineVersions();
 		for (const auto& EngineVersion : EngineVersions)
 		{
 			const FString& MajorVersionName = EngineVersion.MajorVersionName;
 			FToolMenuSection& Section = ToolMenu->FindOrAddSection(*MajorVersionName);
 			Section.Label = FText::FromString(MajorVersionName);
-			
+
 			Section.AddMenuEntry(
 				*EngineVersion.VersionName,
             	FText::FromString(EngineVersion.VersionName),
@@ -298,14 +409,14 @@ namespace PluginBuilder
 		{
 			return;
 		}
-		
+
 		const TArray<FHostPlatforms::FPlatform>& HostPlatforms = FHostPlatforms::GetHostPlatformNames();
 		for (const auto& HostPlatform : HostPlatforms)
 		{
 			const FName& PlatformGroupName = HostPlatform.PlatformGroupName;
 			FToolMenuSection& Section = ToolMenu->FindOrAddSection(PlatformGroupName);
 			Section.Label = FText::FromName(PlatformGroupName);
-			
+
 			Section.AddMenuEntry(
 				*HostPlatform.UBTPlatformName,
 				FText::FromString(HostPlatform.UBTPlatformName),
@@ -342,14 +453,14 @@ namespace PluginBuilder
 		{
 			return;
 		}
-		
+
 		const TArray<FTargetPlatforms::FPlatform>& TargetPlatforms = FTargetPlatforms::GetTargetPlatformNames();
 		for (const auto& TargetPlatform : TargetPlatforms)
 		{
 			const FName& PlatformGroupName = TargetPlatform.PlatformGroupName;
 			FToolMenuSection& Section = ToolMenu->FindOrAddSection(PlatformGroupName);
 			Section.Label = FText::FromName(PlatformGroupName);
-			
+
 			Section.AddMenuEntry(
 				*TargetPlatform.UBTPlatformName,
 				FText::FromString(TargetPlatform.UBTPlatformName),
@@ -371,39 +482,6 @@ namespace PluginBuilder
 				   FIsActionChecked::CreateStatic(&FTargetPlatforms::GetTargetPlatformState, TargetPlatform)
 			   ),
 			   (TargetPlatform.bIsAvailable ? EUserInterfaceActionType::ToggleButton : EUserInterfaceActionType::Button)
-			);
-		}
-	}
-
-	void FToolMenuExtender::OnExtendBuildTargetsSubMenu(UToolMenu* ToolMenu)
-	{
-		if (!IsValid(ToolMenu))
-		{
-			return;
-		}
-		
-		const TArray<FBuildTargets::FBuildTarget>& BuildTargets = FBuildTargets::GetFilteredBuildTargets();
-		for (auto& BuildTarget : BuildTargets)
-		{
-			const FString PluginCategory = BuildTarget.GetPluginCategory();
-			FToolMenuSection& Section = ToolMenu->FindOrAddSection(*PluginCategory);
-			Section.Label = FText::FromString(PluginCategory);
-			
-			Section.AddMenuEntry(
-				*BuildTarget.GetPluginName(),
-				FText::Format(
-					LOCTEXT("BuildTargetLabelFormat", "{0} ({1})"),
-					FText::FromString(BuildTarget.GetPluginNameInSpecifiedFormat()),
-					FText::FromString(BuildTarget.GetPluginVersionName())
-				),
-				FText::FromString(BuildTarget.GetPluginDescription()),
-				BuildTarget.GetPluginIcon(),
-				FUIAction(
-					FExecuteAction::CreateStatic(&FBuildTargets::ToggleBuildTarget, BuildTarget),
-					FCanExecuteAction(),
-					FIsActionChecked::CreateStatic(&FBuildTargets::GetBuildTargetState, BuildTarget)
-				),
-				EUserInterfaceActionType::ToggleButton
 			);
 		}
 	}

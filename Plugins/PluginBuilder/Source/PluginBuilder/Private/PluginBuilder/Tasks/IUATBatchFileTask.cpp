@@ -41,7 +41,12 @@ namespace PluginBuilder
 		return bHasAnyError;
 	}
 
-	const FString& IUATBatchFileTask::GetEngineVersion() const
+	FString IUATBatchFileTask::GetTaskLabel() const
+	{
+		return FString::Printf(TEXT("UnrealEngine (%s)"), *EngineVersion);
+	}
+
+	FString IUATBatchFileTask::GetEngineVersion() const
 	{
 		return EngineVersion;
 	}

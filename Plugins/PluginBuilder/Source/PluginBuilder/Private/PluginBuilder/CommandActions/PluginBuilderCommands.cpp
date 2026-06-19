@@ -129,6 +129,54 @@ namespace PluginBuilder
 			EUserInterfaceActionType::Button,
 			FInputChord()
 		);
+
+		UI_COMMAND(
+			AutoUploadZipFiles,
+			"Auto Upload Zip Files",
+			"Whether to automatically upload packaged zip files to cloud storage after the zip step completes.",
+			EUserInterfaceActionType::ToggleButton,
+			FInputChord()
+		);
+
+		UI_COMMAND(
+			GetShareUrls,
+			"Get Share URLs",
+			"Whether to retrieve a shareable URL for each uploaded file.",
+			EUserInterfaceActionType::ToggleButton,
+			FInputChord()
+		);
+
+		UI_COMMAND(
+			ConflictBehaviorReplace,
+			"Replace",
+			"When a file with the same name exists, overwrite it.",
+			EUserInterfaceActionType::RadioButton,
+			FInputChord()
+		);
+
+		UI_COMMAND(
+			ConflictBehaviorRename,
+			"Rename",
+			"When a file with the same name exists, append a numeric suffix to the uploaded file.",
+			EUserInterfaceActionType::RadioButton,
+			FInputChord()
+		);
+
+		UI_COMMAND(
+			ConflictBehaviorFail,
+			"Fail",
+			"When a file with the same name exists, abort the upload with an error.",
+			EUserInterfaceActionType::RadioButton,
+			FInputChord()
+		);
+
+		UI_COMMAND(
+			OpenCloudStorageSettings,
+			"Cloud Storage Settings...",
+			"Opens the cloud storage provider settings.",
+			EUserInterfaceActionType::Button,
+			FInputChord()
+		);
 	}
 
 	bool FPluginBuilderCommands::IsBound()
@@ -245,6 +293,46 @@ namespace PluginBuilder
 		CommandBindings->MapAction(
 			OpenBuildSettings,
 			FExecuteAction::CreateStatic(&FPluginBuilderCommandActions::OpenBuildSettings)
+		);
+
+		CommandBindings->MapAction(
+			AutoUploadZipFiles,
+			FExecuteAction::CreateStatic(&FPluginBuilderCommandActions::ToggleAutoUploadZipFiles),
+			FCanExecuteAction::CreateStatic(&FPluginBuilderCommandActions::IsCloudStorageAuthenticated),
+			FIsActionChecked::CreateStatic(&FPluginBuilderCommandActions::GetAutoUploadZipFilesState)
+		);
+
+		CommandBindings->MapAction(
+			GetShareUrls,
+			FExecuteAction::CreateStatic(&FPluginBuilderCommandActions::ToggleGetShareUrls),
+			FCanExecuteAction::CreateStatic(&FPluginBuilderCommandActions::CanToggleGetShareUrls),
+			FIsActionChecked::CreateStatic(&FPluginBuilderCommandActions::GetGetShareUrlsState)
+		);
+
+		CommandBindings->MapAction(
+			ConflictBehaviorReplace,
+			FExecuteAction::CreateStatic(&FPluginBuilderCommandActions::SetConflictBehaviorReplace),
+			FCanExecuteAction::CreateStatic(&FPluginBuilderCommandActions::IsCloudStorageAuthenticated),
+			FIsActionChecked::CreateStatic(&FPluginBuilderCommandActions::GetConflictBehaviorReplaceState)
+		);
+
+		CommandBindings->MapAction(
+			ConflictBehaviorRename,
+			FExecuteAction::CreateStatic(&FPluginBuilderCommandActions::SetConflictBehaviorRename),
+			FCanExecuteAction::CreateStatic(&FPluginBuilderCommandActions::IsCloudStorageAuthenticated),
+			FIsActionChecked::CreateStatic(&FPluginBuilderCommandActions::GetConflictBehaviorRenameState)
+		);
+
+		CommandBindings->MapAction(
+			ConflictBehaviorFail,
+			FExecuteAction::CreateStatic(&FPluginBuilderCommandActions::SetConflictBehaviorFail),
+			FCanExecuteAction::CreateStatic(&FPluginBuilderCommandActions::IsCloudStorageAuthenticated),
+			FIsActionChecked::CreateStatic(&FPluginBuilderCommandActions::GetConflictBehaviorFailState)
+		);
+
+		CommandBindings->MapAction(
+			OpenCloudStorageSettings,
+			FExecuteAction::CreateStatic(&FPluginBuilderCommandActions::OpenCloudStorageSettings)
 		);
 	}
 }

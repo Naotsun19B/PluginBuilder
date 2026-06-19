@@ -9,7 +9,8 @@
 
 namespace PluginBuilder
 {
-	class IUATBatchFileTask;
+	class IPluginBuilderTask;
+	class FZipUpPluginTask;
 	
 	/**
 	 * A class that handles the packaging of plugins.
@@ -21,6 +22,18 @@ namespace PluginBuilder
 		// If you don't specify parameters, it will be created from the values set in the editor preferences.
 		// Returns whether the package plugin task has started.
 		static bool StartPackagePluginTask(const TOptional<FPackagePluginParams>& InParams = {});
+
+		// Creates and starts a standalone upload task for existing zip files.
+		// InZipFilePaths: absolute paths to the zip files to upload.
+		// InPackagedPluginsPath: the PackagedPlugins root used to compute relative remote paths.
+		// InPluginName: name used as the top-level folder on cloud storage.
+		// bInGetShareUrls: whether to retrieve a share URL for each uploaded file.
+		static bool StartUploadOnlyTask(
+			const TArray<FString>& InZipFilePaths,
+			const FString& InPackagedPluginsPath,
+			const FString& InPluginName,
+			bool bInGetShareUrls = true
+		);
 
 		// Returns whether package processing is being done.
 		static bool IsPackagePluginTaskRunning();
@@ -57,7 +70,10 @@ namespace PluginBuilder
 		FPackagePluginParams Params;
 
 		// The list of tasks scheduled to process.
-		TArray<TSharedRef<IUATBatchFileTask>> Tasks;
+		TArray<TSharedRef<IPluginBuilderTask>> Tasks;
+
+		// Zip tasks kept alive so FUploadToCloudTask can read their output paths.
+		TArray<TSharedPtr<FZipUpPluginTask>> ZipTaskRefs;
 		
 		// The total number of tasks scheduled when packaging begins.
 		int32 TotalTaskCount = 0;

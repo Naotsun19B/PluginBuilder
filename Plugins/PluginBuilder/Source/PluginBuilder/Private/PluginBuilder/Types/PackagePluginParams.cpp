@@ -4,7 +4,8 @@
 #include "PluginBuilder/Types/BuildTargets.h"
 #include "PluginBuilder/Types/EngineVersions.h"
 #include "PluginBuilder/Utilities/PluginBuilderEditorSettings.h"
-#include "PluginBuilder/Utilities/PluginBuilderBuildConfigurationSettings.h"
+#include "PluginBuilder/Utilities/PluginBuilderPackagingSettings.h"
+#include "PluginBuilder/Utilities/OneDriveSettings.h"
 
 namespace PluginBuilder
 {
@@ -26,7 +27,7 @@ namespace PluginBuilder
 	bool FPackagePluginParams::MakeDefault(FPackagePluginParams& Default)
 	{
 		const auto& EditorSettings = GetSettings<UPluginBuilderEditorSettings>();
-		const auto& BuildConfigurationSettings = GetSettings<UPluginBuilderBuildConfigurationSettings>();
+		const auto& BuildConfigurationSettings = GetSettings<UPluginBuilderPackagingSettings>();
 		if (!BuildConfigurationSettings.IsReadyToStartPackagePluginTask())
 		{
 			return false;
@@ -75,6 +76,12 @@ namespace PluginBuilder
 		if (BuildConfigurationSettings.bZipUp)
 		{
 			Default.ZipUpPluginParams = ZipUpPluginParams;
+		}
+		if (BuildConfigurationSettings.bAutoUploadAfterZip)
+		{
+			FCloudStorageParams CloudStorageParams;
+			CloudStorageParams.bGetShareUrls = BuildConfigurationSettings.bGetShareUrls;
+			Default.CloudStorageParams = CloudStorageParams;
 		}
 #if UE_5_00_OR_LATER
 		Default.bShowOnlyLogsFromThisPluginWhenPackageProcessStarts = EditorSettings.bShowOnlyLogsFromThisPluginWhenPackageProcessStarts;
