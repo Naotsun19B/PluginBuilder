@@ -36,8 +36,8 @@ namespace PluginBuilder
 		// Register command here.
 		UI_COMMAND(
 			BuildPlugin,
-			"Build Plugin",
-			"Builds and packages the plugin based on the set build configuration.",
+			"Run All Steps",
+			"Runs all configured steps (build, zip, upload) based on the current build configuration.",
 			EUserInterfaceActionType::Button,
 			FInputChord()
 		);

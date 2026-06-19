@@ -31,8 +31,8 @@ namespace PluginBuilder
 		static const FName ZipUpOptionsSectionName;
 		static const FName CloudStorageOptionsSectionName;
 		static const FName ConflictBehaviorSubMenuName;
+		static const FName IndividualStepsSubMenuName;
 		static const FName EngineVersionPresetSectionName;
-		static const FName IndividualStepsSectionName;
 		
 	public:
 		// Registers-Unregisters the menu extension.
@@ -50,6 +50,7 @@ namespace PluginBuilder
 		static void OnExtendZipUpConfigurationSubMenu(UToolMenu* ToolMenu);
 		static void OnExtendCloudStorageConfigurationSubMenu(UToolMenu* ToolMenu);
 		static void OnExtendConflictBehaviorSubMenu(UToolMenu* ToolMenu);
+		static void OnExtendIndividualStepsSubMenu(UToolMenu* ToolMenu);
 		static void OnExtendEngineVersionsSubMenu(UToolMenu* ToolMenu);
 		static void OnExtendHostPlatformsSubMenu(UToolMenu* ToolMenu);
 		static void OnExtendTargetPlatformsSubMenu(UToolMenu* ToolMenu);

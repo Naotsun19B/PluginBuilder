@@ -34,8 +34,8 @@ namespace PluginBuilder
 	const FName FToolMenuExtender::ZipUpOptionsSectionName				= TEXT("ZipUpOptions");
 	const FName FToolMenuExtender::CloudStorageOptionsSectionName		= TEXT("CloudStorageOptions");
 	const FName FToolMenuExtender::ConflictBehaviorSubMenuName			= TEXT("PluginBuilder.PackagePlugin.CloudStorageConfiguration.ConflictBehavior");
+	const FName FToolMenuExtender::IndividualStepsSubMenuName			= TEXT("PluginBuilder.PackagePlugin.IndividualSteps");
 	const FName FToolMenuExtender::EngineVersionPresetSectionName		= TEXT("EngineVersionPreset");
-	const FName FToolMenuExtender::IndividualStepsSectionName			= TEXT("IndividualSteps");
 
 	void FToolMenuExtender::Register()
 	{
@@ -111,6 +111,16 @@ namespace PluginBuilder
 
 		Section.AddMenuEntry(FPluginBuilderCommands::Get().BuildPlugin);
 
+		Section.AddSubMenu(
+			IndividualStepsSubMenuName,
+			LOCTEXT("IndividualStepsLabel", "Individual Steps"),
+			LOCTEXT("IndividualStepsTooltip", "Run a single step of the plugin packaging pipeline independently."),
+			FNewToolMenuChoice(FNewToolMenuDelegate::CreateStatic(&FToolMenuExtender::OnExtendIndividualStepsSubMenu)),
+			false,
+			{},
+			false
+		);
+
 		Section.AddSeparator(TEXT("BeginChildSubMenus"));
 
 		Section.AddSubMenu(
@@ -157,14 +167,6 @@ namespace PluginBuilder
 
 		Section.AddMenuEntry(FPluginBuilderCommands::Get().OpenBuildSettings);
 		Section.AddMenuEntry(FPluginBuilderCommands::Get().OpenCloudStorageSettings);
-
-		FToolMenuSection& IndividualStepsSection = ToolMenu->AddSection(
-			IndividualStepsSectionName,
-			LOCTEXT("IndividualStepsSectionLabel", "Individual Steps")
-		);
-		IndividualStepsSection.AddMenuEntry(FPluginBuilderCommands::Get().BuildPluginOnly);
-		IndividualStepsSection.AddMenuEntry(FPluginBuilderCommands::Get().ZipPluginOnly);
-		IndividualStepsSection.AddMenuEntry(FPluginBuilderCommands::Get().UploadToCloud);
 	}
 
 	void FToolMenuExtender::OnExtendBuildConfigurationSubMenu(UToolMenu* ToolMenu)
@@ -313,6 +315,19 @@ namespace PluginBuilder
 		Section.AddMenuEntry(FPluginBuilderCommands::Get().ConflictBehaviorRename);
 		Section.AddMenuEntry(FPluginBuilderCommands::Get().ConflictBehaviorFail);
 		Section.AddMenuEntry(FPluginBuilderCommands::Get().ConflictBehaviorIgnore);
+	}
+
+	void FToolMenuExtender::OnExtendIndividualStepsSubMenu(UToolMenu* ToolMenu)
+	{
+		if (!IsValid(ToolMenu))
+		{
+			return;
+		}
+
+		FToolMenuSection& Section = ToolMenu->AddSection(NAME_None);
+		Section.AddMenuEntry(FPluginBuilderCommands::Get().BuildPluginOnly);
+		Section.AddMenuEntry(FPluginBuilderCommands::Get().ZipPluginOnly);
+		Section.AddMenuEntry(FPluginBuilderCommands::Get().UploadToCloud);
 	}
 
 	void FToolMenuExtender::OnExtendEngineVersionsSubMenu(UToolMenu* ToolMenu)
