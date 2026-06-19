@@ -19,8 +19,6 @@ namespace PluginBuilder
 		, State(EState::PreInitialize)
 		, bHasAnyError(false)
 		, ReadPipe(nullptr)
-		, TotalActions(0)
-		, CompletedActions(0)
 	{
 		if (DependentTask.IsValid())
 		{
@@ -94,23 +92,7 @@ namespace PluginBuilder
 				for (const FString& Line : Lines)
 				{
 					UE_LOG(LogPluginBuilder, Log, TEXT("%s"), *Line);
-
-					// Parse "[n/N]" compile action progress from UBT output.
-					if (Line.StartsWith(TEXT("[")))
-					{
-						int32 SlashPos = INDEX_NONE;
-						int32 BracketEndPos = INDEX_NONE;
-						if (Line.FindChar(TEXT('/'), SlashPos) && Line.FindChar(TEXT(']'), BracketEndPos) && (SlashPos < BracketEndPos))
-						{
-							const int32 ParsedCompleted = FCString::Atoi(*Line.Mid(1, SlashPos - 1).TrimStartAndEnd());
-							const int32 ParsedTotal = FCString::Atoi(*Line.Mid(SlashPos + 1, BracketEndPos - SlashPos - 1).TrimStartAndEnd());
-							if ((ParsedCompleted > 0) && (ParsedTotal > 0))
-							{
-								CompletedActions = ParsedCompleted;
-								TotalActions = ParsedTotal;
-							}
-						}
-					}
+					OnOutputLine(Line);
 				}
 			}
 		}
@@ -204,20 +186,12 @@ namespace PluginBuilder
 
 	float IUATBatchFileTask::GetProgress() const
 	{
-		if (TotalActions <= 0)
-		{
-			return -1.f;
-		}
-		return FMath::Clamp(static_cast<float>(CompletedActions) / static_cast<float>(TotalActions), 0.f, 1.f);
+		return -1.f;
 	}
 
 	FString IUATBatchFileTask::GetProgressText() const
 	{
-		if (TotalActions <= 0)
-		{
-			return FString();
-		}
-		return FString::Printf(TEXT("[%d/%d]"), CompletedActions, TotalActions);
+		return FString();
 	}
 
 	void IUATBatchFileTask::HandleOnDestroy(const bool bHasDependentTaskError)

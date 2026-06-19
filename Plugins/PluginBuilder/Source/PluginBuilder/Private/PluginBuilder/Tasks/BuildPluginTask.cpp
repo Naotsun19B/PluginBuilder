@@ -106,4 +106,46 @@ namespace PluginBuilder
 	{
 		return GetBuiltPluginDestinationPath();
 	}
+
+	float FBuildPluginTask::GetProgress() const
+	{
+		if (TotalActions <= 0)
+		{
+			return -1.f;
+		}
+		
+		return FMath::Clamp(static_cast<float>(CompletedActions) / static_cast<float>(TotalActions), 0.f, 1.f);
+	}
+
+	FString FBuildPluginTask::GetProgressText() const
+	{
+		if (TotalActions <= 0)
+		{
+			return FString();
+		}
+		
+		return FString::Printf(TEXT("[%d/%d]"), CompletedActions, TotalActions);
+	}
+
+	void FBuildPluginTask::OnOutputLine(const FString& Line)
+	{
+		const FString TrimmedLine = Line.TrimStart();
+		if (!TrimmedLine.StartsWith(TEXT("[")))
+		{
+			return;
+		}
+		
+		int32 SlashPos = INDEX_NONE;
+		int32 BracketEndPos = INDEX_NONE;
+		if (TrimmedLine.FindChar(TEXT('/'), SlashPos) && TrimmedLine.FindChar(TEXT(']'), BracketEndPos) && (SlashPos < BracketEndPos))
+		{
+			const int32 ParsedCompleted = FCString::Atoi(*TrimmedLine.Mid(1, SlashPos - 1).TrimStartAndEnd());
+			const int32 ParsedTotal = FCString::Atoi(*TrimmedLine.Mid(SlashPos + 1, BracketEndPos - SlashPos - 1).TrimStartAndEnd());
+			if ((ParsedCompleted > 0) && (ParsedTotal > 0))
+			{
+				CompletedActions = ParsedCompleted;
+				TotalActions = ParsedTotal;
+			}
+		}
+	}
 }

@@ -43,14 +43,17 @@ namespace PluginBuilder
 	protected:
 		// Returns a list of arguments to pass to the UAT batch file.
 		virtual TArray<FString> GetUATArguments() const = 0;
-		
+
 		// Returns the path of the directory where task results are output.
 		virtual FString GetDestinationDirectoryPath() const = 0;
-		
+
 		// Functions that returns the path of a directory or working directory that outputs pre-built or packaged plugins.
 		FString GetDestinationDirectoryName() const;
 		FString GetBuiltPluginDestinationPath() const;
 		FString GetPackagedPluginDestinationPath() const;
+
+		// Called for each line read from the UAT process stdout. Override to parse task-specific progress.
+		virtual void OnOutputLine(const FString& Line) {}
 
 	private:
 		// Called when a dependent task is destroyed.
@@ -81,11 +84,5 @@ namespace PluginBuilder
 
 		// Whether the dependent task completed successfully.
 		TOptional<bool> HasDependentTaskSucceeded;
-
-		// Total number of compile actions reported by UBT. 0 means unknown.
-		int32 TotalActions;
-
-		// Number of compile actions completed so far.
-		int32 CompletedActions;
 	};
 }
