@@ -452,14 +452,8 @@ namespace PluginBuilder
 
 	FText FPluginPackager::BuildNotificationText(const TSharedRef<IPluginBuilderTask>& CurrentTask) const
 	{
-		const int32 CompletedTaskCount = (TotalTaskCount - Tasks.Num());
 		const float TaskProgress = CurrentTask->GetProgress();
-		const float OverallProgress = (
-			(TaskProgress >= 0.f) ?
-			((static_cast<float>(CompletedTaskCount) + TaskProgress) / static_cast<float>(TotalTaskCount)) :
-			(static_cast<float>(CompletedTaskCount) / static_cast<float>(TotalTaskCount))
-		);
-		const int32 ProgressPercent = FMath::RoundToInt(OverallProgress * 100.f);
+		const int32 TaskProgressPercent = ((TaskProgress >= 0.f) ? FMath::RoundToInt(TaskProgress * 100.f) : 0);
 
 		FText Message;
 		if (bIsUploadOnlyMode || CurrentTask->IsCloudUploadTask())
@@ -511,7 +505,7 @@ namespace PluginBuilder
 		return FText::Format(
 			LOCTEXT("BuildProgressTextFormat", "{0} {1}%\r\n{2} ({3})\r\n{4}\r\n{5}"),
 			Message,
-			FText::AsNumber(ProgressPercent),
+			FText::AsNumber(TaskProgressPercent),
 			FText::FromString(Params.UATBatchFileParams.PluginFriendlyName),
 			FText::FromString(Params.UATBatchFileParams.PluginVersionName),
 			FText::FromString(CurrentTask->GetTaskLabel()),
