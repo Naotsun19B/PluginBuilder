@@ -314,7 +314,7 @@ namespace PluginBuilder
 		TArray<FString> ZipFilePaths;
 		IFileManager::Get().FindFilesRecursive(ZipFilePaths, *PackagedPluginsPath, TEXT("*.zip"), true, false);
 
-		if (ZipFilePaths.IsEmpty())
+		if (ZipFilePaths.Num() == 0)
 		{
 			UE_LOG(LogPluginBuilder, Warning, TEXT("Cloud Storage upload: No zip files found in %s"), *PackagedPluginsPath);
 			return;

@@ -143,7 +143,7 @@ namespace PluginBuilder
 			return false;
 		}
 
-		if (InZipFilePaths.IsEmpty())
+		if (InZipFilePaths.Num() == 0)
 		{
 			UE_LOG(LogPluginBuilder, Warning, TEXT("Cloud Storage upload: No zip files found in the specified directory."));
 			return false;
@@ -299,7 +299,7 @@ namespace PluginBuilder
 		}
 
 		// Add cloud upload task when params request it and zip files will be produced.
-		if (Params.CloudStorageParams.IsSet() && !ZipTaskRefs.IsEmpty())
+		if (Params.CloudStorageParams.IsSet() && (ZipTaskRefs.Num() > 0))
 		{
 			TSharedPtr<ICloudStorageProvider> Provider = FCloudStorageManager::GetCurrentProvider();
 			if (Provider.IsValid() && Provider->IsAuthenticated())

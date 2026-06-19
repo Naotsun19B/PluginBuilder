@@ -78,7 +78,7 @@ namespace PluginBuilder
 		}
 
 		// Resolve zip file paths from zip tasks if not already set.
-		if (ZipFilePaths.IsEmpty())
+		if (ZipFilePaths.Num() == 0)
 		{
 			for (const TSharedPtr<FZipUpPluginTask>& ZipTask : ZipTasks)
 			{
@@ -94,7 +94,7 @@ namespace PluginBuilder
 			}
 		}
 
-		if (ZipFilePaths.IsEmpty())
+		if (ZipFilePaths.Num() == 0)
 		{
 			UE_LOG(LogPluginBuilder, Warning, TEXT("Cloud Storage upload: No zip files to upload."));
 			State = EState::Terminated;
@@ -133,7 +133,7 @@ namespace PluginBuilder
 
 	float FUploadToCloudTask::GetProgress() const
 	{
-		if (ZipFilePaths.IsEmpty())
+		if (ZipFilePaths.Num() == 0)
 		{
 			return -1.f;
 		}
@@ -143,7 +143,7 @@ namespace PluginBuilder
 
 	FString FUploadToCloudTask::GetProgressText() const
 	{
-		if (ZipFilePaths.IsEmpty())
+		if (ZipFilePaths.Num() == 0)
 		{
 			return FString();
 		}
