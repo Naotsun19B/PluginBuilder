@@ -92,5 +92,21 @@ namespace PluginBuilder
 		// Sets conflict behavior to Fail: abort if the file already exists.
 		static void SetConflictBehaviorFail();
 		static bool GetConflictBehaviorFailState();
+
+		// Sets conflict behavior to Ignore: skip upload if file exists and retrieve a share URL for it.
+		static void SetConflictBehaviorIgnore();
+		static bool GetConflictBehaviorIgnoreState();
+
+		// Runs only the build step (no zip, no upload).
+		static void BuildPluginOnly();
+		static bool CanBuildPluginOnly();
+
+		// Runs only the zip step against existing build output.
+		static void ZipPluginOnly();
+		static bool CanZipPluginOnly();
+
+		// Uploads existing zip files from the PackagedPlugins folder to cloud storage.
+		static void UploadToCloud();
+		static bool CanUploadToCloud();
 	};
 }

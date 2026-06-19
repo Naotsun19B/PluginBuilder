@@ -4,6 +4,9 @@
 #include "PluginBuilder/Tasks/ZipUpPluginTask.h"
 #include "PluginBuilder/CloudStorages/CloudStorageManager.h"
 #include "PluginBuilder/CloudStorages/ICloudStorageProvider.h"
+#include "PluginBuilder/Types/OneDriveConflictBehavior.h"
+#include "PluginBuilder/Utilities/PluginBuilderPackagingSettings.h"
+#include "PluginBuilder/Utilities/PluginBuilderSettings.h"
 #include "PluginBuilder/PluginBuilderGlobals.h"
 #include "Misc/Paths.h"
 #include "Misc/DateTime.h"
@@ -169,6 +172,58 @@ namespace PluginBuilder
 
 		bHttpRequestPending = true;
 
+		const EOneDriveConflictBehavior ConflictBehavior = GetSettings<UPluginBuilderPackagingSettings>().ConflictBehavior;
+		if (ConflictBehavior == EOneDriveConflictBehavior::Ignore)
+		{
+			Provider->FindItem(
+				RemotePath,
+				[this, LocalPath, RemotePath](bool bFound, const FString& ExistingItemId)
+				{
+					if (bFound && !ExistingItemId.IsEmpty())
+					{
+						UE_LOG(LogPluginBuilder, Log, TEXT("Cloud Storage upload: File already exists, skipping upload."));
+						SuccessfulUploads.Add(LocalPath);
+
+						if (!bGetShareUrls)
+						{
+							CurrentFileIndex++;
+							bHttpRequestPending = false;
+							return;
+						}
+
+						Provider->GetShareUrl(
+							ExistingItemId,
+							[this, LocalPath](bool bUrlSuccess, const FString& ShareUrl)
+							{
+								if (!bUrlSuccess || ShareUrl.IsEmpty())
+								{
+									UE_LOG(LogPluginBuilder, Error, TEXT("Cloud Storage upload: Failed to get share URL for %s."), *FPaths::GetCleanFilename(LocalPath));
+									bHasAnyError = true;
+								}
+								else
+								{
+									ShareUrlResults.Add(LocalPath, ShareUrl);
+								}
+								CurrentFileIndex++;
+								bHttpRequestPending = false;
+							}
+						);
+					}
+					else
+					{
+						// File not found; proceed with normal upload.
+						UploadFileNow(LocalPath, RemotePath);
+					}
+				}
+			);
+			return;
+		}
+
+		UploadFileNow(LocalPath, RemotePath);
+	}
+
+	void FUploadToCloudTask::UploadFileNow(const FString& LocalPath, const FString& RemotePath)
+	{
 		Provider->UploadFile(
 			LocalPath,
 			RemotePath,

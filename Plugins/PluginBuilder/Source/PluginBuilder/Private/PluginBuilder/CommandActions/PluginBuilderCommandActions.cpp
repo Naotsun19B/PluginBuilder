@@ -7,6 +7,13 @@
 #include "PluginBuilder/Utilities/OneDriveSettings.h"
 #include "PluginBuilder/CloudStorages/CloudStorageManager.h"
 #include "PluginBuilder/CloudStorages/ICloudStorageProvider.h"
+#include "PluginBuilder/PluginBuilderGlobals.h"
+#include "DesktopPlatformModule.h"
+#include "IDesktopPlatform.h"
+#include "Framework/Application/SlateApplication.h"
+#include "HAL/PlatformFileManager.h"
+#include "HAL/FileManager.h"
+#include "Misc/Paths.h"
 
 namespace PluginBuilder
 {
@@ -223,5 +230,119 @@ namespace PluginBuilder
 	bool FPluginBuilderCommandActions::GetConflictBehaviorFailState()
 	{
 		return (GetSettings<UPluginBuilderPackagingSettings>().ConflictBehavior == EOneDriveConflictBehavior::Fail);
+	}
+
+	void FPluginBuilderCommandActions::SetConflictBehaviorIgnore()
+	{
+		auto& Settings = GetSettings<UPluginBuilderPackagingSettings>();
+		Settings.ConflictBehavior = EOneDriveConflictBehavior::Ignore;
+		Settings.SaveConfig();
+	}
+
+	bool FPluginBuilderCommandActions::GetConflictBehaviorIgnoreState()
+	{
+		return (GetSettings<UPluginBuilderPackagingSettings>().ConflictBehavior == EOneDriveConflictBehavior::Ignore);
+	}
+
+	void FPluginBuilderCommandActions::BuildPluginOnly()
+	{
+		FPluginPackager::StartBuildOnlyTask();
+	}
+
+	bool FPluginBuilderCommandActions::CanBuildPluginOnly()
+	{
+		const auto& Settings = GetSettings<UPluginBuilderPackagingSettings>();
+		return (
+			!FPluginPackager::IsPackagePluginTaskRunning() &&
+			Settings.IsReadyToStartPackagePluginTask()
+		);
+	}
+
+	void FPluginBuilderCommandActions::ZipPluginOnly()
+	{
+		FPluginPackager::StartZipOnlyTask();
+	}
+
+	bool FPluginBuilderCommandActions::CanZipPluginOnly()
+	{
+		const auto& PackagingSettings = GetSettings<UPluginBuilderPackagingSettings>();
+		if (FPluginPackager::IsPackagePluginTaskRunning() || !PackagingSettings.IsReadyToStartPackagePluginTask())
+		{
+			return false;
+		}
+		const auto& EditorSettings = GetSettings<UPluginBuilderEditorSettings>();
+		if (!EditorSettings.bSelectOutputDirectoryManually && !EditorSettings.OutputDirectoryPath.Path.IsEmpty())
+		{
+			const FString BuiltPluginsPath = (EditorSettings.OutputDirectoryPath.Path / TEXT("BuiltPlugins"));
+			return FPlatformFileManager::Get().GetPlatformFile().DirectoryExists(*BuiltPluginsPath);
+		}
+		return true;
+	}
+
+	void FPluginBuilderCommandActions::UploadToCloud()
+	{
+		const auto& PackagingSettings = GetSettings<UPluginBuilderPackagingSettings>();
+		const auto& EditorSettings = GetSettings<UPluginBuilderEditorSettings>();
+
+		FString PackagedPluginsPath;
+		if (!EditorSettings.bSelectOutputDirectoryManually && !EditorSettings.OutputDirectoryPath.Path.IsEmpty())
+		{
+			PackagedPluginsPath = (EditorSettings.OutputDirectoryPath.Path / TEXT("PackagedPlugins"));
+		}
+
+		if (!FPlatformFileManager::Get().GetPlatformFile().DirectoryExists(*PackagedPluginsPath))
+		{
+			IDesktopPlatform* DesktopPlatform = FDesktopPlatformModule::Get();
+			if (DesktopPlatform == nullptr)
+			{
+				return;
+			}
+
+			FString SelectedPath;
+			if (!DesktopPlatform->OpenDirectoryDialog(
+				FSlateApplication::Get().FindBestParentWindowHandleForDialogs(nullptr),
+				TEXT("Select PackagedPlugins Directory"),
+				FPaths::ProjectDir(),
+				SelectedPath
+			))
+			{
+				return;
+			}
+			PackagedPluginsPath = SelectedPath;
+		}
+
+		TArray<FString> ZipFilePaths;
+		IFileManager::Get().FindFilesRecursive(ZipFilePaths, *PackagedPluginsPath, TEXT("*.zip"), true, false);
+
+		if (ZipFilePaths.IsEmpty())
+		{
+			UE_LOG(LogPluginBuilder, Warning, TEXT("Cloud Storage upload: No zip files found in %s"), *PackagedPluginsPath);
+			return;
+		}
+
+		FString PluginName;
+		if (PackagingSettings.SelectedBuildTarget.IsSet())
+		{
+			PluginName = (EditorSettings.bUseFriendlyName ?
+				PackagingSettings.SelectedBuildTarget->GetPluginFriendlyName() :
+				PackagingSettings.SelectedBuildTarget->GetPluginName());
+		}
+
+		FPluginPackager::StartUploadOnlyTask(ZipFilePaths, PackagedPluginsPath, PluginName, PackagingSettings.bGetShareUrls);
+	}
+
+	bool FPluginBuilderCommandActions::CanUploadToCloud()
+	{
+		if (FPluginPackager::IsPackagePluginTaskRunning() || !IsCloudStorageAuthenticated())
+		{
+			return false;
+		}
+		const auto& EditorSettings = GetSettings<UPluginBuilderEditorSettings>();
+		if (!EditorSettings.bSelectOutputDirectoryManually && !EditorSettings.OutputDirectoryPath.Path.IsEmpty())
+		{
+			const FString PackagedPluginsPath = (EditorSettings.OutputDirectoryPath.Path / TEXT("PackagedPlugins"));
+			return FPlatformFileManager::Get().GetPlatformFile().DirectoryExists(*PackagedPluginsPath);
+		}
+		return true;
 	}
 }

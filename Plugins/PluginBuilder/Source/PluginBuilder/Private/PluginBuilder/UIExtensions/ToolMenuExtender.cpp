@@ -35,7 +35,7 @@ namespace PluginBuilder
 	const FName FToolMenuExtender::CloudStorageOptionsSectionName		= TEXT("CloudStorageOptions");
 	const FName FToolMenuExtender::ConflictBehaviorSubMenuName			= TEXT("PluginBuilder.PackagePlugin.CloudStorageConfiguration.ConflictBehavior");
 	const FName FToolMenuExtender::EngineVersionPresetSectionName		= TEXT("EngineVersionPreset");
-	const FName FToolMenuExtender::CloudStorageSectionName				= TEXT("CloudStorage");
+	const FName FToolMenuExtender::IndividualStepsSectionName			= TEXT("IndividualSteps");
 
 	void FToolMenuExtender::Register()
 	{
@@ -156,12 +156,15 @@ namespace PluginBuilder
 		Section.AddSeparator(TEXT("EndChildSubMenus"));
 
 		Section.AddMenuEntry(FPluginBuilderCommands::Get().OpenBuildSettings);
+		Section.AddMenuEntry(FPluginBuilderCommands::Get().OpenCloudStorageSettings);
 
-		FToolMenuSection& CloudStorageSection = ToolMenu->AddSection(
-			CloudStorageSectionName,
-			LOCTEXT("CloudStorageSectionLabel", "Cloud Storage")
+		FToolMenuSection& IndividualStepsSection = ToolMenu->AddSection(
+			IndividualStepsSectionName,
+			LOCTEXT("IndividualStepsSectionLabel", "Individual Steps")
 		);
-		CloudStorageSection.AddMenuEntry(FPluginBuilderCommands::Get().OpenCloudStorageSettings);
+		IndividualStepsSection.AddMenuEntry(FPluginBuilderCommands::Get().BuildPluginOnly);
+		IndividualStepsSection.AddMenuEntry(FPluginBuilderCommands::Get().ZipPluginOnly);
+		IndividualStepsSection.AddMenuEntry(FPluginBuilderCommands::Get().UploadToCloud);
 	}
 
 	void FToolMenuExtender::OnExtendBuildConfigurationSubMenu(UToolMenu* ToolMenu)
@@ -309,6 +312,7 @@ namespace PluginBuilder
 		Section.AddMenuEntry(FPluginBuilderCommands::Get().ConflictBehaviorReplace);
 		Section.AddMenuEntry(FPluginBuilderCommands::Get().ConflictBehaviorRename);
 		Section.AddMenuEntry(FPluginBuilderCommands::Get().ConflictBehaviorFail);
+		Section.AddMenuEntry(FPluginBuilderCommands::Get().ConflictBehaviorIgnore);
 	}
 
 	void FToolMenuExtender::OnExtendEngineVersionsSubMenu(UToolMenu* ToolMenu)

@@ -171,9 +171,41 @@ namespace PluginBuilder
 		);
 
 		UI_COMMAND(
+			ConflictBehaviorIgnore,
+			"Ignore",
+			"When a file with the same name exists, skip the upload and retrieve a share URL for the existing file.",
+			EUserInterfaceActionType::RadioButton,
+			FInputChord()
+		);
+
+		UI_COMMAND(
 			OpenCloudStorageSettings,
 			"Cloud Storage Settings...",
 			"Opens the cloud storage provider settings.",
+			EUserInterfaceActionType::Button,
+			FInputChord()
+		);
+
+		UI_COMMAND(
+			BuildPluginOnly,
+			"Build Plugin Only",
+			"Runs only the build step without creating a zip file or uploading to cloud storage.",
+			EUserInterfaceActionType::Button,
+			FInputChord()
+		);
+
+		UI_COMMAND(
+			ZipPluginOnly,
+			"Zip Plugin Only",
+			"Creates a zip file from the existing build output without rebuilding or uploading.",
+			EUserInterfaceActionType::Button,
+			FInputChord()
+		);
+
+		UI_COMMAND(
+			UploadToCloud,
+			"Upload to Cloud",
+			"Uploads existing zip files from the PackagedPlugins folder to cloud storage.",
 			EUserInterfaceActionType::Button,
 			FInputChord()
 		);
@@ -331,8 +363,33 @@ namespace PluginBuilder
 		);
 
 		CommandBindings->MapAction(
+			ConflictBehaviorIgnore,
+			FExecuteAction::CreateStatic(&FPluginBuilderCommandActions::SetConflictBehaviorIgnore),
+			FCanExecuteAction::CreateStatic(&FPluginBuilderCommandActions::IsCloudStorageAuthenticated),
+			FIsActionChecked::CreateStatic(&FPluginBuilderCommandActions::GetConflictBehaviorIgnoreState)
+		);
+
+		CommandBindings->MapAction(
 			OpenCloudStorageSettings,
 			FExecuteAction::CreateStatic(&FPluginBuilderCommandActions::OpenCloudStorageSettings)
+		);
+
+		CommandBindings->MapAction(
+			BuildPluginOnly,
+			FExecuteAction::CreateStatic(&FPluginBuilderCommandActions::BuildPluginOnly),
+			FCanExecuteAction::CreateStatic(&FPluginBuilderCommandActions::CanBuildPluginOnly)
+		);
+
+		CommandBindings->MapAction(
+			ZipPluginOnly,
+			FExecuteAction::CreateStatic(&FPluginBuilderCommandActions::ZipPluginOnly),
+			FCanExecuteAction::CreateStatic(&FPluginBuilderCommandActions::CanZipPluginOnly)
+		);
+
+		CommandBindings->MapAction(
+			UploadToCloud,
+			FExecuteAction::CreateStatic(&FPluginBuilderCommandActions::UploadToCloud),
+			FCanExecuteAction::CreateStatic(&FPluginBuilderCommandActions::CanUploadToCloud)
 		);
 	}
 }

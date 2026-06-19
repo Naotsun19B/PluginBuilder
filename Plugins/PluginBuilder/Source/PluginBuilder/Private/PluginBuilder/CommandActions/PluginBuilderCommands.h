@@ -60,8 +60,17 @@ namespace PluginBuilder
 		TSharedPtr<FUICommandInfo> ConflictBehaviorRename;
 		// Conflict behavior: abort the upload if a collision is detected.
 		TSharedPtr<FUICommandInfo> ConflictBehaviorFail;
+		// Conflict behavior: skip the upload if the file exists; retrieve a share URL for the existing file.
+		TSharedPtr<FUICommandInfo> ConflictBehaviorIgnore;
 		// Opens the cloud storage provider settings page.
 		TSharedPtr<FUICommandInfo> OpenCloudStorageSettings;
+
+		// Runs only the build step (no zip, no upload).
+		TSharedPtr<FUICommandInfo> BuildPluginOnly;
+		// Runs only the zip step against existing build output (no build, no upload).
+		TSharedPtr<FUICommandInfo> ZipPluginOnly;
+		// Uploads existing zip files from the PackagedPlugins folder to cloud storage.
+		TSharedPtr<FUICommandInfo> UploadToCloud;
 
 	private:
 		// Whether the commands registered here are bound.

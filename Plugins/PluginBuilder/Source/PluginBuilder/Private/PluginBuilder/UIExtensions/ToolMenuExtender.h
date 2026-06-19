@@ -32,7 +32,7 @@ namespace PluginBuilder
 		static const FName CloudStorageOptionsSectionName;
 		static const FName ConflictBehaviorSubMenuName;
 		static const FName EngineVersionPresetSectionName;
-		static const FName CloudStorageSectionName;
+		static const FName IndividualStepsSectionName;
 		
 	public:
 		// Registers-Unregisters the menu extension.

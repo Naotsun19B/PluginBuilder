@@ -6,6 +6,7 @@
 #include "PluginBuilder/Tasks/BuildPluginTask.h"
 #include "PluginBuilder/Tasks/ZipUpPluginTask.h"
 #include "PluginBuilder/Tasks/UploadToCloudTask.h"
+#include "PluginBuilder/Types/BuildTargets.h"
 #include "PluginBuilder/Utilities/PluginBuilderPackagingSettings.h"
 #include "PluginBuilder/CloudStorages/CloudStorageManager.h"
 #include "PluginBuilder/CloudStorages/ICloudStorageProvider.h"
@@ -80,6 +81,53 @@ namespace PluginBuilder
 		Instance->Initialize();
 
 		return true;
+	}
+
+	bool FPluginPackager::StartBuildOnlyTask()
+	{
+		FPackagePluginParams Params;
+		if (!FPackagePluginParams::MakeDefault(Params))
+		{
+			UE_LOG(LogPluginBuilder, Warning, TEXT("No plugin or engine version to build for was specified."));
+			return false;
+		}
+		Params.ZipUpPluginParams.Reset();
+		Params.CloudStorageParams.Reset();
+		return StartPackagePluginTask(Params);
+	}
+
+	bool FPluginPackager::StartZipOnlyTask()
+	{
+		const auto& BuildConfigurationSettings = GetSettings<UPluginBuilderPackagingSettings>();
+		if (!BuildConfigurationSettings.IsReadyToStartPackagePluginTask())
+		{
+			UE_LOG(LogPluginBuilder, Warning, TEXT("No plugin or engine version to build for was specified."));
+			return false;
+		}
+
+		FPackagePluginParams Params;
+		if (!FPackagePluginParams::MakeDefault(Params))
+		{
+			return false;
+		}
+		Params.BuildPluginParams.Reset();
+		Params.CloudStorageParams.Reset();
+
+		if (!Params.ZipUpPluginParams.IsSet())
+		{
+			// bZipUp was disabled in settings; populate zip params directly from current settings.
+			const FBuildTargets::FBuildTarget& BuildTarget = BuildConfigurationSettings.SelectedBuildTarget.GetValue();
+			FZipUpPluginParams ZipParams;
+			ZipParams.bCanPluginContainContent = BuildTarget.CanPluginContainContent();
+			ZipParams.bOutputAllZipFilesToSingleFolder = BuildConfigurationSettings.bOutputAllZipFilesToSingleFolder;
+			ZipParams.bKeepBinariesFolder = BuildConfigurationSettings.bKeepBinariesFolder;
+			ZipParams.bKeepUPluginProperties = BuildConfigurationSettings.bKeepUPluginProperties;
+			ZipParams.bAppendEngineVersionToZipFileName = BuildConfigurationSettings.bAppendEngineVersionToZipFileName;
+			ZipParams.CompressionLevel = BuildConfigurationSettings.CompressionLevel;
+			Params.ZipUpPluginParams = ZipParams;
+		}
+
+		return StartPackagePluginTask(Params);
 	}
 
 	bool FPluginPackager::StartUploadOnlyTask(

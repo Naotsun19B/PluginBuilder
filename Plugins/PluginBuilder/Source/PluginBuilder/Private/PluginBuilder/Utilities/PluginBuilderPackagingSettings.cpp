@@ -4,16 +4,6 @@
 #include "PluginBuilder/Types/HostPlatforms.h"
 #include "PluginBuilder/Types/TargetPlatforms.h"
 
-const TCHAR* LexToString(EOneDriveConflictBehavior Value)
-{
-	switch (Value)
-	{
-	case EOneDriveConflictBehavior::Rename: return TEXT("rename");
-	case EOneDriveConflictBehavior::Fail:   return TEXT("fail");
-	default:                                return TEXT("replace");
-	}
-}
-
 UPluginBuilderPackagingSettings::UPluginBuilderPackagingSettings()
 	: bNoHostPlatform(false)
 	, bRocket(true)

@@ -23,6 +23,12 @@ namespace PluginBuilder
 		// Returns whether the package plugin task has started.
 		static bool StartPackagePluginTask(const TOptional<FPackagePluginParams>& InParams = {});
 
+		// Creates and starts a task that runs only the build step (no zip, no upload).
+		static bool StartBuildOnlyTask();
+
+		// Creates and starts a task that runs only the zip step against existing build output (no build, no upload).
+		static bool StartZipOnlyTask();
+
 		// Creates and starts a standalone upload task for existing zip files.
 		// InZipFilePaths: absolute paths to the zip files to upload.
 		// InPackagedPluginsPath: the PackagedPlugins root used to compute relative remote paths.

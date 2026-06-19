@@ -118,6 +118,69 @@ namespace PluginBuilder
 		Request->ProcessRequest();
 	}
 
+	void FOneDriveClient::FindItem(
+		const FString& RemoteFilePath,
+		TFunction<void(bool bFound, const FString& ItemId)> OnComplete
+	)
+	{
+		RefreshTokenIfNeeded(
+			[this, RemoteFilePath, OnComplete](bool bTokenOk)
+			{
+				if (!bTokenOk)
+				{
+					OnComplete(false, FString());
+					return;
+				}
+
+				const FString AccessToken = GetSettings<UOneDriveSettings>().GetAccessToken();
+				const FString EncodedPath = FPlatformHttp::UrlEncode(RemoteFilePath).Replace(TEXT("%2F"), TEXT("/"));
+				const FString ApiUrl = FString::Printf(
+					TEXT("https://graph.microsoft.com/v1.0/me/drive/root:/%s"),
+					*EncodedPath
+				);
+
+				const TSharedRef<IHttpRequest, ESPMode::ThreadSafe> Request = FHttpModule::Get().CreateRequest();
+				Request->SetURL(ApiUrl);
+				Request->SetVerb(TEXT("GET"));
+				Request->SetHeader(TEXT("Authorization"), FString::Printf(TEXT("Bearer %s"), *AccessToken));
+				Request->OnProcessRequestComplete().BindLambda(
+					[OnComplete](FHttpRequestPtr /* Request */, FHttpResponsePtr Response, bool bConnected)
+					{
+						if (!bConnected || !Response.IsValid())
+						{
+							OnComplete(false, FString());
+							return;
+						}
+
+						const int32 Code = Response->GetResponseCode();
+						if (Code == 404)
+						{
+							OnComplete(false, FString());
+							return;
+						}
+
+						if (Code != 200)
+						{
+							UE_LOG(LogPluginBuilder, Warning, TEXT("OneDrive: FindItem returned unexpected code %d."), Code);
+							OnComplete(false, FString());
+							return;
+						}
+
+						TSharedPtr<FJsonObject> Json;
+						const TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Response->GetContentAsString());
+						FString ItemId;
+						if (FJsonSerializer::Deserialize(Reader, Json) && Json.IsValid())
+						{
+							Json->TryGetStringField(TEXT("id"), ItemId);
+						}
+						OnComplete(!ItemId.IsEmpty(), ItemId);
+					}
+				);
+				Request->ProcessRequest();
+			}
+		);
+	}
+
 	void FOneDriveClient::UploadFile(
 		const FString& LocalFilePath,
 		const FString& RemoteFilePath,

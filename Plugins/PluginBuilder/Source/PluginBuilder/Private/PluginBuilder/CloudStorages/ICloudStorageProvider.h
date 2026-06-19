@@ -40,6 +40,13 @@ namespace PluginBuilder
 			TFunction<void(float Progress)> OnProgress
 		) = 0;
 
+		// Looks up an existing item by its remote path without uploading.
+		// Calls OnComplete(true, ItemId) if the file exists, or OnComplete(false, FString()) if it does not.
+		virtual void FindItem(
+			const FString& RemoteFilePath,
+			TFunction<void(bool bFound, const FString& ItemId)> OnComplete
+		) = 0;
+
 		// Creates a shareable URL for an already-uploaded item.
 		// OnComplete is called with (bSuccess, ShareUrl).
 		virtual void GetShareUrl(

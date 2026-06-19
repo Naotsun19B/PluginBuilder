@@ -19,6 +19,10 @@ namespace PluginBuilder
 		virtual FString GetRemoteBaseFolderPath() const override;
 		virtual bool IsAuthenticated() const override;
 		virtual void RefreshTokenIfNeeded(TFunction<void(bool bSuccess)> OnComplete) override;
+		virtual void FindItem(
+			const FString& RemoteFilePath,
+			TFunction<void(bool bFound, const FString& ItemId)> OnComplete
+		) override;
 		virtual void UploadFile(
 			const FString& LocalFilePath,
 			const FString& RemoteFilePath,

@@ -48,8 +48,11 @@ namespace PluginBuilder
 		// End of IPluginBuilderTask interface.
 
 	private:
-		// Starts uploading the next pending file.
+		// Starts processing the next pending file (upload or find-existing for Ignore behavior).
 		void ProcessNextFile();
+
+		// Uploads a file and optionally retrieves a share URL. Called by ProcessNextFile.
+		void UploadFileNow(const FString& LocalPath, const FString& RemotePath);
 
 		// Finishes processing: logs all results and optionally writes share URLs to disk.
 		void FinalizeResults();
