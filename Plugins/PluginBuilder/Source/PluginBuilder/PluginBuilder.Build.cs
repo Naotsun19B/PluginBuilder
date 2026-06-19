@@ -40,7 +40,6 @@ public class PluginBuilder : ModuleRules
 				"Json",
 				"JsonUtilities",
 				"Sockets",
-				"Networking",
 			}
 		);
 

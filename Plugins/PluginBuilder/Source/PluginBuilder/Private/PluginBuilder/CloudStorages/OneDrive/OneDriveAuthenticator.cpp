@@ -16,7 +16,6 @@
 #include "Sockets.h"
 #include "SocketSubsystem.h"
 #include "IPAddress.h"
-#include "Networking.h"
 
 namespace PluginBuilder
 {
@@ -255,9 +254,9 @@ namespace PluginBuilder
 				FetchUserDisplayName(
 					AccessToken, [AccessToken, RefreshToken, ExpiryTime, InOnComplete](const FString& DisplayName)
 					{
-						const UOneDriveSettings& Settings = GetSettings<UOneDriveSettings>();
-						const_cast<UOneDriveSettings&>(Settings).StoreTokens(AccessToken, RefreshToken, ExpiryTime, DisplayName);
-						const_cast<UOneDriveSettings&>(Settings).SaveConfig();
+						auto& Settings = const_cast<UOneDriveSettings&>(GetSettings<UOneDriveSettings>());
+						Settings.StoreTokens(AccessToken, RefreshToken, ExpiryTime, DisplayName);
+						Settings.SaveConfig();
 						InOnComplete(true);
 					}
 				);
