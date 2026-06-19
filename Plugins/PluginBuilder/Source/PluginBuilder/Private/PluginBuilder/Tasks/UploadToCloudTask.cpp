@@ -320,7 +320,15 @@ namespace PluginBuilder
 		const FString NormalizedLocal = FPaths::ConvertRelativePathToFull(LocalZipFilePath);
 		if (NormalizedLocal.StartsWith(NormalizedBase))
 		{
-			RelativePath = NormalizedLocal.Mid(NormalizedBase.Len()).TrimChar(TEXT('/'));
+			RelativePath = NormalizedLocal.Mid(NormalizedBase.Len());
+			while (!RelativePath.IsEmpty() && RelativePath[0] == TEXT('/'))
+			{
+				RelativePath = RelativePath.Mid(1);
+			}
+			while (!RelativePath.IsEmpty() && RelativePath[RelativePath.Len() - 1] == TEXT('/'))
+			{
+				RelativePath = RelativePath.LeftChop(1);
+			}
 		}
 
 		// Build remote path: [BaseFolderPath/]PluginName/RelativePath

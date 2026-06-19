@@ -255,7 +255,7 @@ namespace PluginBuilder
 				FetchUserDisplayName(
 					AccessToken, [AccessToken, RefreshToken, ExpiryTime, InOnComplete](const FString& DisplayName)
 					{
-						auto& Settings = GetSettings<UOneDriveSettings>();
+						const UOneDriveSettings& Settings = GetSettings<UOneDriveSettings>();
 						const_cast<UOneDriveSettings&>(Settings).StoreTokens(AccessToken, RefreshToken, ExpiryTime, DisplayName);
 						const_cast<UOneDriveSettings&>(Settings).SaveConfig();
 						InOnComplete(true);
