@@ -320,13 +320,45 @@ namespace PluginBuilder
 
 		TotalTaskCount = Tasks.Num();
 
-		const FString FirstTaskLabel = ((Tasks.Num() > 0) ? Tasks[0]->GetTaskLabel() : FString());
+		int32 BuildCount = 0;
+		int32 ZipCount = 0;
+		int32 UploadCount = 0;
+		for (const TSharedRef<IPluginBuilderTask>& Task : Tasks)
+		{
+			if (Task->IsBuildTask())
+			{
+				BuildCount++;
+			}
+			else if (Task->IsZipTask())
+			{
+				ZipCount++;
+			}
+			else if (Task->IsCloudUploadTask())
+			{
+				UploadCount++;
+			}
+		}
+		TArray<FString> TaskCountParts;
+		if (BuildCount > 0)
+		{
+			TaskCountParts.Add(FString::Printf(TEXT("%d %s"), BuildCount, (BuildCount == 1) ? TEXT("build") : TEXT("builds")));
+		}
+		if (ZipCount > 0)
+		{
+			TaskCountParts.Add(FString::Printf(TEXT("%d %s"), ZipCount, (ZipCount == 1) ? TEXT("zip") : TEXT("zips")));
+		}
+		if (UploadCount > 0)
+		{
+			TaskCountParts.Add(FString::Printf(TEXT("%d %s"), UploadCount, (UploadCount == 1) ? TEXT("upload") : TEXT("uploads")));
+		}
+		const FString TaskCountText = FString::Join(TaskCountParts, TEXT(", "));
+
 		PendingNotificationHandle = FEditorNotification::Pending(
 			FText::Format(
-				LOCTEXT("NotificationTextFormat", "Packaging... 0%\r\n{0} ({1})\r\n{2}"),
+				LOCTEXT("NotificationTextFormat", "Preparing...\r\n{0} ({1})\r\n{2}"),
 				FText::FromString(Params.UATBatchFileParams.PluginFriendlyName),
 				FText::FromString(Params.UATBatchFileParams.PluginVersionName),
-				FText::FromString(FirstTaskLabel)
+				FText::FromString(TaskCountText)
 			),
 			0.f,
 			TArray<FEditorNotificationInteraction>{
@@ -432,18 +464,23 @@ namespace PluginBuilder
 		);
 		const int32 ProgressPercent = FMath::RoundToInt(OverallProgress * 100.f);
 
+		FText Message;
 		if (bIsUploadOnlyMode || CurrentTask->IsCloudUploadTask())
 		{
-			return FText::Format(
-				LOCTEXT("UploadProgressTextFormat", "Uploading to Cloud Storage... {0}%\r\n{1}\r\n{2}"),
-				FText::AsNumber(ProgressPercent),
-				FText::FromString(Params.UATBatchFileParams.PluginFriendlyName),
-				FText::FromString(CurrentTask->GetTaskLabel())
-			);
+			Message = LOCTEXT("UploadProgressText", "Uploading to Cloud Storage...");
 		}
-
+		else if (CurrentTask->IsZipTask())
+		{
+			Message = LOCTEXT("ZipProgressText", "Zipping Up...");
+		}
+		else
+		{
+			Message = LOCTEXT("BuildProgressText", "Building...");
+		}
+		
 		return FText::Format(
-			LOCTEXT("PackagingProgressTextFormat", "Packaging... {0}%\r\n{1} ({2})\r\n{3}"),
+			LOCTEXT("BuildProgressTextFormat", "{0} {1}%\r\n{2} ({3})\r\n{4}"),
+			Message,
 			FText::AsNumber(ProgressPercent),
 			FText::FromString(Params.UATBatchFileParams.PluginFriendlyName),
 			FText::FromString(Params.UATBatchFileParams.PluginVersionName),

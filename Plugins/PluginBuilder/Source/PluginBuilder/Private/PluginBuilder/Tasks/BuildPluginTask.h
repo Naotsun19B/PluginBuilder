@@ -20,6 +20,10 @@ namespace PluginBuilder
 			const FBuildPluginParams& InBuildPluginParams
 		);
 
+		// IPluginBuilderTask interface.
+		virtual bool IsBuildTask() const override { return true; }
+		// End of IPluginBuilderTask interface.
+
 	protected:
 		// IUATBatchFileTask interface.
 		virtual void Initialize() override;

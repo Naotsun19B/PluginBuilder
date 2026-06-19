@@ -52,6 +52,12 @@ namespace PluginBuilder
 		// Returns a short progress detail string (e.g. "[35/200]"), or empty if unavailable.
 		virtual FString GetProgressText() const { return FString(); }
 
+		// Returns true when this task is a plugin build task.
+		virtual bool IsBuildTask() const { return false; }
+
+		// Returns true when this task is a zip-up task.
+		virtual bool IsZipTask() const { return false; }
+
 		// Returns true when this task is a cloud storage upload task.
 		virtual bool IsCloudUploadTask() const { return false; }
 	};

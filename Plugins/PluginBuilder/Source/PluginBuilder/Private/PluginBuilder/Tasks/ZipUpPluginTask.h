@@ -21,6 +21,10 @@ namespace PluginBuilder
 			const TSharedPtr<IUATBatchFileTask>& DependentTask
 		);
 		
+		// IPluginBuilderTask interface.
+		virtual bool IsZipTask() const override { return true; }
+		// End of IPluginBuilderTask interface.
+
 		// IUATBatchFileTask interface.
 		virtual void Initialize() override;
 		virtual void Terminate() override;
