@@ -45,5 +45,14 @@ namespace PluginBuilder
 
 		// Requests cancellation of the task.
 		virtual void RequestCancel() {}
+
+		// Returns task progress in [0, 1], or a negative value if unknown.
+		virtual float GetProgress() const { return -1.f; }
+
+		// Returns a short progress detail string (e.g. "[35/200]"), or empty if unavailable.
+		virtual FString GetProgressText() const { return FString(); }
+
+		// Returns true when this task is a cloud storage upload task.
+		virtual bool IsCloudUploadTask() const { return false; }
 	};
 }

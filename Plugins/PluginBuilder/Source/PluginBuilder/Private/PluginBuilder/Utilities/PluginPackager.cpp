@@ -107,6 +107,7 @@ namespace PluginBuilder
 			MakeShared<FUploadToCloudTask>(InZipFilePaths, InPackagedPluginsPath, InPluginName, bInGetShareUrls)
 		);
 		Instance->TotalTaskCount = 1;
+		Instance->bIsUploadOnlyMode = true;
 
 		PendingNotificationHandle = FEditorNotification::Pending(
 			FText::Format(
@@ -139,6 +140,12 @@ namespace PluginBuilder
 		return Instance.IsValid();
 	}
 
+	void FPluginPackager::CleanupStatics()
+	{
+		Instance.Reset();
+		PendingNotificationHandle = FEditorNotificationHandle{};
+	}
+
 	void FPluginPackager::Tick(float DeltaTime)
 	{
 		check(Tasks.IsValidIndex(0));
@@ -151,6 +158,16 @@ namespace PluginBuilder
 		if (Task->GetState() == IPluginBuilderTask::EState::Processing)
 		{
 			Task->Tick(DeltaTime);
+
+			if (Task->GetState() == IPluginBuilderTask::EState::Processing)
+			{
+				NotificationUpdateTimer += DeltaTime;
+				if (PendingNotificationHandle.IsValid() && (NotificationUpdateTimer >= NotificationUpdateInterval))
+				{
+					NotificationUpdateTimer = 0.f;
+					PendingNotificationHandle.SetText(BuildNotificationText(Task));
+				}
+			}
 		}
 		if (Task->GetState() == IPluginBuilderTask::EState::PreTerminate)
 		{
@@ -173,19 +190,8 @@ namespace PluginBuilder
 
 				if ((Tasks.Num() > 0) && PendingNotificationHandle.IsValid())
 				{
-					const int32 CompletedTaskCount = (TotalTaskCount - Tasks.Num());
-					const int32 ProgressPercent = FMath::RoundToInt(
-						static_cast<float>(CompletedTaskCount) / static_cast<float>(TotalTaskCount) * 100.f
-					);
-					PendingNotificationHandle.SetText(
-						FText::Format(
-							LOCTEXT("NotificationProgressTextFormat", "Packaging... {0}%\r\n{1} ({2})\r\n{3}"),
-							FText::AsNumber(ProgressPercent),
-							FText::FromString(Params.UATBatchFileParams.PluginFriendlyName),
-							FText::FromString(Params.UATBatchFileParams.PluginVersionName),
-							FText::FromString(Tasks[0]->GetTaskLabel())
-						)
-					);
+					NotificationUpdateTimer = 0.f;
+					PendingNotificationHandle.SetText(BuildNotificationText(Tasks[0]));
 				}
 			}
 		}
@@ -365,6 +371,36 @@ namespace PluginBuilder
 				LOCTEXT("CancelPackagingNotificationText", "Waiting for packaging cancellation...")
 			);
 		}
+	}
+
+	FText FPluginPackager::BuildNotificationText(const TSharedRef<IPluginBuilderTask>& CurrentTask) const
+	{
+		const int32 CompletedTaskCount = (TotalTaskCount - Tasks.Num());
+		const float TaskProgress = CurrentTask->GetProgress();
+		const float OverallProgress = (
+			(TaskProgress >= 0.f) ? 
+			((static_cast<float>(CompletedTaskCount) + TaskProgress) / static_cast<float>(TotalTaskCount)) : 
+			(static_cast<float>(CompletedTaskCount) / static_cast<float>(TotalTaskCount))
+		);
+		const int32 ProgressPercent = FMath::RoundToInt(OverallProgress * 100.f);
+
+		if (bIsUploadOnlyMode || CurrentTask->IsCloudUploadTask())
+		{
+			return FText::Format(
+				LOCTEXT("UploadProgressTextFormat", "Uploading to Cloud Storage... {0}%\r\n{1}\r\n{2}"),
+				FText::AsNumber(ProgressPercent),
+				FText::FromString(Params.UATBatchFileParams.PluginFriendlyName),
+				FText::FromString(CurrentTask->GetTaskLabel())
+			);
+		}
+
+		return FText::Format(
+			LOCTEXT("PackagingProgressTextFormat", "Packaging... {0}%\r\n{1} ({2})\r\n{3}"),
+			FText::AsNumber(ProgressPercent),
+			FText::FromString(Params.UATBatchFileParams.PluginFriendlyName),
+			FText::FromString(Params.UATBatchFileParams.PluginVersionName),
+			FText::FromString(CurrentTask->GetTaskLabel())
+		);
 	}
 
 	TUniquePtr<FPluginPackager> FPluginPackager::Instance;

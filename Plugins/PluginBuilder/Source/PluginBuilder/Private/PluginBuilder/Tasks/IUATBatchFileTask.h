@@ -33,6 +33,8 @@ namespace PluginBuilder
 		virtual void Tick(float DeltaTime) override;
 		virtual void Terminate() override;
 		virtual void RequestCancel() override;
+		virtual float GetProgress() const override;
+		virtual FString GetProgressText() const override;
 		// End of IPluginBuilderTask interface.
 
 		// Returns the engine version for this task.
@@ -79,5 +81,11 @@ namespace PluginBuilder
 
 		// Whether the dependent task completed successfully.
 		TOptional<bool> HasDependentTaskSucceeded;
+
+		// Total number of compile actions reported by UBT. 0 means unknown.
+		int32 TotalActions;
+
+		// Number of compile actions completed so far.
+		int32 CompletedActions;
 	};
 }

@@ -58,6 +58,9 @@ namespace PluginBuilder
 
 	void FPluginBuilderModule::ShutdownModule()
 	{
+		// Releases static state that holds Slate references before Slate is torn down.
+		FPluginPackager::CleanupStatics();
+
 		// Unregisters property type customizations.
 		FOneDriveAuthenticationActionsCustomization::Unregister();
 

@@ -42,6 +42,9 @@ namespace PluginBuilder
 		virtual void Initialize() override;
 		virtual void Tick(float DeltaTime) override;
 		virtual void Terminate() override;
+		virtual float GetProgress() const override;
+		virtual FString GetProgressText() const override;
+		virtual bool IsCloudUploadTask() const override;
 		// End of IPluginBuilderTask interface.
 
 	private:
@@ -84,6 +87,9 @@ namespace PluginBuilder
 
 		// Index of the file currently being processed.
 		int32 CurrentFileIndex;
+
+		// Upload byte progress for the current file, in [0, 1].
+		float CurrentFileProgress;
 
 		// Tracks local paths of files that were uploaded successfully.
 		TSet<FString> SuccessfulUploads;

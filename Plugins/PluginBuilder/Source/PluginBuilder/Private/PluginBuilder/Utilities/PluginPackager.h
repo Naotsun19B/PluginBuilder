@@ -37,6 +37,9 @@ namespace PluginBuilder
 
 		// Returns whether package processing is being done.
 		static bool IsPackagePluginTaskRunning();
+
+		// Releases all static state. Must be called before Slate is torn down (e.g., from ShutdownModule).
+		static void CleanupStatics();
 		
 		// FTickableObjectBase interface.
 		virtual void Tick(float DeltaTime) override;
@@ -58,6 +61,9 @@ namespace PluginBuilder
 
 		// Called when the editor notification cancel button is pressed.
 		void OnCancelButtonPressed();
+
+		// Builds a notification text string reflecting the given task's fine-grained progress.
+		FText BuildNotificationText(const TSharedRef<IPluginBuilderTask>& CurrentTask) const;
 		
 	private:
 		// The running task that packages a plugin.
@@ -83,5 +89,14 @@ namespace PluginBuilder
 
 		// Whether any error occurred during the packaging process.
 		bool bHasAnyError = false;
+
+		// Whether this instance was started in upload-only mode (no build/zip tasks).
+		bool bIsUploadOnlyMode = false;
+
+		// Elapsed time since the last in-progress notification update.
+		float NotificationUpdateTimer = 0.f;
+
+		// How often (in seconds) to refresh the notification text while a task is processing.
+		static constexpr float NotificationUpdateInterval = 0.25f;
 	};
 }

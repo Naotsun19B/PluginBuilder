@@ -26,6 +26,7 @@ namespace PluginBuilder
 		, bHasAnyError(false)
 		, bHttpRequestPending(false)
 		, CurrentFileIndex(0)
+		, CurrentFileProgress(0.f)
 	{
 	}
 
@@ -43,6 +44,7 @@ namespace PluginBuilder
 		, bHasAnyError(false)
 		, bHttpRequestPending(false)
 		, CurrentFileIndex(0)
+		, CurrentFileProgress(0.f)
 	{
 	}
 
@@ -126,6 +128,30 @@ namespace PluginBuilder
 		State = EState::Terminated;
 	}
 
+	float FUploadToCloudTask::GetProgress() const
+	{
+		if (ZipFilePaths.IsEmpty())
+		{
+			return -1.f;
+		}
+		const float FileProgress = (static_cast<float>(CurrentFileIndex) + FMath::Clamp(CurrentFileProgress, 0.f, 1.f)) / static_cast<float>(ZipFilePaths.Num());
+		return FMath::Clamp(FileProgress, 0.f, 1.f);
+	}
+
+	FString FUploadToCloudTask::GetProgressText() const
+	{
+		if (ZipFilePaths.IsEmpty())
+		{
+			return FString();
+		}
+		return FString::Printf(TEXT("[%d/%d]"), FMath::Min(CurrentFileIndex + 1, ZipFilePaths.Num()), ZipFilePaths.Num());
+	}
+
+	bool FUploadToCloudTask::IsCloudUploadTask() const
+	{
+		return true;
+	}
+
 	void FUploadToCloudTask::ProcessNextFile()
 	{
 		if (CurrentFileIndex >= ZipFilePaths.Num())
@@ -133,6 +159,8 @@ namespace PluginBuilder
 			State = EState::PreTerminate;
 			return;
 		}
+
+		CurrentFileProgress = 0.f;
 
 		const FString& LocalPath = ZipFilePaths[CurrentFileIndex];
 		const FString RemotePath = BuildRemotePath(LocalPath);
@@ -184,8 +212,9 @@ namespace PluginBuilder
 					}
 				);
 			},
-			[](float /* Progress */)
+			[this](float Progress)
 			{
+				CurrentFileProgress = Progress;
 			}
 		);
 	}
