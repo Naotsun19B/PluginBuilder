@@ -210,7 +210,7 @@ namespace PluginBuilder
 			if (Task->GetState() == IPluginBuilderTask::EState::Processing)
 			{
 				NotificationUpdateTimer += DeltaTime;
-				if (PendingNotificationHandle.IsValid() && (NotificationUpdateTimer >= NotificationUpdateInterval))
+				if (!bWasCanceled && PendingNotificationHandle.IsValid() && (NotificationUpdateTimer >= NotificationUpdateInterval))
 				{
 					NotificationUpdateTimer = 0.f;
 					PendingNotificationHandle.SetText(BuildNotificationText(Task));
@@ -320,36 +320,33 @@ namespace PluginBuilder
 
 		TotalTaskCount = Tasks.Num();
 
-		int32 BuildCount = 0;
-		int32 ZipCount = 0;
-		int32 UploadCount = 0;
 		for (const TSharedRef<IPluginBuilderTask>& Task : Tasks)
 		{
 			if (Task->IsBuildTask())
 			{
-				BuildCount++;
+				TotalBuildCount++;
 			}
 			else if (Task->IsZipTask())
 			{
-				ZipCount++;
+				TotalZipCount++;
 			}
 			else if (Task->IsCloudUploadTask())
 			{
-				UploadCount++;
+				TotalUploadCount++;
 			}
 		}
 		TArray<FString> TaskCountParts;
-		if (BuildCount > 0)
+		if (TotalBuildCount > 0)
 		{
-			TaskCountParts.Add(FString::Printf(TEXT("%d %s"), BuildCount, (BuildCount == 1) ? TEXT("build") : TEXT("builds")));
+			TaskCountParts.Add(FString::Printf(TEXT("%d %s"), TotalBuildCount, (TotalBuildCount == 1) ? TEXT("Build") : TEXT("Builds")));
 		}
-		if (ZipCount > 0)
+		if (TotalZipCount > 0)
 		{
-			TaskCountParts.Add(FString::Printf(TEXT("%d %s"), ZipCount, (ZipCount == 1) ? TEXT("zip") : TEXT("zips")));
+			TaskCountParts.Add(FString::Printf(TEXT("%d %s"), TotalZipCount, (TotalZipCount == 1) ? TEXT("Zip") : TEXT("Zips")));
 		}
-		if (UploadCount > 0)
+		if (TotalUploadCount > 0)
 		{
-			TaskCountParts.Add(FString::Printf(TEXT("%d %s"), UploadCount, (UploadCount == 1) ? TEXT("upload") : TEXT("uploads")));
+			TaskCountParts.Add(FString::Printf(TEXT("%d %s"), TotalUploadCount, (TotalUploadCount == 1) ? TEXT("Upload") : TEXT("Uploads")));
 		}
 		const FString TaskCountText = FString::Join(TaskCountParts, TEXT(", "));
 
@@ -458,8 +455,8 @@ namespace PluginBuilder
 		const int32 CompletedTaskCount = (TotalTaskCount - Tasks.Num());
 		const float TaskProgress = CurrentTask->GetProgress();
 		const float OverallProgress = (
-			(TaskProgress >= 0.f) ? 
-			((static_cast<float>(CompletedTaskCount) + TaskProgress) / static_cast<float>(TotalTaskCount)) : 
+			(TaskProgress >= 0.f) ?
+			((static_cast<float>(CompletedTaskCount) + TaskProgress) / static_cast<float>(TotalTaskCount)) :
 			(static_cast<float>(CompletedTaskCount) / static_cast<float>(TotalTaskCount))
 		);
 		const int32 ProgressPercent = FMath::RoundToInt(OverallProgress * 100.f);
@@ -477,14 +474,48 @@ namespace PluginBuilder
 		{
 			Message = LOCTEXT("BuildProgressText", "Building...");
 		}
-		
+
+		int32 RemainingBuildCount = 0;
+		int32 RemainingZipCount = 0;
+		int32 RemainingUploadCount = 0;
+		for (const TSharedRef<IPluginBuilderTask>& Task : Tasks)
+		{
+			if (Task->IsBuildTask())
+			{
+				RemainingBuildCount++;
+			}
+			else if (Task->IsZipTask())
+			{
+				RemainingZipCount++;
+			}
+			else if (Task->IsCloudUploadTask())
+			{
+				RemainingUploadCount++;
+			}
+		}
+		TArray<FString> ProgressParts;
+		if (TotalBuildCount > 0)
+		{
+			ProgressParts.Add(FString::Printf(TEXT("Build %d/%d"), (TotalBuildCount - RemainingBuildCount), TotalBuildCount));
+		}
+		if (TotalZipCount > 0)
+		{
+			ProgressParts.Add(FString::Printf(TEXT("Zip %d/%d"), (TotalZipCount - RemainingZipCount), TotalZipCount));
+		}
+		if (TotalUploadCount > 0)
+		{
+			ProgressParts.Add(FString::Printf(TEXT("Upload %d/%d"), (TotalUploadCount - RemainingUploadCount), TotalUploadCount));
+		}
+		const FString ProgressText = FString::Join(ProgressParts, TEXT(", "));
+
 		return FText::Format(
-			LOCTEXT("BuildProgressTextFormat", "{0} {1}%\r\n{2} ({3})\r\n{4}"),
+			LOCTEXT("BuildProgressTextFormat", "{0} {1}%\r\n{2} ({3})\r\n{4}\r\n{5}"),
 			Message,
 			FText::AsNumber(ProgressPercent),
 			FText::FromString(Params.UATBatchFileParams.PluginFriendlyName),
 			FText::FromString(Params.UATBatchFileParams.PluginVersionName),
-			FText::FromString(CurrentTask->GetTaskLabel())
+			FText::FromString(CurrentTask->GetTaskLabel()),
+			FText::FromString(ProgressText)
 		);
 	}
 

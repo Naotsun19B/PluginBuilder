@@ -87,8 +87,11 @@ namespace PluginBuilder
 		// Zip tasks kept alive so FUploadToCloudTask can read their output paths.
 		TArray<TSharedPtr<FZipUpPluginTask>> ZipTaskRefs;
 		
-		// The total number of tasks scheduled when packaging begins.
+		// The total number of tasks scheduled when packaging begins, and per-type totals.
 		int32 TotalTaskCount = 0;
+		int32 TotalBuildCount = 0;
+		int32 TotalZipCount = 0;
+		int32 TotalUploadCount = 0;
 
 		// Whether the task was canceled.
 		bool bWasCanceled = false;
